@@ -1,0 +1,190 @@
+<section id="laws" class="py-20 md:py-28 border-t border-[var(--color-border-subtle)] relative">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 text-xs font-semibold text-indigo-400">
+        <span>Atomik Alışkanlıklar Motoru</span>
+        <span>•</span>
+        <span>4 Davranış Değişimi Yasası</span>
+      </div>
+
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
+        Alışkanlık Döngüsünü <br />
+        <span class="bg-gradient-to-r from-violet-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">
+          Dijital Sistemle Otomatize Edin
+        </span>
+      </h2>
+
+      <p class="text-base sm:text-lg text-[var(--color-text-muted)]">
+        James Clear'ın 4 yasası, platformumuzun her pikselinde ve API servisinde yaşar. Bir davranışı oturtmanın bilimsel adımlarını keşfedin.
+      </p>
+    </div>
+
+    <!-- 4 Laws Horizontal / Tabs Stepper -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-12">
+      @for (law of laws; track law.id) {
+        <button
+          type="button"
+          (click)="selectLaw(law.id)"
+          [class.border-indigo-500]="activeLawId() === law.id"
+          [class.bg-[var(--color-bg-card)]]="activeLawId() === law.id"
+          [class.shadow-xl]="activeLawId() === law.id"
+          [class.scale-[1.02]]="activeLawId() === law.id"
+          class="p-4 sm:p-5 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] hover:bg-[var(--color-bg-card)] transition-all cursor-pointer text-left flex flex-col justify-between"
+        >
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-mono font-bold px-2 py-0.5 rounded-md {{ law.colorTheme.badge }}">
+                {{ law.numberText }}
+              </span>
+              <span class="text-xs text-[var(--color-text-muted)] font-mono">0{{ law.id }}/04</span>
+            </div>
+            <h3 class="font-bold text-sm sm:text-base text-[var(--color-text-main)] tracking-tight">
+              {{ law.title.split(' ')[0] }} {{ law.title.split(' ')[1] }}
+            </h3>
+          </div>
+
+          <div class="mt-3 text-[11px] text-[var(--color-text-muted)] flex items-center gap-1 font-medium">
+            <span>Ayrıntıyı İncele</span>
+            <span>➔</span>
+          </div>
+        </button>
+      }
+    </div>
+
+    <!-- Active Law Detail Showcase Panel -->
+    <div class="rounded-3xl border {{ activeLaw().colorTheme.border }} bg-gradient-to-br {{ activeLaw().colorTheme.gradient }} bg-[var(--color-bg-card)] p-6 sm:p-8 lg:p-12 shadow-2xl relative transition-all duration-300">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <!-- Left Text Column -->
+        <div class="lg:col-span-6 space-y-6">
+          <div class="space-y-2">
+            <span class="text-xs font-mono font-bold tracking-wider uppercase text-indigo-400">
+              {{ activeLaw().numberText }} — {{ activeLaw().subTitle }}
+            </span>
+            <h3 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--color-text-main)]">
+              {{ activeLaw().title }}
+            </h3>
+            <p class="text-sm sm:text-base text-[var(--color-text-muted)] leading-relaxed">
+              {{ activeLaw().description }}
+            </p>
+          </div>
+
+          <!-- Wisdom Quote Callout -->
+          <div class="p-4 rounded-2xl bg-[var(--color-bg-subtle)]/80 border border-[var(--color-border-subtle)] italic text-xs sm:text-sm text-[var(--color-text-muted)]">
+            {{ activeLaw().quote }}
+          </div>
+
+          <!-- Feature Bullets in the Software -->
+          <div class="space-y-2.5">
+            <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-main)]">
+              Sistemimizde Nasıl Çalışır?
+            </span>
+            <ul class="space-y-2 text-xs sm:text-sm text-[var(--color-text-muted)]">
+              @for (detail of activeLaw().digitalFeature.details; track detail) {
+                <li class="flex items-start gap-2.5">
+                  <span class="text-emerald-400 mt-0.5">✔</span>
+                  <span>{{ detail }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+
+        <!-- Right Interactive Playground Column -->
+        <div class="lg:col-span-6 space-y-6">
+          <!-- Habit Stacking Demo Card (Alışkanlık Demetleme) -->
+          <div class="p-6 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] shadow-inner space-y-4">
+            <div class="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+                <span>🔗</span> Alışkanlık Demetleme (Habit Stacking Formülü)
+              </span>
+              <span class="text-[10px] font-mono text-[var(--color-text-muted)]">Canlı Örnek</span>
+            </div>
+
+            <div class="space-y-3 text-xs sm:text-sm">
+              <div class="p-3 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] flex items-start gap-3">
+                <span class="text-base">☕</span>
+                <div>
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">1. Mevcut Güçlü Alışkanlık (İşaret)</div>
+                  <div class="font-semibold text-[var(--color-text-main)]">{{ activeLaw().stackingExample.currentHabit }}</div>
+                </div>
+              </div>
+
+              <div class="flex justify-center text-indigo-400">
+                <span>⬇️</span>
+              </div>
+
+              <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-start gap-3">
+                <span class="text-base">🎯</span>
+                <div>
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">2. Yeni Atomik Adım (Tepki)</div>
+                  <div class="font-semibold text-indigo-300">{{ activeLaw().stackingExample.newHabit }}</div>
+                </div>
+              </div>
+
+              <div class="flex justify-center text-emerald-400">
+                <span>⬇️</span>
+              </div>
+
+              <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3">
+                <span class="text-base">🏆</span>
+                <div>
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">3. Anında Ödül (Doyurucu Kıl)</div>
+                  <div class="font-semibold text-emerald-300">{{ activeLaw().stackingExample.immediateReward }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Streak / Don't Break the Chain Widget Demo -->
+          <div class="p-5 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 block">
+                  Zinciri Kırma (Don't Break The Chain)
+                </span>
+                <span class="text-[11px] text-[var(--color-text-muted)]">
+                  Son 14 günün tamamlanma serisi (Hücrelere tıklayarak test edin):
+                </span>
+              </div>
+              <div class="text-right">
+                <span class="text-base font-black font-mono text-emerald-400">{{ completedStreakCount }}/14</span>
+                <span class="text-[10px] block text-[var(--color-text-muted)]">Aktif Seri</span>
+              </div>
+            </div>
+
+            <!-- Streak Grid -->
+            <div class="grid grid-cols-7 gap-2 pt-1">
+              @for (dayDone of streakDays(); track $index) {
+                <button
+                  type="button"
+                  (click)="toggleStreakDay($index)"
+                  [class.bg-emerald-500]="dayDone"
+                  [class.border-emerald-400]="dayDone"
+                  [class.shadow-md]="dayDone"
+                  [class.shadow-emerald-500/20]="dayDone"
+                  [class.bg-[var(--color-bg-card)]]="!dayDone"
+                  [class.border-[var(--color-border-subtle)]]="!dayDone"
+                  class="h-9 rounded-xl border flex items-center justify-center text-xs font-mono font-bold cursor-pointer transition-all hover:scale-105"
+                  [title]="'Gün ' + ($index + 1) + (dayDone ? ': Tamamlandı' : ': Boş')"
+                >
+                  @if (dayDone) {
+                    <span class="text-white">✓</span>
+                  } @else {
+                    <span class="text-[var(--color-text-muted)] text-[10px]">{{ $index + 1 }}</span>
+                  }
+                </button>
+              }
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] text-[var(--color-text-muted)] pt-1">
+              <span>Hafta 1</span>
+              <span class="text-emerald-400 font-semibold">12 Günlük Kesintisiz Seri! 🔥</span>
+              <span>Hafta 2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,123 @@
+<section id="metrics" class="py-20 md:py-28 border-t border-[var(--color-border-subtle)] relative">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 text-xs font-semibold text-indigo-400">
+        <span>Bilgelik & Canlı Metrikler</span>
+        <span>•</span>
+        <span>Wisdom & Traction</span>
+      </div>
+
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
+        Felsefe ile Güçlendirilmiş, <br />
+        <span class="bg-gradient-to-r from-indigo-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent">
+          Veri ile Kanıtlanmış Etki
+        </span>
+      </h2>
+
+      <p class="text-base sm:text-lg text-[var(--color-text-muted)]">
+        Büyük başarılar, doğru zihniyet ve küçük adımların birikimidir. İşte dünya çapında oluşturduğumuz Kaizen etkisi.
+      </p>
+    </div>
+
+    <!-- Live Simulated Metrics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+      @for (metric of liveMetrics; track metric.id) {
+        <div class="p-6 rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-lg hover:border-indigo-500/30 transition-all flex flex-col justify-between group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-2xl p-2.5 rounded-xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)]">
+                {{ metric.icon }}
+              </span>
+              <span class="text-[11px] font-semibold font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                {{ metric.changeRate }}
+              </span>
+            </div>
+
+            <div class="text-3xl font-black font-mono tracking-tight text-[var(--color-text-main)] mb-1">
+              {{ metric.value }}
+            </div>
+
+            <h3 class="text-sm font-bold text-indigo-400 mb-2">
+              {{ metric.label }}
+            </h3>
+          </div>
+
+          <p class="text-xs text-[var(--color-text-muted)] leading-relaxed pt-2 border-t border-[var(--color-border-subtle)]">
+            {{ metric.subtext }}
+          </p>
+        </div>
+      }
+    </div>
+
+    <!-- Typographic Quote Carousel -->
+    <div class="max-w-4xl mx-auto rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-8 sm:p-12 shadow-2xl relative overflow-hidden">
+      <!-- Background Ambient -->
+      <div class="pointer-events-none absolute -bottom-20 -left-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+
+      <div class="relative z-10 flex flex-col justify-between min-h-[220px]">
+        <!-- Quote Tag & Source -->
+        <div class="flex items-center justify-between text-xs mb-6">
+          <span class="font-mono text-indigo-400 font-bold px-2.5 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/20">
+            {{ quotes[activeQuoteIndex()].tag }}
+          </span>
+          <span class="text-[var(--color-text-muted)] font-mono text-[11px]">
+            {{ quotes[activeQuoteIndex()].source }}
+          </span>
+        </div>
+
+        <!-- Quote Body -->
+        <blockquote class="text-xl sm:text-2xl md:text-3xl font-medium tracking-tight text-[var(--color-text-main)] leading-relaxed italic mb-8">
+          “{{ quotes[activeQuoteIndex()].quote }}”
+        </blockquote>
+
+        <!-- Quote Author & Controls -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-[var(--color-border-subtle)]">
+          <div>
+            <div class="font-bold text-base text-[var(--color-text-main)]">
+              {{ quotes[activeQuoteIndex()].author }}
+            </div>
+            <div class="text-xs text-[var(--color-text-muted)]">
+              {{ quotes[activeQuoteIndex()].role }}
+            </div>
+          </div>
+
+          <!-- Carousel Navigation Controls -->
+          <div class="flex items-center gap-3">
+            <div class="flex gap-1.5 mr-2">
+              @for (q of quotes; track q.id; let idx = $index) {
+                <button
+                  type="button"
+                  (click)="goToQuote(idx)"
+                  [class.w-6]="activeQuoteIndex() === idx"
+                  [class.bg-indigo-400]="activeQuoteIndex() === idx"
+                  [class.w-2]="activeQuoteIndex() !== idx"
+                  [class.bg-[var(--color-border-subtle)]]="activeQuoteIndex() !== idx"
+                  class="h-2 rounded-full transition-all cursor-pointer"
+                  [title]="q.author"
+                ></button>
+              }
+            </div>
+
+            <button
+              type="button"
+              (click)="prevQuote()"
+              class="w-9 h-9 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] hover:bg-[var(--color-bg-card)] text-[var(--color-text-main)] flex items-center justify-center cursor-pointer transition-all"
+              title="Önceki Alıntı"
+            >
+              ❮
+            </button>
+            <button
+              type="button"
+              (click)="nextQuote()"
+              class="w-9 h-9 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] hover:bg-[var(--color-bg-card)] text-[var(--color-text-main)] flex items-center justify-center cursor-pointer transition-all"
+              title="Sonraki Alıntı"
+            >
+              ❯
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

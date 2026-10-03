@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular 21 Zoneless, Signals &amp; State Management Standartları | Kurumsal Frontend Standartları</title>
+  <meta name="description" content="Angular 21 Zoneless Change Detection, signal, computed, effect, input/output/model sinyalleri, Resource API (rxResource) ve kurumsal Signal Store mimari standartları.">
+  <style>
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "JetBrains Mono", "Fira Code", Consolas, Menlo, Monaco, monospace;
+      
+      --bg: #0b0f19;
+      --panel: #0f172a;
+      --panel-alt: #162035;
+      --panel-card: #1e293b;
+      --border: #243247;
+      --border-light: #334155;
+      
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --angular-red: #e11d48;
+      --angular-glow: rgba(225, 29, 72, 0.18);
+      --indigo: #6366f1;
+      --teal: #14b8a6;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      
+      --code-bg: #050811;
+      --code-header: #0e1526;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --panel-alt: #f1f5f9;
+      --panel-card: #ffffff;
+      --border: #e2e8f0;
+      --border-light: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --angular-red: #e11d48;
+      --angular-glow: rgba(225, 29, 72, 0.12);
+      --code-bg: #0f172a;
+      --code-header: #1e293b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 15px; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    aside {
+      width: 320px;
+      border-right: 1px solid var(--border);
+      background: var(--panel);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand-box {
+      padding: 1.5rem 1.5rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--teal) 0%, var(--indigo) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 15px rgba(20, 184, 166, 0.2);
+      flex-shrink: 0;
+    }
+
+    .brand-title { font-size: 1.05rem; font-weight: 800; color: var(--text); line-height: 1.2; }
+    .brand-sub { font-size: 0.72rem; color: var(--teal); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    nav.nav-menu { padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
+    .nav-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); padding: 0.75rem 0.75rem 0.25rem; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover { color: var(--text); background: var(--panel-alt); border-left-color: var(--teal); }
+    .nav-item.active { color: #fff; background: rgba(20, 184, 166, 0.12); font-weight: 600; border-left-color: var(--teal); }
+
+    .nav-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--panel-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .nav-item.active .nav-num { background: var(--teal); color: #000; border-color: var(--teal); }
+
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .theme-toggle-btn {
+      background: var(--panel-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.35rem 0.7rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.76rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: var(--transition);
+    }
+
+    main { flex: 1; padding: 3rem 4rem 6rem; max-width: 1280px; overflow-x: hidden; }
+
+    .hero { margin-bottom: 3.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--border); }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--teal);
+      background: rgba(20, 184, 166, 0.1);
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 {
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 70%, var(--teal) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] .hero h1 {
+      background: linear-gradient(135deg, #0f172a 30%, #334155 70%, var(--teal) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p { font-size: 1.05rem; color: var(--text-muted); max-width: 860px; line-height: 1.68; }
+
+    section { margin-bottom: 4rem; scroll-margin-top: 2rem; }
+    .section-header {
+      margin-bottom: 1.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 800;
+      background: rgba(20, 184, 166, 0.15);
+      color: var(--teal);
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      flex-shrink: 0;
+    }
+
+    .section-title { font-size: 1.55rem; font-weight: 800; color: var(--text); }
+    .section-desc { font-size: 0.96rem; color: var(--text-muted); margin-bottom: 1.75rem; line-height: 1.65; }
+
+    h3 { font-size: 1.2rem; font-weight: 700; margin: 2rem 0 1rem; color: var(--text); display: flex; align-items: center; gap: 0.5rem; }
+    h3::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+
+    .callout { border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin: 1.5rem 0; border-left: 4px solid; background: var(--panel-alt); }
+    .callout-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.4rem; }
+    .callout p { margin-bottom: 0; font-size: 0.88rem; line-height: 1.55; }
+    .callout.teal { border-left-color: var(--teal); background: rgba(20, 184, 166, 0.06); }
+    .callout.teal .callout-title { color: var(--teal); }
+    .callout.angular { border-left-color: var(--angular-red); background: rgba(225, 29, 72, 0.06); }
+    .callout.angular .callout-title { color: var(--angular-red); }
+
+    .code-box {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--code-bg);
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .code-header {
+      background: var(--code-header);
+      padding: 0.65rem 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .file-path { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); }
+    .lang-badge { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 4px; background: var(--panel-card); color: var(--text-dim); border: 1px solid var(--border); }
+    .copy-btn { background: var(--panel-card); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; padding: 0.25rem 0.65rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; transition: var(--transition); }
+    .copy-btn:hover { color: #fff; border-color: var(--teal); background: rgba(20, 184, 166, 0.15); }
+    .copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+    pre { padding: 1.25rem 1.4rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.65; color: #e2e8f0; }
+
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--green); color: #fff; padding: 0.75rem 1.25rem; border-radius: var(--radius-sm); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; z-index: 1000; transform: translateY(100px); opacity: 0; transition: var(--transition); pointer-events: none; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .kw { color: #f43f5e; font-weight: 600; }
+    .str { color: #34d399; }
+    .fn { color: #60a5fa; }
+    .prop { color: #38bdf8; }
+    .typ { color: #fbbf24; }
+    .cmt { color: #64748b; font-style: italic; }
+
+    @media (max-width: 1080px) { body { flex-direction: column; } aside { width: 100%; height: auto; position: static; } main { padding: 2rem 1.5rem; } }
+  </style>
+</head>
+<body>
+
+  <aside>
+    <div class="brand-box">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-text">
+        <span class="brand-title">Signals &amp; State</span>
+        <span class="brand-sub">Zoneless Reaktivite</span>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <span class="nav-label">Mimari Başlıklar</span>
+      <a href="#s1-zoneless" class="nav-item active"><span class="nav-num">1</span><span>Zoneless Değişiklik Algılama</span></a>
+      <a href="#s2-primitives" class="nav-item"><span class="nav-num">2</span><span>Signal, Computed &amp; Effect</span></a>
+      <a href="#s3-io" class="nav-item"><span class="nav-num">3</span><span>Signal I/O (input, output, model)</span></a>
+      <a href="#s4-resource-api" class="nav-item"><span class="nav-num">4</span><span>Resource API &amp; rxResource</span></a>
+      <a href="#s5-signal-store" class="nav-item"><span class="nav-num">5</span><span>Kurumsal Custom Signal Store</span></a>
+      <a href="#s6-rxjs-bridge" class="nav-item"><span class="nav-num">6</span><span>RxJS &amp; Signal Köprüsü</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span>Angular 21 Zoneless</span>
+      <button class="theme-toggle-btn" id="themeToggleBtn"><span id="themeIcon">☀️</span><span id="themeLabel">Açık</span></button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <div class="hero-eyebrow">Enterprise Frontend Standard 02</div>
+      <h1>Angular 21 Zoneless, Signals-First &amp; State Management Standartları</h1>
+      <p>
+        Eski Zone.js monkey-patching bağımlılığını tamamen terk eden, saf sinyal reaktivitesi, yeni sinyal tabanlı bileşen I/O API'si, deklaratif Resource API ve hafif kurumsal Signal Store mimari kuralları.
+      </p>
+    </header>
+
+    <!-- SECTION 1: ZONELESS -->
+    <section id="s1-zoneless">
+      <div class="section-header">
+        <div class="section-badge">1</div>
+        <h2 class="section-title">Zoneless Değişiklik Algılama Standartları</h2>
+      </div>
+      <p class="section-desc">
+        Angular 21 projelerinde Zone.js tamamen kaldırılmıştır. Tarayıcı olayları yerine doğrudan sinyal bildirimleriyle çalışan Zoneless mimari zorunludur.
+      </p>
+
+      <div class="callout angular">
+        <div class="callout-title">Zoneless Zorunluluğu</div>
+        <p>
+          <code>main.ts</code> dosyasında <code>import 'zone.js';</code> satırı kesinlikle yer alamaz. Paket bağımlılıklarından <code>zone.js</code> kaldırılmalıdır. <code>app.config.ts</code> içerisinde <code>provideExperimentalZonelessChangeDetection()</code> sağlayıcısı tanımlanmalıdır.
+        </p>
+      </div>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path"><span>src/app/app.config.ts (Zoneless Provider)</span></div>
+          <div class="code-actions"><span class="lang-badge">TypeScript</span><button class="copy-btn">Kopyala</button></div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">ApplicationConfig</span>, <span class="fn">provideExperimentalZonelessChangeDetection</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="kw">export const</span> appConfig: <span class="typ">ApplicationConfig</span> = {
+  providers: [
+    <span class="fn">provideExperimentalZonelessChangeDetection</span>()
+  ]
+};</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 2: PRIMITIVES -->
+    <section id="s2-primitives">
+      <div class="section-header">
+        <div class="section-badge">2</div>
+        <h2 class="section-title">Signal, Computed ve Effect Disiplini</h2>
+      </div>
+      <p class="section-desc">
+        Durum mutasyonu ve türetilmiş durum hesaplamaları katı kurallara bağlanmıştır.
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path"><span>src/app/features/users/user-profile.component.ts</span></div>
+          <div class="code-actions"><span class="lang-badge">TypeScript</span><button class="copy-btn">Kopyala</button></div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Component</span>, <span class="fn">signal</span>, <span class="fn">computed</span>, <span class="fn">effect</span>, <span class="typ">ChangeDetectionStrategy</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+@<span class="typ">Component</span>({
+  selector: <span class="str">'app-user-profile'</span>,
+  standalone: <span class="kw">true</span>,
+  changeDetection: <span class="typ">ChangeDetectionStrategy</span>.<span class="prop">OnPush</span>,
+  template: <span class="str">`
+    &lt;div&gt;
+      &lt;h3&gt;{{ fullName() }}&lt;/h3&gt;
+      &lt;p&gt;Oturum Durumu: {{ isAdmin() ? 'Yönetici' : 'Standart Kullanıcı' }}&lt;/p&gt;
+      &lt;button (click)="incrementLogin()"&gt;Giriş Sayısını Artır: {{ loginCount() }}&lt;/button&gt;
+    &lt;/div&gt;
+  `</span>
+})
+<span class="kw">export class</span> <span class="typ">UserProfileComponent</span> {
+  <span class="cmt">// 1. Yazılabilir (Writable) Sinyaller</span>
+  <span class="kw">readonly</span> firstName = <span class="fn">signal</span>&lt;<span class="typ">string</span>&gt;(<span class="str">'Ahmet'</span>);
+  <span class="kw">readonly</span> lastName = <span class="fn">signal</span>&lt;<span class="typ">string</span>&gt;(<span class="str">'Yılmaz'</span>);
+  <span class="kw">readonly</span> roles = <span class="fn">signal</span>&lt;<span class="typ">string</span>[]&gt;([<span class="str">'ROLE_ADMIN'</span>]);
+  <span class="kw">readonly</span> loginCount = <span class="fn">signal</span>&lt;<span class="typ">number</span>&gt;(1);
+
+  <span class="cmt">// 2. Türetilmiş (Computed) Sinyaller - Memoized ve saf (pure)</span>
+  <span class="kw">readonly</span> fullName = <span class="fn">computed</span>(() =&gt; <span class="str">`${this.firstName()} ${this.lastName()}`</span>);
+  <span class="kw">readonly</span> isAdmin = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.<span class="fn">roles</span>().<span class="fn">includes</span>(<span class="str">'ROLE_ADMIN'</span>));
+
+  <span class="fn">constructor</span>() {
+    <span class="cmt">// 3. Saf Yan Etki (Effect) - Kesinlikle durum mutasyonu içermez</span>
+    <span class="fn">effect</span>(() =&gt; {
+      console.<span class="fn">log</span>(<span class="str">`Kullanıcı ${this.fullName()} oturum sayısı: ${this.loginCount()}`</span>);
+    });
+  }
+
+  <span class="fn">incrementLogin</span>(): <span class="typ">void</span> {
+    <span class="kw">this</span>.loginCount.<span class="fn">update</span>(c =&gt; c + 1);
+  }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 3: IO -->
+    <section id="s3-io">
+      <div class="section-header">
+        <div class="section-badge">3</div>
+        <h2 class="section-title">Yeni Sinyal Tabanlı Component I/O Standartları</h2>
+      </div>
+      <p class="section-desc">
+        Eski <code>@Input()</code> ve <code>@Output()</code> dekoratörleri yasaktır. Tip-güvenli <code>input()</code>, <code>output()</code> ve <code>model()</code> kullanılmalıdır.
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path"><span>src/app/shared/components/search-box/search-box.component.ts</span></div>
+          <div class="code-actions"><span class="lang-badge">TypeScript</span><button class="copy-btn">Kopyala</button></div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Component</span>, <span class="fn">input</span>, <span class="fn">output</span>, <span class="fn">model</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+@<span class="typ">Component</span>({
+  selector: <span class="str">'app-search-box'</span>,
+  standalone: <span class="kw">true</span>,
+  template: <span class="str">`
+    &lt;input
+      [value]="searchTerm()"
+      (input)="onInputChange($event)"
+      [placeholder]="placeholder()" /&gt;
+    &lt;button (click)="clear.emit()"&gt;Temizle&lt;/button&gt;
+  `</span>
+})
+<span class="kw">export class</span> <span class="typ">SearchBoxComponent</span> {
+  <span class="cmt">// Zorunlu olmayan girdi</span>
+  <span class="kw">readonly</span> placeholder = <span class="fn">input</span>&lt;<span class="typ">string</span>&gt;(<span class="str">'Arama yapın...'</span>);
+
+  <span class="cmt">// Çift yönlü iki-yönlü sinyal modeli [(searchTerm)]</span>
+  <span class="kw">readonly</span> searchTerm = <span class="fn">model</span>&lt;<span class="typ">string</span>&gt;(<span class="str">''</span>);
+
+  <span class="cmt">// Olay çıktısı</span>
+  <span class="kw">readonly</span> clear = <span class="fn">output</span>&lt;<span class="typ">void</span>&gt;();
+
+  <span class="fn">onInputChange</span>(event: <span class="typ">Event</span>): <span class="typ">void</span> {
+    <span class="kw">const</span> val = (event.<span class="prop">target</span> <span class="kw">as</span> <span class="typ">HTMLInputElement</span>).<span class="prop">value</span>;
+    <span class="kw">this</span>.searchTerm.<span class="fn">set</span>(val);
+  }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 4: RESOURCE API -->
+    <section id="s4-resource-api">
+      <div class="section-header">
+        <div class="section-badge">4</div>
+        <h2 class="section-title">Resource API &amp; rxResource ile Asenkron Veri Yükleme</h2>
+      </div>
+      <p class="section-desc">
+        Angular 21 <code>rxResource</code>, filtre ve sayfa sinyalleri değiştikçe eski istekleri iptal ederek otomatik veri çeker.
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path"><span>src/app/core/services/user-data.service.ts</span></div>
+          <div class="code-actions"><span class="lang-badge">TypeScript</span><button class="copy-btn">Kopyala</button></div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Injectable</span>, <span class="fn">signal</span>, <span class="fn">computed</span>, <span class="fn">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="typ">HttpClient</span>, <span class="typ">HttpParams</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+<span class="kw">import</span> { <span class="fn">rxResource</span> } <span class="kw">from</span> <span class="str">'@angular/core/rxjs-interop'</span>;
+
+@<span class="typ">Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export class</span> <span class="typ">UserDataService</span> {
+  <span class="kw">private readonly</span> http = <span class="fn">inject</span>(<span class="typ">HttpClient</span>);
+
+  <span class="kw">readonly</span> query = <span class="fn">signal</span>&lt;<span class="typ">string</span>&gt;(<span class="str">''</span>);
+  <span class="kw">readonly</span> page = <span class="fn">signal</span>&lt;<span class="typ">number</span>&gt;(0);
+
+  <span class="kw">readonly</span> userResource = <span class="fn">rxResource</span>({
+    request: () =&gt; ({ q: <span class="kw">this</span>.<span class="fn">query</span>(), p: <span class="kw">this</span>.<span class="fn">page</span>() }),
+    loader: ({ request }) =&gt; {
+      <span class="kw">const</span> params = <span class="kw">new</span> <span class="typ">HttpParams</span>().<span class="fn">set</span>(<span class="str">'query'</span>, request.<span class="prop">q</span>).<span class="fn">set</span>(<span class="str">'page'</span>, request.<span class="prop">p</span>);
+      <span class="kw">return this</span>.http.<span class="fn">get</span>&lt;<span class="typ">any</span>&gt;(<span class="str">'/api/v1/users'</span>, { params });
+    }
+  });
+
+  <span class="kw">readonly</span> users = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.userResource.<span class="fn">value</span>()?.<span class="prop">data</span> ?? []);
+  <span class="kw">readonly</span> isLoading = <span class="kw">this</span>.userResource.<span class="prop">isLoading</span>;
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 5: SIGNAL STORE -->
+    <section id="s5-signal-store">
+      <div class="section-header">
+        <div class="section-badge">5</div>
+        <h2 class="section-title">Kurumsal Custom Signal Store Mimarisi</h2>
+      </div>
+      <p class="section-desc">
+        Karmaşık NgRx boilerplate'i yerine saf TypeScript ve Signal primitifleri ile kurumsal hafif store oluşturulur.
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path"><span>src/app/core/state/user.store.ts</span></div>
+          <div class="code-actions"><span class="lang-badge">TypeScript</span><button class="copy-btn">Kopyala</button></div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Injectable</span>, <span class="fn">signal</span>, <span class="fn">computed</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="kw">export interface</span> <span class="typ">UserState</span> {
+  users: <span class="typ">any</span>[];
+  selectedUserId: <span class="typ">string</span> | <span class="typ">null</span>;
+  filter: <span class="typ">string</span>;
+  loading: <span class="typ">boolean</span>;
+}
+
+<span class="kw">const</span> initialState: <span class="typ">UserState</span> = {
+  users: [],
+  selectedUserId: <span class="kw">null</span>,
+  filter: <span class="str">''</span>,
+  loading: <span class="kw">false</span>
+};
+
+@<span class="typ">Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export class</span> <span class="typ">UserStore</span> {
+  <span class="cmt">// Gizli State</span>
+  <span class="kw">private readonly</span> _state = <span class="fn">signal</span>&lt;<span class="typ">UserState</span>&gt;(initialState);
+
+  <span class="cmt">// Public Seçiciler (Selectors)</span>
+  <span class="kw">readonly</span> users = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>._state().<span class="prop">users</span>);
+  <span class="kw">readonly</span> selectedUser = <span class="fn">computed</span>(() =&gt;
+    <span class="kw">this</span>._state().<span class="prop">users</span>.<span class="fn">find</span>(u =&gt; u.<span class="prop">id</span> === <span class="kw">this</span>._state().<span class="prop">selectedUserId</span>) ?? <span class="kw">null</span>
+  );
+  <span class="kw">readonly</span> loading = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>._state().<span class="prop">loading</span>);
+
+  <span class="cmt">// Eylemler (Mutations / Actions)</span>
+  <span class="fn">setUsers</span>(users: <span class="typ">any</span>[]): <span class="typ">void</span> {
+    <span class="kw">this</span>._state.<span class="fn">update</span>(s =&gt; ({ ...s, users, loading: <span class="kw">false</span> }));
+  }
+
+  <span class="fn">selectUser</span>(id: <span class="typ">string</span>): <span class="typ">void</span> {
+    <span class="kw">this</span>._state.<span class="fn">update</span>(s =&gt; ({ ...s, selectedUserId: id }));
+  }
+
+  <span class="fn">setLoading</span>(loading: <span class="typ">boolean</span>): <span class="typ">void</span> {
+    <span class="kw">this</span>._state.<span class="fn">update</span>(s =&gt; ({ ...s, loading }));
+  }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 6: RXJS BRIDGE -->
+    <section id="s6-rxjs-bridge">
+      <div class="section-header">
+        <div class="section-badge">6</div>
+        <h2 class="section-title">RxJS &amp; Signal Birlikte Yaşama Standartları</h2>
+      </div>
+      <p class="section-desc">
+        Arama debounce gibi akışlarda RxJS kullanılır; bileşene taşınırken <code>toSignal</code> ve <code>takeUntilDestroyed</code> standarttır.
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path"><span>src/app/features/users/user-search.component.ts</span></div>
+          <div class="code-actions"><span class="lang-badge">TypeScript</span><button class="copy-btn">Kopyala</button></div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Component</span>, <span class="fn">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="typ">FormControl</span>, <span class="typ">ReactiveFormsModule</span> } <span class="kw">from</span> <span class="str">'@angular/forms'</span>;
+<span class="kw">import</span> { <span class="fn">toSignal</span>, <span class="fn">takeUntilDestroyed</span> } <span class="kw">from</span> <span class="str">'@angular/core/rxjs-interop'</span>;
+<span class="kw">import</span> { <span class="fn">debounceTime</span>, <span class="fn">distinctUntilChanged</span>, <span class="fn">switchMap</span> } <span class="kw">from</span> <span class="str">'rxjs'</span>;
+<span class="kw">import</span> { <span class="typ">HttpClient</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+
+@<span class="typ">Component</span>({
+  selector: <span class="str">'app-user-search'</span>,
+  standalone: <span class="kw">true</span>,
+  imports: [<span class="typ">ReactiveFormsModule</span>],
+  template: <span class="str">`
+    &lt;input [formControl]="searchControl" placeholder="Arayın..." /&gt;
+    &lt;ul&gt;
+      @for (item of searchResults(); track item.id) {
+        &lt;li&gt;{{ item.name }}&lt;/li&gt;
+      }
+    &lt;/ul&gt;
+  `</span>
+})
+<span class="kw">export class</span> <span class="typ">UserSearchComponent</span> {
+  <span class="kw">private readonly</span> http = <span class="fn">inject</span>(<span class="typ">HttpClient</span>);
+  <span class="kw">readonly</span> searchControl = <span class="kw">new</span> <span class="typ">FormControl</span>(<span class="str">''</span>, { nonNullable: <span class="kw">true</span> });
+
+  <span class="cmt">// RxJS akışını otomatik temizlenen (unsubscribed) Signal'e dönüştür</span>
+  <span class="kw">readonly</span> searchResults = <span class="fn">toSignal</span>(
+    <span class="kw">this</span>.searchControl.<span class="prop">valueChanges</span>.<span class="fn">pipe</span>(
+      <span class="fn">debounceTime</span>(300),
+      <span class="fn">distinctUntilChanged</span>(),
+      <span class="fn">switchMap</span>(term =&gt; <span class="kw">this</span>.http.<span class="fn">get</span>&lt;<span class="typ">any</span>[]&gt;(<span class="str">`/api/v1/users/search?q=${term}`</span>)),
+      <span class="fn">takeUntilDestroyed</span>()
+    ),
+    { initialValue: [] }
+  );
+}</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"><span>Kopyalandı!</span></div>
+
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const box = btn.closest('.code-box');
+        const pre = box.querySelector('pre');
+        navigator.clipboard.writeText(pre.innerText).then(() => {
+          btn.innerText = 'Kopyalandı!';
+          btn.classList.add('copied');
+          const toast = document.getElementById('toast');
+          toast.classList.add('show');
+          setTimeout(() => {
+            btn.innerText = 'Kopyala';
+            btn.classList.remove('copied');
+            toast.classList.remove('show');
+          }, 2000);
+        });
+      });
+    });
+
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const target = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', target);
+      document.getElementById('themeIcon').innerText = target === 'light' ? '🌙' : '☀️';
+      document.getElementById('themeLabel').innerText = target === 'light' ? 'Koyu' : 'Açık';
+    });
+
+    window.addEventListener('scroll', () => {
+      const sections = document.querySelectorAll('section');
+      const navItems = document.querySelectorAll('.nav-item');
+      let currentId = '';
+      sections.forEach(sec => {
+        if (window.pageYOffset >= sec.offsetTop - 120) currentId = sec.getAttribute('id');
+      });
+      navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === '#' + currentId) item.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular 21 HttpClient &amp; Spring Boot REST API Entegrasyon Standartları | Kurumsal Frontend Standartları</title>
+  <meta name="description" content="Angular 21 provideHttpClient, withFetch, fonksiyonel interceptor zinciri, Spring Boot ApiResponse ve RFC 7807 ProblemDetail hata modelleme standartları.">
+  <style>
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "JetBrains Mono", "Fira Code", Consolas, Menlo, Monaco, monospace;
+      
+      --bg: #0b0f19;
+      --panel: #0f172a;
+      --panel-alt: #162035;
+      --panel-card: #1e293b;
+      --border: #243247;
+      --border-light: #334155;
+      
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --angular-red: #e11d48;
+      --indigo: #6366f1;
+      --teal: #14b8a6;
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.18);
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      
+      --code-bg: #050811;
+      --code-header: #0e1526;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --panel-alt: #f1f5f9;
+      --panel-card: #ffffff;
+      --border: #e2e8f0;
+      --border-light: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --green: #059669;
+      --code-bg: #0f172a;
+      --code-header: #1e293b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 15px; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    aside {
+      width: 320px;
+      border-right: 1px solid var(--border);
+      background: var(--panel);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand-box {
+      padding: 1.5rem 1.5rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--green) 0%, var(--teal) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 15px var(--green-glow);
+      flex-shrink: 0;
+    }
+
+    .brand-title { font-size: 1.05rem; font-weight: 800; color: var(--text); line-height: 1.2; }
+    .brand-sub { font-size: 0.72rem; color: var(--green); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    nav.nav-menu { padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
+    .nav-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); padding: 0.75rem 0.75rem 0.25rem; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover { color: var(--text); background: var(--panel-alt); border-left-color: var(--green); }
+    .nav-item.active { color: #fff; background: rgba(16, 185, 129, 0.12); font-weight: 600; border-left-color: var(--green); }
+
+    .nav-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--panel-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .nav-item.active .nav-num { background: var(--green); color: #000; border-color: var(--green); }
+
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .theme-toggle-btn {
+      background: var(--panel-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.35rem 0.7rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.76rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: var(--transition);
+    }
+
+    main { flex: 1; padding: 3rem 4rem 6rem; max-width: 1280px; overflow-x: hidden; }
+
+    .hero { margin-bottom: 3.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--border); }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--green);
+      background: var(--green-glow);
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 {
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 70%, var(--green) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] .hero h1 {
+      background: linear-gradient(135deg, #0f172a 30%, #334155 70%, var(--green) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p { font-size: 1.05rem; color: var(--text-muted); max-width: 860px; line-height: 1.68; }
+
+    section { margin-bottom: 4rem; scroll-margin-top: 2rem; }
+    .section-header {
+      margin-bottom: 1.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 800;
+      background: var(--green-glow);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      flex-shrink: 0;
+    }
+
+    .section-title { font-size: 1.55rem; font-weight: 800; color: var(--text); }
+    .section-desc { font-size: 0.96rem; color: var(--text-muted); margin-bottom: 1.75rem; line-height: 1.65; }
+
+    h3 { font-size: 1.2rem; font-weight: 700; margin: 2rem 0 1rem; color: var(--text); display: flex; align-items: center; gap: 0.5rem; }
+    h3::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+
+    .callout { border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin: 1.5rem 0; border-left: 4px solid; background: var(--panel-alt); }
+    .callout-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.4rem; }
+    .callout p { margin-bottom: 0; font-size: 0.88rem; line-height: 1.55; }
+    .callout.green { border-left-color: var(--green); background: rgba(16, 185, 129, 0.06); }
+    .callout.green .callout-title { color: var(--green); }
+    .callout.tip { border-left-color: var(--teal); background: rgba(20, 184, 166, 0.06); }
+    .callout.tip .callout-title { color: var(--teal); }
+
+    .code-box {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--code-bg);
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .code-header {
+      background: var(--code-header);
+      padding: 0.65rem 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .file-path { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); }
+    .lang-badge { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 4px; background: var(--panel-card); color: var(--text-dim); border: 1px solid var(--border); }
+    .copy-btn { background: var(--panel-card); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; padding: 0.25rem 0.65rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; transition: var(--transition); }
+    .copy-btn:hover { color: #fff; border-color: var(--green); background: rgba(16, 185, 129, 0.15); }
+    .copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+    pre { padding: 1.25rem 1.4rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.65; color: #e2e8f0; }
+
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--green); color: #fff; padding: 0.75rem 1.25rem; border-radius: var(--radius-sm); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; z-index: 1000; transform: translateY(100px); opacity: 0; transition: var(--transition); pointer-events: none; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .kw { color: #f43f5e; font-weight: 600; }
+    .str { color: #34d399; }
+    .fn { color: #60a5fa; }
+    .prop { color: #38bdf8; }
+    .typ { color: #fbbf24; }
+    .cmt { color: #64748b; font-style: italic; }
+
+    @media (max-width: 1080px) { body { flex-direction: column; } aside { width: 100%; height: auto; position: static; } main { padding: 2rem 1.5rem; } }
+  </style>
+</head>
+<body>
+
+  <aside>
+    <div class="brand-box">
+      <div class="brand-icon">🌐</div>
+      <div class="brand-text">
+        <span class="brand-title">HttpClient API</span>
+        <span class="brand-sub">Spring Boot Entegrasyonu</span>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <span class="nav-label">Mimari Başlıklar</span>
+      <a href="#s1-fetch" class="nav-item active"><span class="nav-num">1</span><span>provideHttpClient &amp; withFetch</span></a>
+      <a href="#s2-interceptors" class="nav-item"><span class="nav-num">2</span><span>Fonksiyonel Interceptor Zinciri</span></a>
+      <a href="#s3-rfc7807" class="nav-item"><span class="nav-num">3</span><span>RFC 7807 ProblemDetail Modellemesi</span></a>
+      <a href="#s4-models" class="nav-item"><span class="nav-num">4</span><span>ApiResponse &amp; PageResponse Tipleri</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span>Angular 21 + Spring Boot</span>
+      <button class="theme-toggle-btn" id="themeToggleBtn"><span id="themeIcon">☀️</span><span id="themeLabel">Açık</span></button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <div class="hero-eyebrow">Enterprise Frontend Standard 04</div>
+      <h1>Angular 21 HttpClient &amp; Spring Boot REST API Entegrasyon Standartları</h1>
+      <p>
+        Modern `provideHttpClient`, `withFetch()` tabanlı akış optimizasyonu, dinamik URL önekleri, JWT token enjeksiyonu, Spring Boot RFC 7807 ProblemDetail hata gövdesi ayrıştırma ve dağıtık izleme (`X-Trace-Id`) standartları.
+      </p>
+    </header>
+
+    <!-- SECTION 1: FETCH -->
+    <section id="s1-fetch">
+      <div class="section-header">
+        <div class="section-badge">1</div>
+        <h2 class="section-title">provideHttpClient &amp; withFetch Mimarisi</h2>
+      </div>
+      <p class="section-desc">
+        `HttpClientModule` tamamen yasaklanmıştır. `app.config.ts` içinde `provideHttpClient` ve yerel Fetch API'yi etkinleştiren `withFetch()` zorunludur.
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path"><span>src/app/app.config.ts</span></div>
+          <div class="code-actions"><span class="lang-badge">TypeScript</span><button class="copy-btn">Kopyala</button></div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="fn">provideHttpClient</span>, <span class="fn">withFetch</span>, <span class="fn">withInterceptors</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+<span class="kw">import</span> { apiPrefixInterceptor } <span class="kw">from</span> <span class="str">'@core/interceptors/api-prefix.interceptor'</span>;
+<span class="kw">import</span> { traceIdInterceptor } <span class="kw">from</span> <span class="str">'@core/interceptors/trace-id.interceptor'</span>;
+<span class="kw">import</span> { authInterceptor } <span class="kw">from</span> <span class="str">'@core/interceptors/auth.interceptor'</span>;
+<span class="kw">import</span> { errorInterceptor } <span class="kw">from</span> <span class="str">'@core/interceptors/error.interceptor'</span>;
+
+<span class="kw">export const</span> appConfig = {
+  providers: [
+    <span class="fn">provideHttpClient</span>(
+      <span class="fn">withFetch</span>(),
+      <span class="fn">withInterceptors</span>([
+        apiPrefixInterceptor,
+        traceIdInterceptor,
+        authInterceptor,
+        errorInterceptor
+      ])
+    )
+  ]
+};</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 2: INTERCEPTORS -->
+    <section id="s2-interceptors">
+      <div class="section-header">
+        <div class="section-badge">2</div>
+        <h2 class="section-title">Fonksiyonel Interceptor Zinciri</h2>
+      </div>
+      <p class="section-desc">
+        Her bir interceptor tek bir sorumluluğu üstlenir ve saf fonksiyonel `HttpInterceptorFn` sözleşmesine uyar.
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path"><span>src/app/core/interceptors/trace-id.interceptor.ts</span></div>
+          <div class="code-actions"><span class="lang-badge">TypeScript</span><button class="copy-btn">Kopyala</button></div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">HttpInterceptorFn</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+
+<span class="kw">export const</span> traceIdInterceptor: <span class="typ">HttpInterceptorFn</span> = (req, next) =&gt; {
+  <span class="kw">const</span> traceId = window.<span class="prop">crypto</span>.<span class="fn">randomUUID</span>();
+  <span class="kw">const</span> cloned = req.<span class="fn">clone</span>({
+    setHeaders: {
+      <span class="str">'X-Trace-Id'</span>: traceId
+    }
+  });
+  <span class="kw">return</span> <span class="fn">next</span>(cloned);
+};</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 3: RFC 7807 -->
+    <section id="s3-rfc7807">
+      <div class="section-header">
+        <div class="section-badge">3</div>
+        <h2 class="section-title">Spring Boot RFC 7807 ProblemDetail Modellemesi</h2>
+      </div>
+      <p class="section-desc">
+        Hatalar backend'den rastgele metin formatında değil, standart ProblemDetail JSON gövdesiyle döner.
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path"><span>src/app/core/models/problem-detail.model.ts</span></div>
+          <div class="code-actions"><span class="lang-badge">TypeScript</span><button class="copy-btn">Kopyala</button></div>
+        </div>
+        <pre><code><span class="kw">export interface</span> <span class="typ">InvalidParam</span> {
+  field: <span class="typ">string</span>;
+  reason: <span class="typ">string</span>;
+}
+
+<span class="kw">export interface</span> <span class="typ">ProblemDetail</span> {
+  type: <span class="typ">string</span>;
+  title: <span class="typ">string</span>;
+  status: <span class="typ">number</span>;
+  detail: <span class="typ">string</span>;
+  instance: <span class="typ">string</span>;
+  timestamp: <span class="typ">string</span>;
+  invalidParams?: <span class="typ">InvalidParam</span>[];
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 4: MODELS -->
+    <section id="s4-models">
+      <div class="section-header">
+        <div class="section-badge">4</div>
+        <h2 class="section-title">ApiResponse&lt;T&gt; &amp; PageResponse&lt;T&gt; Tipleri</h2>
+      </div>
+      <p class="section-desc">
+        Spring Boot controller standartları ile frontend veri modelleri tam uyumludur.
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path"><span>src/app/core/models/api-response.model.ts</span></div>
+          <div class="code-actions"><span class="lang-badge">TypeScript</span><button class="copy-btn">Kopyala</button></div>
+        </div>
+        <pre><code><span class="kw">export interface</span> <span class="typ">ApiResponse</span>&lt;<span class="typ">T</span>&gt; {
+  success: <span class="typ">boolean</span>;
+  message: <span class="typ">string</span>;
+  data: <span class="typ">T</span>;
+  traceId: <span class="typ">string</span>;
+  timestamp: <span class="typ">string</span>;
+}
+
+<span class="kw">export interface</span> <span class="typ">PageResponse</span>&lt;<span class="typ">T</span>&gt; {
+  content: <span class="typ">T</span>[];
+  pageNumber: <span class="typ">number</span>;
+  pageSize: <span class="typ">number</span>;
+  totalElements: <span class="typ">number</span>;
+  totalPages: <span class="typ">number</span>;
+  last: <span class="typ">boolean</span>;
+}</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"><span>Kopyalandı!</span></div>
+
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const box = btn.closest('.code-box');
+        const pre = box.querySelector('pre');
+        navigator.clipboard.writeText(pre.innerText).then(() => {
+          btn.innerText = 'Kopyalandı!';
+          btn.classList.add('copied');
+          const toast = document.getElementById('toast');
+          toast.classList.add('show');
+          setTimeout(() => {
+            btn.innerText = 'Kopyala';
+            btn.classList.remove('copied');
+            toast.classList.remove('show');
+          }, 2000);
+        });
+      });
+    });
+
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const target = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', target);
+      document.getElementById('themeIcon').innerText = target === 'light' ? '🌙' : '☀️';
+      document.getElementById('themeLabel').innerText = target === 'light' ? 'Koyu' : 'Açık';
+    });
+
+    window.addEventListener('scroll', () => {
+      const sections = document.querySelectorAll('section');
+      const navItems = document.querySelectorAll('.nav-item');
+      let currentId = '';
+      sections.forEach(sec => {
+        if (window.pageYOffset >= sec.offsetTop - 120) currentId = sec.getAttribute('id');
+      });
+      navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === '#' + currentId) item.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

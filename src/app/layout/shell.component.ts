@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
@@ -115,7 +115,17 @@ import { ThemeService } from '@core/services/theme.service';
     </div>
   `
 })
-export class ShellComponent {
+export class ShellComponent implements OnInit {
   readonly authService = inject(AuthService);
   readonly themeService = inject(ThemeService);
+
+  ngOnInit(): void {
+    if (!this.authService.currentUser() && this.authService.isAuthenticated()) {
+      this.authService.fetchCurrentUser().subscribe({
+        error: () => {
+          this.authService.logout();
+        }
+      });
+    }
+  }
 }

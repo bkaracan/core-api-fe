@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Angular 21 Architecture &amp; Scaffolding Blueprint | Kurumsal Frontend Standartları</title>
+  <meta name="description" content="Spring Boot REST API ve Spring Authorization Server tabanlı kurumsal arka uç mimarilerine bağlanan, Angular 21 Zoneless, Signals-first, Standalone ve RFC 7807 uyumlu modern frontend mimari kılavuzu.">
+  <style>
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "JetBrains Mono", "Fira Code", Consolas, Menlo, Monaco, monospace;
+      
+      /* Dark Theme (Default Enterprise) */
+      --bg: #0b0f19;
+      --panel: #0f172a;
+      --panel-alt: #162035;
+      --panel-card: #1e293b;
+      --border: #243247;
+      --border-light: #334155;
+      
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --angular-red: #e11d48;
+      --angular-red-dark: #dd0031;
+      --angular-glow: rgba(225, 29, 72, 0.18);
+      
+      --indigo: #6366f1;
+      --indigo-glow: rgba(99, 102, 241, 0.18);
+      --teal: #14b8a6;
+      --teal-glow: rgba(20, 184, 166, 0.18);
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.18);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.18);
+      --rose: #f43f5e;
+      --rose-glow: rgba(244, 63, 94, 0.18);
+      --purple: #a855f7;
+      
+      --code-bg: #050811;
+      --code-header: #0e1526;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --panel-alt: #f1f5f9;
+      --panel-card: #ffffff;
+      --border: #e2e8f0;
+      --border-light: #cbd5e1;
+      
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      
+      --angular-red: #e11d48;
+      --angular-red-dark: #c01037;
+      --angular-glow: rgba(225, 29, 72, 0.12);
+      
+      --indigo: #4f46e5;
+      --indigo-glow: rgba(79, 70, 229, 0.12);
+      --teal: #0d9488;
+      --teal-glow: rgba(13, 148, 136, 0.12);
+      --green: #059669;
+      --green-glow: rgba(5, 150, 105, 0.12);
+      --amber: #d97706;
+      --amber-glow: rgba(217, 119, 6, 0.12);
+      --rose: #e11d48;
+      --rose-glow: rgba(225, 29, 72, 0.12);
+      --purple: #9333ea;
+      
+      --code-bg: #0f172a;
+      --code-header: #1e293b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 15px; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Sidebar Navigation */
+    aside {
+      width: 330px;
+      border-right: 1px solid var(--border);
+      background: var(--panel);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand-box {
+      padding: 1.5rem 1.5rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--angular-red) 0%, #be123c 60%, var(--indigo) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 1.35rem;
+      box-shadow: 0 4px 18px var(--angular-glow);
+      flex-shrink: 0;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-sub {
+      font-size: 0.72rem;
+      color: var(--angular-red);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.15rem;
+    }
+
+    nav.nav-menu {
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      flex: 1;
+    }
+
+    .nav-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      padding: 0.75rem 0.75rem 0.25rem;
+      margin-top: 0.25rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      color: var(--text);
+      background: var(--panel-alt);
+      border-left-color: var(--angular-red);
+    }
+
+    .nav-item.active {
+      color: #fff;
+      background: rgba(225, 29, 72, 0.12);
+      font-weight: 600;
+      border-left-color: var(--angular-red);
+    }
+
+    .nav-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--panel-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .nav-item.active .nav-num {
+      background: var(--angular-red);
+      color: white;
+      border-color: var(--angular-red);
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .theme-toggle-btn {
+      background: var(--panel-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: var(--transition);
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--angular-red);
+      color: var(--angular-red);
+    }
+
+    /* Main Content */
+    main {
+      flex: 1;
+      padding: 3rem 4rem 6rem;
+      max-width: 1280px;
+      overflow-x: hidden;
+    }
+
+    /* Hero */
+    .hero {
+      margin-bottom: 3.5rem;
+      padding-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--angular-red);
+      background: var(--angular-glow);
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(225, 29, 72, 0.3);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 {
+      font-size: 2.6rem;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      line-height: 1.18;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 70%, var(--angular-red) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] .hero h1 {
+      background: linear-gradient(135deg, #0f172a 30%, #334155 70%, var(--angular-red) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 860px;
+      line-height: 1.68;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+    }
+
+    .meta-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .meta-tag strong {
+      color: var(--text);
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 4rem;
+      scroll-margin-top: 2rem;
+    }
+
+    .section-header {
+      margin-bottom: 1.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 800;
+      background: var(--angular-glow);
+      color: var(--angular-red);
+      border: 1px solid rgba(225, 29, 72, 0.3);
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .section-desc {
+      font-size: 0.98rem;
+      color: var(--text-muted);
+      margin-bottom: 1.75rem;
+      line-height: 1.65;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 2rem 0 1rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h3::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--angular-red);
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+      font-size: 0.94rem;
+    }
+
+    /* Callout / Alert Boxes */
+    .callout {
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      border-left: 4px solid;
+      background: var(--panel-alt);
+    }
+
+    .callout-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .callout p {
+      margin-bottom: 0;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .callout.spring {
+      border-left-color: var(--green);
+      background: rgba(16, 185, 129, 0.06);
+    }
+    .callout.spring .callout-title { color: var(--green); }
+
+    .callout.angular {
+      border-left-color: var(--angular-red);
+      background: rgba(225, 29, 72, 0.06);
+    }
+    .callout.angular .callout-title { color: var(--angular-red); }
+
+    .callout.warning {
+      border-left-color: var(--rose);
+      background: rgba(244, 63, 94, 0.06);
+    }
+    .callout.warning .callout-title { color: var(--rose); }
+
+    .callout.tip {
+      border-left-color: var(--teal);
+      background: rgba(20, 184, 166, 0.06);
+    }
+    .callout.tip .callout-title { color: var(--teal); }
+
+    .callout.info {
+      border-left-color: var(--indigo);
+      background: rgba(99, 102, 241, 0.06);
+    }
+    .callout.info .callout-title { color: var(--indigo); }
+
+    /* Code Boxes */
+    .code-box {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--code-bg);
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .code-header {
+      background: var(--code-header);
+      padding: 0.65rem 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .file-path {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .file-path svg {
+      width: 15px;
+      height: 15px;
+      stroke: var(--angular-red);
+    }
+
+    .code-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .lang-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: var(--panel-card);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+
+    .copy-btn {
+      background: var(--panel-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: var(--transition);
+    }
+
+    .copy-btn:hover {
+      color: #fff;
+      border-color: var(--angular-red);
+      background: rgba(225, 29, 72, 0.15);
+    }
+
+    .copy-btn.copied {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
+    pre {
+      padding: 1.25rem 1.4rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.65;
+      color: #e2e8f0;
+    }
+
+    code {
+      font-family: var(--font-mono);
+    }
+
+    p code, li code, td code {
+      background: var(--panel-card);
+      color: var(--text);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.84rem;
+      border: 1px solid var(--border);
+    }
+
+    /* Tabs */
+    .tabs-wrap {
+      margin: 1.5rem 0;
+    }
+
+    .tabs-nav {
+      display: flex;
+      gap: 0.4rem;
+      background: var(--panel);
+      padding: 0.35rem 0.5rem 0;
+      border-top-left-radius: var(--radius-md);
+      border-top-right-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      border-bottom: none;
+    }
+
+    .tab-btn {
+      padding: 0.6rem 1.1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      color: var(--angular-red);
+      border-bottom-color: var(--angular-red);
+      background: rgba(225, 29, 72, 0.08);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .tabs-wrap .code-box {
+      margin-top: 0;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    /* Architecture Tree Component */
+    .tree-box {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--code-bg);
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .tree-header {
+      background: var(--code-header);
+      padding: 0.65rem 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tree-title {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tree-title svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--teal);
+    }
+
+    .tree-pre {
+      padding: 1.4rem 1.5rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.75;
+      color: #e2e8f0;
+      white-space: pre !important;
+      margin: 0;
+    }
+
+    .tree-folder { color: #2dd4bf; font-weight: 700; }
+    .tree-file { color: #f1f5f9; }
+    .tree-comment { color: #64748b; font-style: italic; }
+    .tree-line { color: #334155; }
+    .tree-tag {
+      font-size: 0.68rem;
+      padding: 0.12rem 0.45rem;
+      border-radius: 4px;
+      font-weight: 700;
+      margin-left: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .tree-tag-core { background: rgba(99, 102, 241, 0.18); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .tree-tag-feature { background: rgba(225, 29, 72, 0.18); color: #fb7185; border: 1px solid rgba(225, 29, 72, 0.3); }
+    .tree-tag-shared { background: rgba(20, 184, 166, 0.18); color: #2dd4bf; border: 1px solid rgba(20, 184, 166, 0.3); }
+    .tree-tag-root { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      margin: 1.5rem 0;
+      background: var(--panel);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      padding: 0.85rem 1.15rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--angular-red);
+      background: rgba(225, 29, 72, 0.05);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--panel-alt); }
+
+    /* Flow Cards */
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .flow-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.35rem;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .flow-card:hover {
+      border-color: rgba(225, 29, 72, 0.4);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .flow-card-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+
+    .flow-card h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .flow-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--green);
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: var(--transition);
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Syntax Highlighting Fake helpers */
+    .kw { color: #f43f5e; font-weight: 600; } /* keyword */
+    .str { color: #34d399; } /* string */
+    .fn { color: #60a5fa; } /* function */
+    .prop { color: #38bdf8; } /* property */
+    .cmt { color: #64748b; font-style: italic; } /* comment */
+    .typ { color: #fbbf24; } /* type/class */
+
+    @media (max-width: 1080px) {
+      body { flex-direction: column; }
+      aside { width: 100%; height: auto; position: static; }
+      main { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside>
+    <div class="brand-box">
+      <div class="brand-icon">A</div>
+      <div class="brand-text">
+        <span class="brand-title">Angular 21 Blueprint</span>
+        <span class="brand-sub">Enterprise Frontend Guide</span>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <span class="nav-label">Mimari Kılavuz</span>
+      <a href="#s1-principles" class="nav-item active">
+        <span class="nav-num">1</span>
+        <span>Temel İlkeler &amp; Çevre</span>
+      </a>
+      <a href="#s2-scaffolding" class="nav-item">
+        <span class="nav-num">2</span>
+        <span>CLI Kurulumu &amp; Bağımlılıklar</span>
+      </a>
+      <a href="#s3-architecture" class="nav-item">
+        <span class="nav-num">3</span>
+        <span>Kurumsal Dizin Hiyerarşisi</span>
+      </a>
+      <a href="#s4-auth-sso" class="nav-item">
+        <span class="nav-num">4</span>
+        <span>Kimlik Doğrulama &amp; SSO</span>
+      </a>
+      <a href="#s5-state-data" class="nav-item">
+        <span class="nav-num">5</span>
+        <span>Signal State &amp; Resource API</span>
+      </a>
+      <a href="#s6-ui-forms" class="nav-item">
+        <span class="nav-num">6</span>
+        <span>UI/UX, Reusable Bileşenler &amp; Formlar</span>
+      </a>
+      <a href="#s7-devops" class="nav-item">
+        <span class="nav-num">7</span>
+        <span>Production, Docker &amp; CI/CD</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span>Angular v21.x &bull; Node 24 LTS</span>
+      <button class="theme-toggle-btn" id="themeToggleBtn">
+        <span id="themeIcon">☀️</span>
+        <span id="themeLabel">Açık Tema</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT AREA -->
+  <main>
+    <!-- HERO SECTION -->
+    <header class="hero">
+      <div class="hero-eyebrow">Enterprise Frontend Reference Blueprint</div>
+      <h1>Modern Angular 21 Kurumsal Mimari Standartları</h1>
+      <p>
+        Spring Boot REST API ve Spring Authorization Server tabanlı kurumsal arka uç sistemlerine bağlanacak,
+        Zoneless Change Detection, Signals-First reaktivite, Standalone mimari, OAuth 2.1 PKCE SSO federasyonu ve RFC 7807 hata modellemesine sahip tek ve eksiksiz üretim standardı.
+      </p>
+      <div class="hero-meta">
+        <span class="meta-tag">⚡ <strong>Hedef Sürüm:</strong> Angular 21.x (Zoneless)</span>
+        <span class="meta-tag">🟢 <strong>Çalışma Ortamı:</strong> Node.js v24.x LTS</span>
+        <span class="meta-tag">🔒 <strong>SSO Standartları:</strong> OAuth 2.1 PKCE + OIDC 1.0</span>
+        <span class="meta-tag">🎯 <strong>Backend Uyumu:</strong> Spring Boot 4.1.x / RFC 7807</span>
+      </div>
+    </header>
+
+    <!-- SECTION 1: TEMEL İLKELER VE ÇEVRE -->
+    <section id="s1-principles">
+      <div class="section-header">
+        <div class="section-badge">1</div>
+        <h2 class="section-title">Modern Angular 21 Temel İlkeleri ve Çevre</h2>
+      </div>
+      <p class="section-desc">
+        Angular 21 ile birlikte kurumsal ölçekte eski pratikler (NgModule, Zone.js monkey patching, constructor-based DI) tamamen terk edilmiş; yerini ince taneli reaktivite, yüksek performanslı zoneless mimari ve modern build sistemlerine bırakmıştır.
+      </p>
+
+      <div class="flow-grid">
+        <div class="flow-card">
+          <span class="flow-card-badge" style="background: rgba(225, 29, 72, 0.15); color: var(--angular-red);">Zoneless İlk</span>
+          <h4>Zoneless Change Detection</h4>
+          <p><code>zone.js</code> tamamen devre dışı bırakılır. Değişiklik algılama DOM olaylarına veya monkey-patch'lere değil, yalnızca Signal bildirimlerine dayanır.</p>
+        </div>
+        <div class="flow-card">
+          <span class="flow-card-badge" style="background: rgba(20, 184, 166, 0.15); color: var(--teal);">Signals First</span>
+          <h4>Reaktif Sinyal Mimarisi</h4>
+          <p>Bileşen durumu, hesaplanan türev değerler ve yan etkiler <code>signal()</code>, <code>computed()</code>, <code>effect()</code> ve yeni sinyal tabanlı I/O (<code>input()</code>, <code>output()</code>) ile yönetilir.</p>
+        </div>
+        <div class="flow-card">
+          <span class="flow-card-badge" style="background: rgba(99, 102, 241, 0.15); color: var(--indigo);">Standalone Only</span>
+          <h4>%100 Standalone Bileşenler</h4>
+          <p>Tüm Component, Directive ve Pipe'lar standalone'dur. <code>NgModule</code> kullanımı kesinlikle yasaktır ve kod tabanında yer almaz.</p>
+        </div>
+        <div class="flow-card">
+          <span class="flow-card-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--green);">Modern Build</span>
+          <h4>Application / esbuild Builder</h4>
+          <p>Vite tabanlı geliştirme sunucusu ve esbuild destekli <code>application</code> derleyicisi ile saniyeler içinde HMR ve optimize üretim paketleri üretilir.</p>
+        </div>
+      </div>
+
+      <div class="callout angular">
+        <div class="callout-title">
+          <span>Angular 21 Zoneless Best Practice: `provideExperimentalZonelessChangeDetection()`</span>
+        </div>
+        <p>
+          Uygulama genelinde <code>zone.js</code> kaldırılmalıdır. <code>main.ts</code> dosyasında <code>import 'zone.js';</code> kesinlikle bulunmamalı, <code>app.config.ts</code> içerisinde <code>provideExperimentalZonelessChangeDetection()</code> sağlayıcısı tanımlanmalıdır.
+        </p>
+      </div>
+
+      <h3>A. Standart Uygulama Konfigürasyonu (app.config.ts)</h3>
+      <p>
+        Angular 21'de tüm küresel sağlayıcılar, HTTP istemcisi (interceptor'lar ile), rotalama ve zoneless desteği <code>app.config.ts</code> üzerinden yapılandırılır:
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/app/app.config.ts</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">ApplicationConfig</span>, <span class="fn">provideExperimentalZonelessChangeDetection</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="fn">provideRouter</span>, <span class="fn">withComponentInputBinding</span>, <span class="fn">withViewTransitions</span>, <span class="fn">withInMemoryScrolling</span> } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { <span class="fn">provideHttpClient</span>, <span class="fn">withInterceptors</span>, <span class="fn">withFetch</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+<span class="kw">import</span> { routes } <span class="kw">from</span> <span class="str">'./app.routes'</span>;
+<span class="kw">import</span> { authInterceptor } <span class="kw">from</span> <span class="str">'@core/interceptors/auth.interceptor'</span>;
+<span class="kw">import</span> { apiPrefixInterceptor } <span class="kw">from</span> <span class="str">'@core/interceptors/api-prefix.interceptor'</span>;
+<span class="kw">import</span> { errorInterceptor } <span class="kw">from</span> <span class="str">'@core/interceptors/error.interceptor'</span>;
+
+<span class="kw">export const</span> appConfig: <span class="typ">ApplicationConfig</span> = {
+  providers: [
+    <span class="cmt">// 1. Zone.js yerine modern Zoneless Change Detection</span>
+    <span class="fn">provideExperimentalZonelessChangeDetection</span>(),
+
+    <span class="cmt">// 2. Gelişmiş Router konfigürasyonu (Route parametrelerini doğrudan component input()'larına bağlar)</span>
+    <span class="fn">provideRouter</span>(
+      routes,
+      <span class="fn">withComponentInputBinding</span>(),
+      <span class="fn">withViewTransitions</span>(),
+      <span class="fn">withInMemoryScrolling</span>({ scrollPositionRestoration: <span class="str">'top'</span> })
+    ),
+
+    <span class="cmt">// 3. fetch API tabanlı ve fonksiyonel interceptor zincirli HttpClient</span>
+    <span class="fn">provideHttpClient</span>(
+      <span class="fn">withFetch</span>(),
+      <span class="fn">withInterceptors</span>([
+        apiPrefixInterceptor,
+        authInterceptor,
+        errorInterceptor
+      ])
+    )
+  ]
+};</code></pre>
+      </div>
+
+      <h3>B. Yeni Control Flow ve Sinyal Tabanlı Bileşen Standartları</h3>
+      <p>
+        Klasik <code>*ngIf</code>, <code>*ngFor</code> ve <code>*ngSwitch</code> direktifleri tamamen yasaklanmıştır. Angular 21'in yerleşik <code>@if</code>, <code>@for (item of list; track item.id)</code>, <code>@switch</code> ve <code>@let</code> sözdizimi zorunludur:
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/app/features/users/user-list.component.ts</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Component</span>, <span class="fn">signal</span>, <span class="fn">computed</span>, <span class="fn">input</span>, <span class="fn">output</span>, <span class="fn">inject</span>, <span class="typ">ChangeDetectionStrategy</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="typ">CommonModule</span> } <span class="kw">from</span> <span class="str">'@angular/common'</span>;
+<span class="kw">import</span> { <span class="typ">UserService</span> } <span class="kw">from</span> <span class="str">'@core/services/user.service'</span>;
+<span class="kw">import</span> { <span class="typ">UserProfileResponse</span> } <span class="kw">from</span> <span class="str">'@core/models/user.model'</span>;
+
+@<span class="typ">Component</span>({
+  selector: <span class="str">'app-user-list'</span>,
+  standalone: <span class="kw">true</span>,
+  imports: [<span class="typ">CommonModule</span>],
+  changeDetection: <span class="typ">ChangeDetectionStrategy</span>.<span class="prop">OnPush</span>,
+  template: <span class="str">`
+    &lt;div class="user-container"&gt;
+      @let totalCount = users().length;
+
+      &lt;div class="header-bar"&gt;
+        &lt;h2&gt;Kullanıcılar ({{ totalCount }})&lt;/h2&gt;
+        &lt;button (click)="refresh()" class="btn-refresh"&gt;Yenile&lt;/button&gt;
+      &lt;/div&gt;
+
+      @if (isLoading()) {
+        &lt;div class="skeleton-loader"&gt;Veriler yükleniyor...&lt;/div&gt;
+      } @else if (users().length === 0) {
+        &lt;p class="empty-state"&gt;Kayıtlı kullanıcı bulunamadı.&lt;/p&gt;
+      } @else {
+        &lt;ul class="user-cards"&gt;
+          @for (user of users(); track user.publicId) {
+            &lt;li class="user-card" (click)="selectUser.emit(user)"&gt;
+              &lt;span class="user-name"&gt;{{ user.firstName }} {{ user.lastName }}&lt;/span&gt;
+              &lt;span class="user-email"&gt;{{ user.email }}&lt;/span&gt;
+              &lt;span class="badge" [class.badge-active]="user.status === 'ACTIVE'"&gt;
+                {{ user.status }}
+              &lt;/span&gt;
+            &lt;/li&gt;
+          }
+        &lt;/ul&gt;
+      }
+    &lt;/div&gt;
+  `</span>
+})
+<span class="kw">export class</span> <span class="typ">UserListComponent</span> {
+  <span class="cmt">// Sinyal tabanlı modern input ve output tanımları</span>
+  <span class="kw">readonly</span> roleFilter = <span class="fn">input</span>&lt;<span class="typ">string</span> | <span class="typ">null</span>&gt;(<span class="kw">null</span>);
+  <span class="kw">readonly</span> selectUser = <span class="fn">output</span>&lt;<span class="typ">UserProfileResponse</span>&gt;();
+
+  <span class="kw">private readonly</span> userService = <span class="fn">inject</span>(<span class="typ">UserService</span>);
+
+  <span class="kw">readonly</span> users = <span class="kw">this</span>.userService.<span class="prop">users</span>;
+  <span class="kw">readonly</span> isLoading = <span class="kw">this</span>.userService.<span class="prop">isLoading</span>;
+
+  <span class="fn">refresh</span>(): <span class="typ">void</span> {
+    <span class="kw">this</span>.userService.<span class="fn">loadUsers</span>();
+  }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 2: CLI VE SCAFFOLDING -->
+    <section id="s2-scaffolding">
+      <div class="section-header">
+        <div class="section-badge">2</div>
+        <h2 class="section-title">Standardize CLI Kurulumu ve Proje Scaffolding</h2>
+      </div>
+      <p class="section-desc">
+        Kurumsal projelerde tutarlılığı sağlamak amacıyla Angular CLI ve Node.js v24 LTS ortamında tek bir komutla iskelet türetilmeli, üretim gereksinimlerine göre bağımlılıklar eklenmelidir.
+      </p>
+
+      <div class="tabs-wrap">
+        <div class="tabs-nav">
+          <button class="tab-btn active" onclick="switchTab(event, 'tab-cli-bash')">Bash (Linux / macOS / Git Bash)</button>
+          <button class="tab-btn" onclick="switchTab(event, 'tab-cli-pwsh')">PowerShell (Windows)</button>
+        </div>
+        <div id="tab-cli-bash" class="tab-content active">
+          <div class="code-box">
+            <div class="code-header">
+              <div class="file-path"><span>Terminal &bull; Tek Satırlık Proje Başlatma</span></div>
+              <div class="code-actions">
+                <span class="lang-badge">Bash</span>
+                <button class="copy-btn">Kopyala</button>
+              </div>
+            </div>
+            <pre><code># 1. Node.js v24 LTS ve Angular CLI v21 kontrolü
+node -v  # v24.x olmalı
+ng version
+
+# 2. Kurumsal standart bayraklarla projeyi oluşturun:
+ng new core-frontend-portal \
+  --routing=true \
+  --style=scss \
+  --ssr=false \
+  --standalone=true \
+  --inline-style=false \
+  --skip-tests=false \
+  --package-manager=npm
+
+cd core-frontend-portal
+
+# 3. Temel kurumsal kütüphaneleri ekleyin (Tailwind CSS, Lucide Icons, Date-fns):
+npm install -D tailwindcss @tailwindcss/postcss postcss
+npm install lucide-angular date-fns clsx</code></pre>
+          </div>
+        </div>
+        <div id="tab-cli-pwsh" class="tab-content">
+          <div class="code-box">
+            <div class="code-header">
+              <div class="file-path"><span>PowerShell &bull; Tek Satırlık Proje Başlatma</span></div>
+              <div class="code-actions">
+                <span class="lang-badge">PowerShell</span>
+                <button class="copy-btn">Kopyala</button>
+              </div>
+            </div>
+            <pre><code># 1. Sürüm kontrolü
+node -v
+ng version
+
+# 2. Proje ilklendirme
+ng new core-frontend-portal --routing --style=scss --ssr=false --standalone --inline-style=false --skip-tests=false --package-manager=npm
+
+Set-Location core-frontend-portal
+
+# 3. Bağımlılıkların yüklenmesi
+npm install -D tailwindcss @tailwindcss/postcss postcss
+npm install lucide-angular date-fns clsx</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <h3>A. Kurumsal Path Aliases (tsconfig.json)</h3>
+      <p>
+        Derin bağıl yollardan (<code>../../../../core/services</code>) kaçınmak ve katmanlar arası bağımlılık sınırlarını netleştirmek için kurumsal yol takma adları (path aliases) zorunludur:
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>tsconfig.json</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">JSON</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code>{
+  "compileOnSave": <span class="kw">false</span>,
+  "compilerOptions": {
+    "baseUrl": <span class="str">"./"</span>,
+    "outDir": <span class="str">"./dist/out-tsc"</span>,
+    "forceConsistentCasingInFileNames": <span class="kw">true</span>,
+    "strict": <span class="kw">true</span>,
+    "noImplicitOverride": <span class="kw">true</span>,
+    "noPropertyAccessFromIndexSignature": <span class="kw">true</span>,
+    "noImplicitReturns": <span class="kw">true</span>,
+    "noFallthroughCasesInSwitch": <span class="kw">true</span>,
+    "skipLibCheck": <span class="kw">true</span>,
+    "isolatedModules": <span class="kw">true</span>,
+    "esModuleInterop": <span class="kw">true</span>,
+    "experimentalDecorators": <span class="kw">true</span>,
+    "moduleResolution": <span class="str">"bundler"</span>,
+    "importHelpers": <span class="kw">true</span>,
+    "target": <span class="str">"ES2022"</span>,
+    "module": <span class="str">"ES2022"</span>,
+    "paths": {
+      <span class="str">"@core/*"</span>: [<span class="str">"src/app/core/*"</span>],
+      <span class="str">"@features/*"</span>: [<span class="str">"src/app/features/*"</span>],
+      <span class="str">"@shared/*"</span>: [<span class="str">"src/app/shared/*"</span>],
+      <span class="str">"@layout/*"</span>: [<span class="str">"src/app/layout/*"</span>],
+      <span class="str">"@env/*"</span>: [<span class="str">"src/environments/*"</span>]
+    }
+  }
+}</code></pre>
+      </div>
+
+      <h3>B. Ortam Konfigürasyonu (Environments)</h3>
+      <p>
+        Spring Boot API uç noktası ve OAuth2 istemci bilgileri <code>src/environments/</code> altında ayrıştırılır:
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/environments/environment.ts</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">export const</span> environment = {
+  production: <span class="kw">true</span>,
+  apiUrl: <span class="str">'https://api.enterprise.com'</span>,
+  auth: {
+    issuer: <span class="str">'https://auth.enterprise.com'</span>,
+    clientId: <span class="str">'web-portal-client'</span>,
+    redirectUri: <span class="str">'https://portal.enterprise.com/auth/callback'</span>,
+    postLogoutRedirectUri: <span class="str">'https://portal.enterprise.com/login'</span>,
+    scope: <span class="str">'openid profile email'</span>,
+    responseType: <span class="str">'code'</span>
+  }
+};</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 3: DIZIN MIMARISI -->
+    <section id="s3-architecture">
+      <div class="section-header">
+        <div class="section-badge">3</div>
+        <h2 class="section-title">Kurumsal Dizin ve Modüler Mimari (Clean Architecture)</h2>
+      </div>
+      <p class="section-desc">
+        Proje yapısı, iş alanı (Domain / Feature-Driven) sınırlarına göre organize edilir. <code>core</code> genel tekil altyapıyı, <code>shared</code> ortak bileşenleri ve <code>features</code> bağımsız lazy-loaded modülleri barındırır.
+      </p>
+
+      <div class="tree-box">
+        <div class="tree-header">
+          <div class="tree-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            <span>📁 Kurumsal Proje Kök Dizin Hiyerarşisi (Project Root Structure)</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">Clean Architecture</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre class="tree-pre"><code><span class="tree-folder">my-enterprise-app/</span>                               <span class="tree-comment"># Proje Kök Dizini (Root)</span>
+<span class="tree-line">├── </span><span class="tree-folder">.github/</span>                                     <span class="tree-comment"># CI/CD GitHub Actions iş akışları</span>
+<span class="tree-line">│   └── </span><span class="tree-folder">workflows/</span>
+<span class="tree-line">│       └── </span><span class="tree-file">frontend-ci.yml</span>                      <span class="tree-comment"># Lint, test, build &amp; Docker pipeline</span>
+<span class="tree-line">├── </span><span class="tree-folder">.vscode/</span>                                     <span class="tree-comment"># Takım editör ve IDE standartları</span>
+<span class="tree-line">│   ├── </span><span class="tree-file">extensions.json</span>                          <span class="tree-comment"># Önerilen eklentiler (Angular, Tailwind)</span>
+<span class="tree-line">│   └── </span><span class="tree-file">settings.json</span>                            <span class="tree-comment"># Format-on-save ve lint ayarları</span>
+<span class="tree-line">├── </span><span class="tree-folder">public/</span>                                      <span class="tree-comment"># Statik varlıklar (Derlenmeyen)</span>
+<span class="tree-line">│   ├── </span><span class="tree-file">favicon.ico</span>
+<span class="tree-line">│   ├── </span><span class="tree-folder">icons/</span>                                   <span class="tree-comment"># PWA ve uygulama ikonları</span>
+<span class="tree-line">│   └── </span><span class="tree-file">robots.txt</span>
+<span class="tree-line">├── </span><span class="tree-folder">src/</span>                                         <span class="tree-comment"># Uygulama Kaynak Kodları</span>
+<span class="tree-line">│   ├── </span><span class="tree-folder">app/</span>                                     <span class="tree-comment"># Angular 21 Standalone Bileşenleri</span>
+<span class="tree-line">│   │   ├── </span><span class="tree-folder">core/</span>                                <span class="tree-comment"># Tekil (Singleton) Altyapı</span> <span class="tree-tag tree-tag-core">Core</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-folder">auth/</span>                            <span class="tree-comment"># OAuth2 / OIDC PKCE &amp; Token yönetimi</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-file">auth.service.ts</span>               <span class="tree-comment"># Signal tabanlı oturum durumu</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-file">pkce.utils.ts</span>                 <span class="tree-comment"># Web Crypto API PKCE üretici</span>
+<span class="tree-line">│   │   │   │   └── </span><span class="tree-file">token-storage.service.ts</span>      <span class="tree-comment"># In-memory token saklama</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-folder">guards/</span>                          <span class="tree-comment"># Fonksiyonel Rota Koruyucuları</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-file">auth.guard.ts</span>                 <span class="tree-comment"># Oturum kontrolü (CanActivateFn)</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-file">role.guard.ts</span>                 <span class="tree-comment"># Rol tabanlı erişim koruması</span>
+<span class="tree-line">│   │   │   │   └── </span><span class="tree-file">guest.guard.ts</span>                <span class="tree-comment"># Anonim kullanıcı kontrolü</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-folder">interceptors/</span>                    <span class="tree-comment"># Fonksiyonel HTTP Zinciri</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-file">api-prefix.interceptor.ts</span>     <span class="tree-comment"># API Base URL iliştirme</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-file">auth.interceptor.ts</span>           <span class="tree-comment"># Bearer token enjeksiyonu</span>
+<span class="tree-line">│   │   │   │   └── </span><span class="tree-file">error.interceptor.ts</span>          <span class="tree-comment"># RFC 7807 ProblemDetail yakalayıcı</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-folder">models/</span>                          <span class="tree-comment"># Global DTO ve Veri Modelleri</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-file">api-response.model.ts</span>         <span class="tree-comment"># Spring Boot ApiResponse&lt;T&gt;</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-file">problem-detail.model.ts</span>       <span class="tree-comment"># RFC 7807 hata şeması</span>
+<span class="tree-line">│   │   │   │   └── </span><span class="tree-file">user.model.ts</span>                 <span class="tree-comment"># Kullanıcı &amp; profil modelleri</span>
+<span class="tree-line">│   │   │   └── </span><span class="tree-folder">services/</span>                        <span class="tree-comment"># Küresel Yardımcı Servisler</span>
+<span class="tree-line">│   │   │       ├── </span><span class="tree-file">toast.service.ts</span>              <span class="tree-comment"># Sinyal tabanlı bildirim servisi</span>
+<span class="tree-line">│   │   │       ├── </span><span class="tree-file">theme.service.ts</span>              <span class="tree-comment"># Koyu/Açık tema senkronizasyonu</span>
+<span class="tree-line">│   │   │       └── </span><span class="tree-file">user.service.ts</span>               <span class="tree-comment"># Resource API ile veri yükleme</span>
+<span class="tree-line">│   │   │</span>
+<span class="tree-line">│   │   ├── </span><span class="tree-folder">layout/</span>                              <span class="tree-comment"># Uygulama Kabuğu (App Shell)</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-file">shell.component.ts</span>               <span class="tree-comment"># Ana layout ve router-outlet</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-folder">navbar/</span>                          <span class="tree-comment"># Üst bar ve profil dropdown</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-folder">sidebar/</span>                         <span class="tree-comment"># Daraltılabilir menü</span>
+<span class="tree-line">│   │   │   └── </span><span class="tree-folder">footer/</span>                          <span class="tree-comment"># Alt bilgi alanı</span>
+<span class="tree-line">│   │   │</span>
+<span class="tree-line">│   │   ├── </span><span class="tree-folder">features/</span>                            <span class="tree-comment"># İş Alanı Sayfaları (Lazy-Loaded)</span> <span class="tree-tag tree-tag-feature">Feature</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-folder">auth/</span>                            <span class="tree-comment"># Giriş, kayıt &amp; SSO callback</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-folder">login/</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-folder">register/</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-folder">callback/</span>
+<span class="tree-line">│   │   │   │   └── </span><span class="tree-file">auth.routes.ts</span>                <span class="tree-comment"># /auth rota tanımları</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-folder">dashboard/</span>                       <span class="tree-comment"># Ana gösterge paneli</span>
+<span class="tree-line">│   │   │   │   └── </span><span class="tree-file">dashboard.component.ts</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-folder">users/</span>                           <span class="tree-comment"># Kullanıcı yönetimi &amp; profil</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-folder">user-list/</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-folder">user-profile/</span>
+<span class="tree-line">│   │   │   │   └── </span><span class="tree-file">users.routes.ts</span>               <span class="tree-comment"># /users rota tanımları</span>
+<span class="tree-line">│   │   │   └── </span><span class="tree-folder">settings/</span>                        <span class="tree-comment"># Sistem &amp; güvenlik ayarları</span>
+<span class="tree-line">│   │   │</span>
+<span class="tree-line">│   │   ├── </span><span class="tree-folder">shared/</span>                              <span class="tree-comment"># Yeniden Kullanılabilir UI</span> <span class="tree-tag tree-tag-shared">Shared</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-folder">components/</span>                      <span class="tree-comment"># Bağımsız UI bileşenleri</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-folder">button/</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-folder">modal/</span>
+<span class="tree-line">│   │   │   │   ├── </span><span class="tree-folder">toast/</span>
+<span class="tree-line">│   │   │   │   └── </span><span class="tree-folder">skeleton/</span>
+<span class="tree-line">│   │   │   ├── </span><span class="tree-folder">directives/</span>                      <span class="tree-comment"># hasRole, autoFocus direktifleri</span>
+<span class="tree-line">│   │   │   └── </span><span class="tree-folder">pipes/</span>                           <span class="tree-comment"># formatRelativeDate, truncate</span>
+<span class="tree-line">│   │   │</span>
+<span class="tree-line">│   │   ├── </span><span class="tree-file">app.config.ts</span>                        <span class="tree-comment"># Zoneless &amp; HTTP sağlayıcıları</span>
+<span class="tree-line">│   │   ├── </span><span class="tree-file">app.routes.ts</span>                        <span class="tree-comment"># Ana rotalar ve lazy-load</span>
+<span class="tree-line">│   │   └── </span><span class="tree-file">app.component.ts</span>                     <span class="tree-comment"># Kök bileşen (&lt;router-outlet&gt;)</span>
+<span class="tree-line">│   │</span>
+<span class="tree-line">│   ├── </span><span class="tree-folder">environments/</span>                           <span class="tree-comment"># Ortam Değişkenleri</span>
+<span class="tree-line">│   │   ├── </span><span class="tree-file">environment.ts</span>                       <span class="tree-comment"># Production konfigürasyonu</span>
+<span class="tree-line">│   │   └── </span><span class="tree-file">environment.development.ts</span>           <span class="tree-comment"># Yerel geliştirme konfigürasyonu</span>
+<span class="tree-line">│   ├── </span><span class="tree-file">index.html</span>                               <span class="tree-comment"># Ana HTML sayfası</span>
+<span class="tree-line">│   ├── </span><span class="tree-file">main.ts</span>                                  <span class="tree-comment"># Zoneless bootstrap noktası</span>
+<span class="tree-line">│   └── </span><span class="tree-file">styles.scss</span>                              <span class="tree-comment"># Global SCSS ve Tailwind direktifleri</span>
+<span class="tree-line">│</span>
+<span class="tree-line">├── </span><span class="tree-file">.editorconfig</span>                                <span class="tree-comment"># Karakter seti ve indentation kuralları</span> <span class="tree-tag tree-tag-root">Root</span>
+<span class="tree-line">├── </span><span class="tree-file">.env.example</span>                                 <span class="tree-comment"># Ortam değişkenleri örnek şablonu</span>
+<span class="tree-line">├── </span><span class="tree-file">.gitignore</span>                                   <span class="tree-comment"># Git takibinden hariç tutulanlar</span>
+<span class="tree-line">├── </span><span class="tree-file">.prettierrc</span>                                  <span class="tree-comment"># Kod biçimlendirme kuralları</span>
+<span class="tree-line">├── </span><span class="tree-file">angular.json</span>                                 <span class="tree-comment"># Angular CLI &amp; esbuild build konfigürasyonu</span>
+<span class="tree-line">├── </span><span class="tree-file">Dockerfile</span>                                   <span class="tree-comment"># Node 24 -&gt; Nginx Alpine multi-stage imajı</span>
+<span class="tree-line">├── </span><span class="tree-file">eslint.config.js</span>                             <span class="tree-comment"># ESLint flat config kuralları</span>
+<span class="tree-line">├── </span><span class="tree-file">nginx.conf</span>                                   <span class="tree-comment"># Nginx SPA fallback ve güvenlik başlıkları</span>
+<span class="tree-line">├── </span><span class="tree-file">package.json</span>                                 <span class="tree-comment"># Bağımlılıklar ve npm scriptleri</span>
+<span class="tree-line">├── </span><span class="tree-file">README.md</span>                                    <span class="tree-comment"># Proje geliştirici el kitabı</span>
+<span class="tree-line">├── </span><span class="tree-file">tsconfig.json</span>                                <span class="tree-comment"># Path aliases (@core/*, @features/*)</span>
+<span class="tree-line">└── </span><span class="tree-file">tsconfig.app.json</span>                            <span class="tree-comment"># Uygulama TypeScript derleyici ayarları</span></code></pre>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Dizin</th>
+              <th>Sorumluluk Alanı</th>
+              <th>İçe Aktarma (Import) Kuralı</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>src/app/core/</code></td>
+              <td>Uygulama genelinde tek örneği (Singleton) olan servisler, token yönetimi, HTTP interceptor'lar ve guard'lar.</td>
+              <td>Yalnızca <code>app.config.ts</code> veya <code>layout</code> / <code>features</code> tarafından tüketilir. Feature modüllerini kesinlikle <strong>import edemez</strong>.</td>
+            </tr>
+            <tr>
+              <td><code>src/app/features/</code></td>
+              <td>İş akışları ve kullanıcı ekranları. Rota seviyesinde lazy-load edilir.</td>
+              <td><code>@core</code> ve <code>@shared</code> içe aktarabilir. Başka bir <code>feature</code> modülünü doğrudan <strong>import edemez</strong> (tam izolasyon).</td>
+            </tr>
+            <tr>
+              <td><code>src/app/shared/</code></td>
+              <td>Saf (stateless / reusable) UI bileşenleri, yardımcı fonksiyonlar, genel pipe ve direktifler.</td>
+              <td><code>@core</code> veya <code>@features</code> import edemez. Sadece kendi içindeki veya standart Angular paketlerini kullanır.</td>
+            </tr>
+            <tr>
+              <td><code>src/app/layout/</code></td>
+              <td>Uygulama kabuğu (Header, Sidebar, User Dropdown, Navigation Tree).</td>
+              <td><code>@core</code> ve <code>@shared</code> tüketebilir.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 4: KIMLIK DOGRULAMA VE SSO -->
+    <section id="s4-auth-sso">
+      <div class="section-header">
+        <div class="section-badge">4</div>
+        <h2 class="section-title">Kimlik Doğrulama, Kurumsal SSO &amp; Spring Authorization Server Entegrasyonu</h2>
+      </div>
+      <p class="section-desc">
+        Kurumsal mimaride kimlik doğrulama, Spring Authorization Server'ın OAuth 2.1 ve OpenID Connect 1.0 protokolleri üzerinden <strong>PKCE (Proof Key for Code Exchange)</strong> mekanizması ile gerçekleştirilir. Client Secret SPA tarafında asla saklanmaz.
+      </p>
+
+      <div class="callout warning">
+        <div class="callout-title">
+          <span>Güvenlik Uyarısı: SPA Token Güvenliği &amp; Pre-Account Takeover Koruması</span>
+        </div>
+        <p>
+          JWT Access Token'lar yalnızca <strong>In-Memory</strong> reaktif sinyalde (veya Web Worker içinde) tutulmalıdır. LocalStorage'a kalıcı Access Token yazılması XSS saldırılarına kapı açar. Refresh Token ise güvenli (HttpOnly, Secure, SameSite=Strict) çerezler ile arka uçta yönetilmelidir.
+        </p>
+      </div>
+
+      <h3>A. PKCE Yardımcı Fonksiyonları (Web Crypto API)</h3>
+      <p>
+        Harici bir kütüphaneye bağımlı kalmadan tarayıcının yerel <code>crypto.subtle</code> API'si ile kriptografik olarak rastgele <code>code_verifier</code> ve SHA-256 <code>code_challenge</code> üretilir:
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/app/core/auth/pkce.utils.ts</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">export async function</span> <span class="fn">generateCodeVerifier</span>(): <span class="typ">Promise</span>&lt;<span class="typ">string</span>&gt; {
+  <span class="kw">const</span> array = <span class="kw">new</span> <span class="typ">Uint8Array</span>(64);
+  window.<span class="prop">crypto</span>.<span class="fn">getRandomValues</span>(array);
+  <span class="kw">return</span> <span class="fn">base64UrlEncode</span>(array);
+}
+
+<span class="kw">export async function</span> <span class="fn">generateCodeChallenge</span>(verifier: <span class="typ">string</span>): <span class="typ">Promise</span>&lt;<span class="typ">string</span>&gt; {
+  <span class="kw">const</span> encoder = <span class="kw">new</span> <span class="typ">TextEncoder</span>();
+  <span class="kw">const</span> data = encoder.<span class="fn">encode</span>(verifier);
+  <span class="kw">const</span> digest = <span class="kw">await</span> window.<span class="prop">crypto</span>.<span class="prop">subtle</span>.<span class="fn">digest</span>(<span class="str">'SHA-256'</span>, data);
+  <span class="kw">return</span> <span class="fn">base64UrlEncode</span>(<span class="kw">new</span> <span class="typ">Uint8Array</span>(digest));
+}
+
+<span class="kw">function</span> <span class="fn">base64UrlEncode</span>(buffer: <span class="typ">Uint8Array</span>): <span class="typ">string</span> {
+  <span class="kw">let</span> str = <span class="str">''</span>;
+  <span class="kw">for</span> (<span class="kw">let</span> i = 0; i &lt; buffer.<span class="prop">length</span>; i++) {
+    str += String.<span class="fn">fromCharCode</span>(buffer[i]);
+  }
+  <span class="kw">return</span> btoa(str)
+    .<span class="fn">replace</span>(<span class="str">/\+/g</span>, <span class="str">'-'</span>)
+    .<span class="fn">replace</span>(<span class="str">/\//g</span>, <span class="str">'_'</span>)
+    .<span class="fn">replace</span>(<span class="str">/=+$/</span>, <span class="str">''</span>);
+}</code></pre>
+      </div>
+
+      <h3>B. Signal Tabanlı Kimlik Doğrulama Servisi (AuthService)</h3>
+      <p>
+        Oturum açma durumu, kullanıcı profili ve roller Angular 21'in reaktif sinyalleri ile yönetilir:
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/app/core/auth/auth.service.ts</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Injectable</span>, <span class="fn">signal</span>, <span class="fn">computed</span>, <span class="fn">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="typ">HttpClient</span>, <span class="typ">HttpHeaders</span>, <span class="typ">HttpParams</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+<span class="kw">import</span> { <span class="typ">Router</span> } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { environment } <span class="kw">from</span> <span class="str">'@env/environment'</span>;
+<span class="kw">import</span> { <span class="fn">generateCodeVerifier</span>, <span class="fn">generateCodeChallenge</span> } <span class="kw">from</span> <span class="str">'./pkce.utils'</span>;
+<span class="kw">import</span> { <span class="typ">UserProfileResponse</span> } <span class="kw">from</span> <span class="str">'@core/models/user.model'</span>;
+<span class="kw">import</span> { <span class="typ">AuthTokenResponse</span> } <span class="kw">from</span> <span class="str">'@core/models/auth.model'</span>;
+
+<span class="kw">const</span> PKCE_VERIFIER_KEY = <span class="str">'sso_pkce_verifier'</span>;
+
+@<span class="typ">Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export class</span> <span class="typ">AuthService</span> {
+  <span class="kw">private readonly</span> http = <span class="fn">inject</span>(<span class="typ">HttpClient</span>);
+  <span class="kw">private readonly</span> router = <span class="fn">inject</span>(<span class="typ">Router</span>);
+
+  <span class="cmt">// In-Memory Reactive State</span>
+  <span class="kw">private readonly</span> _accessToken = <span class="fn">signal</span>&lt;<span class="typ">string</span> | <span class="typ">null</span>&gt;(<span class="kw">null</span>);
+  <span class="kw">private readonly</span> _currentUser = <span class="fn">signal</span>&lt;<span class="typ">UserProfileResponse</span> | <span class="typ">null</span>&gt;(<span class="kw">null</span>);
+  <span class="kw">private readonly</span> _isLoading = <span class="fn">signal</span>&lt;<span class="typ">boolean</span>&gt;(<span class="kw">false</span>);
+
+  <span class="cmt">// Computed Selectors</span>
+  <span class="kw">readonly</span> accessToken = <span class="kw">this</span>._accessToken.<span class="fn">asReadonly</span>();
+  <span class="kw">readonly</span> currentUser = <span class="kw">this</span>._currentUser.<span class="fn">asReadonly</span>();
+  <span class="kw">readonly</span> isLoading = <span class="kw">this</span>._isLoading.<span class="fn">asReadonly</span>();
+  <span class="kw">readonly</span> isAuthenticated = <span class="fn">computed</span>(() =&gt; !!<span class="kw">this</span>._accessToken() && !!<span class="kw">this</span>._currentUser());
+  <span class="kw">readonly</span> userRoles = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>._currentUser()?.<span class="prop">roles</span> ?? []);
+
+  <span class="cmt">// 1. SSO Giriş Akışını Başlat (Spring Authorization Server'a yönlendir)</span>
+  <span class="kw">async</span> <span class="fn">redirectToSsoLogin</span>(): <span class="typ">Promise</span>&lt;<span class="typ">void</span>&gt; {
+    <span class="kw">const</span> verifier = <span class="kw">await</span> <span class="fn">generateCodeVerifier</span>();
+    <span class="kw">const</span> challenge = <span class="kw">await</span> <span class="fn">generateCodeChallenge</span>(verifier);
+
+    sessionStorage.<span class="fn">setItem</span>(PKCE_VERIFIER_KEY, verifier);
+
+    <span class="kw">const</span> authUrl = <span class="kw">new</span> <span class="typ">URL</span>(<span class="str">`${environment.auth.issuer}/oauth2/authorize`</span>);
+    authUrl.<span class="prop">searchParams</span>.<span class="fn">set</span>(<span class="str">'response_type'</span>, environment.<span class="prop">auth</span>.<span class="prop">responseType</span>);
+    authUrl.<span class="prop">searchParams</span>.<span class="fn">set</span>(<span class="str">'client_id'</span>, environment.<span class="prop">auth</span>.<span class="prop">clientId</span>);
+    authUrl.<span class="prop">searchParams</span>.<span class="fn">set</span>(<span class="str">'redirect_uri'</span>, environment.<span class="prop">auth</span>.<span class="prop">redirectUri</span>);
+    authUrl.<span class="prop">searchParams</span>.<span class="fn">set</span>(<span class="str">'scope'</span>, environment.<span class="prop">auth</span>.<span class="prop">scope</span>);
+    authUrl.<span class="prop">searchParams</span>.<span class="fn">set</span>(<span class="str">'code_challenge'</span>, challenge);
+    authUrl.<span class="prop">searchParams</span>.<span class="fn">set</span>(<span class="str">'code_challenge_method'</span>, <span class="str">'S256'</span>);
+
+    window.<span class="prop">location</span>.<span class="prop">href</span> = authUrl.<span class="fn">toString</span>();
+  }
+
+  <span class="cmt">// 2. OAuth2 Authorization Code Callback İşleme</span>
+  <span class="kw">async</span> <span class="fn">handleAuthCallback</span>(code: <span class="typ">string</span>): <span class="typ">Promise</span>&lt;<span class="typ">void</span>&gt; {
+    <span class="kw">const</span> verifier = sessionStorage.<span class="fn">getItem</span>(PKCE_VERIFIER_KEY);
+    <span class="kw">if</span> (!verifier) <span class="kw">throw new</span> <span class="typ">Error</span>(<span class="str">'PKCE Code Verifier bulunamadı.'</span>);
+
+    <span class="kw">this</span>._isLoading.<span class="fn">set</span>(<span class="kw">true</span>);
+
+    <span class="kw">const</span> body = <span class="kw">new</span> <span class="typ">HttpParams</span>()
+      .<span class="fn">set</span>(<span class="str">'grant_type'</span>, <span class="str">'authorization_code'</span>)
+      .<span class="fn">set</span>(<span class="str">'client_id'</span>, environment.<span class="prop">auth</span>.<span class="prop">clientId</span>)
+      .<span class="fn">set</span>(<span class="str">'redirect_uri'</span>, environment.<span class="prop">auth</span>.<span class="prop">redirectUri</span>)
+      .<span class="fn">set</span>(<span class="str">'code'</span>, code)
+      .<span class="fn">set</span>(<span class="str">'code_verifier'</span>, verifier);
+
+    <span class="kw">const</span> headers = <span class="kw">new</span> <span class="typ">HttpHeaders</span>({ <span class="str">'Content-Type'</span>: <span class="str">'application/x-www-form-urlencoded'</span> });
+
+    <span class="kw">try</span> {
+      <span class="kw">const</span> tokenRes = <span class="kw">await</span> <span class="kw">this</span>.http.<span class="fn">post</span>&lt;<span class="typ">AuthTokenResponse</span>&gt;(
+        <span class="str">`${environment.auth.issuer}/oauth2/token`</span>,
+        body.<span class="fn">toString</span>(),
+        { headers }
+      ).<span class="fn">toPromise</span>();
+
+      <span class="kw">if</span> (tokenRes?.<span class="prop">access_token</span>) {
+        sessionStorage.<span class="fn">removeItem</span>(PKCE_VERIFIER_KEY);
+        <span class="kw">this</span>._accessToken.<span class="fn">set</span>(tokenRes.<span class="prop">access_token</span>);
+        <span class="kw">await</span> <span class="kw">this</span>.<span class="fn">fetchCurrentUserProfile</span>();
+        <span class="kw">this</span>.router.<span class="fn">navigate</span>([<span class="str">'/dashboard'</span>]);
+      }
+    } <span class="kw">finally</span> {
+      <span class="kw">this</span>._isLoading.<span class="fn">set</span>(<span class="kw">false</span>);
+    }
+  }
+
+  <span class="cmt">// 3. Kullanıcı Profilini Getir (/api/v1/users/me)</span>
+  <span class="kw">async</span> <span class="fn">fetchCurrentUserProfile</span>(): <span class="typ">Promise</span>&lt;<span class="typ">void</span>&gt; {
+    <span class="kw">const</span> res = <span class="kw">await</span> <span class="kw">this</span>.http.<span class="fn">get</span>&lt;{ data: <span class="typ">UserProfileResponse</span> }&gt;(<span class="str">'/api/v1/users/me'</span>).<span class="fn">toPromise</span>();
+    <span class="kw">if</span> (res?.<span class="prop">data</span>) {
+      <span class="kw">this</span>._currentUser.<span class="fn">set</span>(res.<span class="prop">data</span>);
+    }
+  }
+
+  <span class="cmt">// 4. Güvenli Çıkış (Logout)</span>
+  <span class="fn">logout</span>(): <span class="typ">void</span> {
+    <span class="kw">this</span>._accessToken.<span class="fn">set</span>(<span class="kw">null</span>);
+    <span class="kw">this</span>._currentUser.<span class="fn">set</span>(<span class="kw">null</span>);
+    window.<span class="prop">location</span>.<span class="prop">href</span> = environment.<span class="prop">auth</span>.<span class="prop">postLogoutRedirectUri</span>;
+  }
+}</code></pre>
+      </div>
+
+      <h3>C. Modern Fonksiyonel Interceptor'lar</h3>
+      <p>
+        Angular 21'de <code>HttpInterceptorFn</code> kullanılır. Access token ekleme ve Spring Boot RFC 7807 <code>ProblemDetail</code> hata yakalama mekanizması:
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/app/core/interceptors/auth.interceptor.ts</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">HttpInterceptorFn</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+<span class="kw">import</span> { <span class="fn">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="typ">AuthService</span> } <span class="kw">from</span> <span class="str">'@core/auth/auth.service'</span>;
+
+<span class="kw">export const</span> authInterceptor: <span class="typ">HttpInterceptorFn</span> = (req, next) =&gt; {
+  <span class="kw">const</span> authService = <span class="fn">inject</span>(<span class="typ">AuthService</span>);
+  <span class="kw">const</span> token = authService.<span class="fn">accessToken</span>();
+
+  <span class="cmt">// OAuth2 token uç noktalarına istek atılırken header eklenmez</span>
+  <span class="kw">if</span> (req.<span class="prop">url</span>.<span class="fn">includes</span>(<span class="str">'/oauth2/'</span>) || !token) {
+    <span class="kw">return</span> <span class="fn">next</span>(req);
+  }
+
+  <span class="kw">const</span> clonedReq = req.<span class="fn">clone</span>({
+    setHeaders: {
+      Authorization: <span class="str">`Bearer ${token}`</span>
+    }
+  });
+
+  <span class="kw">return</span> <span class="fn">next</span>(clonedReq);
+};</code></pre>
+      </div>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/app/core/interceptors/error.interceptor.ts (RFC 7807 Handler)</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">HttpInterceptorFn</span>, <span class="typ">HttpErrorResponse</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+<span class="kw">import</span> { <span class="fn">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="typ">Router</span> } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { <span class="fn">catchError</span>, <span class="fn">throwError</span> } <span class="kw">from</span> <span class="str">'rxjs'</span>;
+<span class="kw">import</span> { <span class="typ">ToastService</span> } <span class="kw">from</span> <span class="str">'@core/services/toast.service'</span>;
+<span class="kw">import</span> { <span class="typ">AuthService</span> } <span class="kw">from</span> <span class="str">'@core/auth/auth.service'</span>;
+<span class="kw">import</span> { <span class="typ">ProblemDetail</span> } <span class="kw">from</span> <span class="str">'@core/models/problem-detail.model'</span>;
+
+<span class="kw">export const</span> errorInterceptor: <span class="typ">HttpInterceptorFn</span> = (req, next) =&gt; {
+  <span class="kw">const</span> toast = <span class="fn">inject</span>(<span class="typ">ToastService</span>);
+  <span class="kw">const</span> router = <span class="fn">inject</span>(<span class="typ">Router</span>);
+  <span class="kw">const</span> auth = <span class="fn">inject</span>(<span class="typ">AuthService</span>);
+
+  <span class="kw">return</span> <span class="fn">next</span>(req).<span class="fn">pipe</span>(
+    <span class="fn">catchError</span>((error: <span class="typ">HttpErrorResponse</span>) =&gt; {
+      <span class="cmt">// 1. Spring Boot RFC 7807 ProblemDetail gövdesini parse et</span>
+      <span class="kw">const</span> problem: <span class="typ">ProblemDetail</span> | <span class="typ">null</span> = error.<span class="prop">error</span> ?? <span class="kw">null</span>;
+
+      <span class="kw">if</span> (error.<span class="prop">status</span> === 401) {
+        toast.<span class="fn">error</span>(<span class="str">'Oturum süreniz doldu, lütfen tekrar giriş yapın.'</span>);
+        auth.<span class="fn">logout</span>();
+      } <span class="kw">else if</span> (error.<span class="prop">status</span> === 403) {
+        toast.<span class="fn">error</span>(<span class="str">'Bu işlemi gerçekleştirmek için yetkiniz bulunmamaktadır.'</span>);
+      } <span class="kw">else if</span> (error.<span class="prop">status</span> === 400 && problem?.<span class="prop">invalidParams</span>) {
+        <span class="cmt">// Jakarta Validation hata listesi</span>
+        <span class="kw">const</span> details = problem.<span class="prop">invalidParams</span>.<span class="fn">map</span>(p =&gt; <span class="str">`${p.field}: ${p.reason}`</span>).<span class="fn">join</span>(<span class="str">', '</span>);
+        toast.<span class="fn">warning</span>(<span class="str">`Form doğrulama hatası: ${details}`</span>);
+      } <span class="kw">else</span> {
+        toast.<span class="fn">error</span>(problem?.<span class="prop">detail</span> || error.<span class="prop">message</span> || <span class="str">'Beklenmedik bir hata oluştu.'</span>);
+      }
+
+      <span class="kw">return</span> <span class="fn">throwError</span>(() =&gt; error);
+    })
+  );
+};</code></pre>
+      </div>
+
+      <h3>D. Fonksiyonel Rota Koruyucu (authGuard)</h3>
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/app/core/guards/auth.guard.ts</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">CanActivateFn</span>, <span class="typ">Router</span> } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { <span class="fn">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="typ">AuthService</span> } <span class="kw">from</span> <span class="str">'@core/auth/auth.service'</span>;
+
+<span class="kw">export const</span> authGuard: <span class="typ">CanActivateFn</span> = (route, state) =&gt; {
+  <span class="kw">const</span> auth = <span class="fn">inject</span>(<span class="typ">AuthService</span>);
+  <span class="kw">const</span> router = <span class="fn">inject</span>(<span class="typ">Router</span>);
+
+  <span class="kw">if</span> (auth.<span class="fn">isAuthenticated</span>()) {
+    <span class="kw">return true</span>;
+  }
+
+  <span class="cmt">// Yetkisiz erişimde login sayfasına yönlendir, hedef rotayı dönüş için sakla</span>
+  <span class="kw">return</span> router.<span class="fn">createUrlTree</span>([<span class="str">'/auth/login'</span>], {
+    queryParams: { returnUrl: state.<span class="prop">url</span> }
+  });
+};</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 5: SIGNAL STATE & RESOURCE API -->
+    <section id="s5-state-data">
+      <div class="section-header">
+        <div class="section-badge">5</div>
+        <h2 class="section-title">Signal Tabanlı Durum Yönetimi &amp; Resource API</h2>
+      </div>
+      <p class="section-desc">
+        Angular 21 ile birlikte gelen <strong>Resource API</strong> (<code>resource()</code> ve <code>rxResource()</code>), asenkron HTTP veri alma ve reaktif sinyalleri doğrudan birbirine bağlar. NgRx gibi ağır boilerplate gerektiren kütüphanelerin yerini saf, hafif ve tip-güvenli Signal Store deseni alır.
+      </p>
+
+      <div class="callout tip">
+        <div class="callout-title">
+          <span>Angular 21 Resource API: rxResource ile Deklaratif HTTP Veri Akışı</span>
+        </div>
+        <p>
+          Sayfalama, arama terimi veya filtre sinyali değiştiğinde <code>rxResource</code> otomatik olarak iptal (cancellation / switchMap benzeri) ve yeniden yükleme gerçekleştirir.
+        </p>
+      </div>
+
+      <h3>A. Resource API ile Kullanıcı Yönetimi Servisi (UserService)</h3>
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/app/core/services/user.service.ts</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Injectable</span>, <span class="fn">signal</span>, <span class="fn">computed</span>, <span class="fn">inject</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="typ">HttpClient</span>, <span class="typ">HttpParams</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+<span class="kw">import</span> { <span class="fn">rxResource</span> } <span class="kw">from</span> <span class="str">'@angular/core/rxjs-interop'</span>;
+<span class="kw">import</span> { <span class="typ">UserProfileResponse</span>, <span class="typ">PageResponse</span> } <span class="kw">from</span> <span class="str">'@core/models/user.model'</span>;
+
+@<span class="typ">Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export class</span> <span class="typ">UserService</span> {
+  <span class="kw">private readonly</span> http = <span class="fn">inject</span>(<span class="typ">HttpClient</span>);
+
+  <span class="cmt">// Sinyal tabanlı filtre ve sayfalama parametreleri</span>
+  <span class="kw">readonly</span> searchQuery = <span class="fn">signal</span>&lt;<span class="typ">string</span>&gt;(<span class="str">''</span>);
+  <span class="kw">readonly</span> page = <span class="fn">signal</span>&lt;<span class="typ">number</span>&gt;(0);
+  <span class="kw">readonly</span> pageSize = <span class="fn">signal</span>&lt;<span class="typ">number</span>&gt;(10);
+
+  <span class="cmt">// rxResource: Parametre sinyalleri değiştikçe otomatik olarak HTTP isteği tetikler</span>
+  <span class="kw">readonly</span> userResource = <span class="fn">rxResource</span>({
+    request: () =&gt; ({
+      query: <span class="kw">this</span>.<span class="fn">searchQuery</span>(),
+      page: <span class="kw">this</span>.<span class="fn">page</span>(),
+      size: <span class="kw">this</span>.<span class="fn">pageSize</span>()
+    }),
+    loader: ({ request }) =&gt; {
+      <span class="kw">const</span> params = <span class="kw">new</span> <span class="typ">HttpParams</span>()
+        .<span class="fn">set</span>(<span class="str">'query'</span>, request.<span class="prop">query</span>)
+        .<span class="fn">set</span>(<span class="str">'page'</span>, request.<span class="prop">page</span>.<span class="fn">toString</span>())
+        .<span class="fn">set</span>(<span class="str">'size'</span>, request.<span class="prop">size</span>.<span class="fn">toString</span>());
+
+      <span class="kw">return this</span>.http.<span class="fn">get</span>&lt;<span class="typ">PageResponse</span>&lt;<span class="typ">UserProfileResponse</span>&gt;&gt;(<span class="str">'/api/v1/users'</span>, { params });
+    }
+  });
+
+  <span class="cmt">// Kolay erişim için computed sinyaller</span>
+  <span class="kw">readonly</span> users = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.userResource.<span class="fn">value</span>()?.<span class="prop">content</span> ?? []);
+  <span class="kw">readonly</span> totalElements = <span class="fn">computed</span>(() =&gt; <span class="kw">this</span>.userResource.<span class="fn">value</span>()?.<span class="prop">totalElements</span> ?? 0);
+  <span class="kw">readonly</span> isLoading = <span class="kw">this</span>.userResource.<span class="prop">isLoading</span>;
+
+  <span class="fn">setSearch</span>(query: <span class="typ">string</span>): <span class="typ">void</span> {
+    <span class="kw">this</span>.page.<span class="fn">set</span>(0); <span class="cmt">// Yeni aramada ilk sayfaya dön</span>
+    <span class="kw">this</span>.searchQuery.<span class="fn">set</span>(query);
+  }
+
+  <span class="fn">setPage</span>(newPage: <span class="typ">number</span>): <span class="typ">void</span> {
+    <span class="kw">this</span>.page.<span class="fn">set</span>(newPage);
+  }
+
+  <span class="fn">reload</span>(): <span class="typ">void</span> {
+    <span class="kw">this</span>.userResource.<span class="fn">reload</span>();
+  }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 6: UI / UX & FORMS -->
+    <section id="s6-ui-forms">
+      <div class="section-header">
+        <div class="section-badge">6</div>
+        <h2 class="section-title">Kurumsal UI/UX Standartları, Reusable Bileşenler &amp; Formlar</h2>
+      </div>
+      <p class="section-desc">
+        Modern kurumsal arayüzlerde tutarlı karanlık/aydınlık tema desteği, erişilebilir (a11y) geri bildirimler (Toast, Modal, Skeleton) ve katı tip güvenli reaktif form doğrulamaları standarttır.
+      </p>
+
+      <h3>A. Global Toast Bildirim Servisi (ToastService)</h3>
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/app/core/services/toast.service.ts</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Injectable</span>, <span class="fn">signal</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="kw">export interface</span> <span class="typ">ToastMessage</span> {
+  id: <span class="typ">string</span>;
+  type: <span class="str">'success'</span> | <span class="str">'error'</span> | <span class="str">'warning'</span> | <span class="str">'info'</span>;
+  message: <span class="typ">string</span>;
+  duration?: <span class="typ">number</span>;
+}
+
+@<span class="typ">Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export class</span> <span class="typ">ToastService</span> {
+  <span class="kw">private readonly</span> _toasts = <span class="fn">signal</span>&lt;<span class="typ">ToastMessage</span>[]&gt;([]);
+  <span class="kw">readonly</span> toasts = <span class="kw">this</span>._toasts.<span class="fn">asReadonly</span>();
+
+  <span class="fn">show</span>(type: <span class="typ">ToastMessage</span>[<span class="str">'type'</span>], message: <span class="typ">string</span>, duration = 4000): <span class="typ">void</span> {
+    <span class="kw">const</span> id = window.<span class="prop">crypto</span>.<span class="fn">randomUUID</span>();
+    <span class="kw">const</span> toast: <span class="typ">ToastMessage</span> = { id, type, message, duration };
+
+    <span class="kw">this</span>._toasts.<span class="fn">update</span>(prev =&gt; [...prev, toast]);
+
+    <span class="kw">if</span> (duration &gt; 0) {
+      setTimeout(() =&gt; <span class="kw">this</span>.<span class="fn">remove</span>(id), duration);
+    }
+  }
+
+  <span class="fn">success</span>(msg: <span class="typ">string</span>): <span class="typ">void</span> { <span class="kw">this</span>.<span class="fn">show</span>(<span class="str">'success'</span>, msg); }
+  <span class="fn">error</span>(msg: <span class="typ">string</span>): <span class="typ">void</span> { <span class="kw">this</span>.<span class="fn">show</span>(<span class="str">'error'</span>, msg, 6000); }
+  <span class="fn">warning</span>(msg: <span class="typ">string</span>): <span class="typ">void</span> { <span class="kw">this</span>.<span class="fn">show</span>(<span class="str">'warning'</span>, msg, 5000); }
+  <span class="fn">info</span>(msg: <span class="typ">string</span>): <span class="typ">void</span> { <span class="kw">this</span>.<span class="fn">show</span>(<span class="str">'info'</span>, msg); }
+
+  <span class="fn">remove</span>(id: <span class="typ">string</span>): <span class="typ">void</span> {
+    <span class="kw">this</span>._toasts.<span class="fn">update</span>(prev =&gt; prev.<span class="fn">filter</span>(t =&gt; t.<span class="prop">id</span> !== id));
+  }
+}</code></pre>
+      </div>
+
+      <h3>B. Signal Tabanlı Reaktif Tema Değiştirici (ThemeService)</h3>
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/app/core/services/theme.service.ts</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Injectable</span>, <span class="fn">signal</span>, <span class="fn">effect</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+<span class="kw">export type</span> <span class="typ">ThemeMode</span> = <span class="str">'dark'</span> | <span class="str">'light'</span>;
+
+@<span class="typ">Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export class</span> <span class="typ">ThemeService</span> {
+  <span class="kw">private readonly</span> THEME_KEY = <span class="str">'app_theme_mode'</span>;
+  <span class="kw">readonly</span> currentTheme = <span class="fn">signal</span>&lt;<span class="typ">ThemeMode</span>&gt;(<span class="kw">this</span>.<span class="fn">getInitialTheme</span>());
+
+  <span class="fn">constructor</span>() {
+    <span class="cmt">// Sinyal değiştikçe HTML data-theme özniteliğini ve LocalStorage'ı senkronize et</span>
+    <span class="fn">effect</span>(() =&gt; {
+      <span class="kw">const</span> theme = <span class="kw">this</span>.<span class="fn">currentTheme</span>();
+      document.<span class="prop">documentElement</span>.<span class="fn">setAttribute</span>(<span class="str">'data-theme'</span>, theme);
+      localStorage.<span class="fn">setItem</span>(<span class="kw">this</span>.<span class="prop">THEME_KEY</span>, theme);
+    });
+  }
+
+  <span class="fn">toggleTheme</span>(): <span class="typ">void</span> {
+    <span class="kw">this</span>.currentTheme.<span class="fn">update</span>(prev =&gt; prev === <span class="str">'dark'</span> ? <span class="str">'light'</span> : <span class="str">'dark'</span>);
+  }
+
+  <span class="kw">private</span> <span class="fn">getInitialTheme</span>(): <span class="typ">ThemeMode</span> {
+    <span class="kw">const</span> saved = localStorage.<span class="fn">getItem</span>(<span class="kw">this</span>.<span class="prop">THEME_KEY</span>) <span class="kw">as</span> <span class="typ">ThemeMode</span> | <span class="typ">null</span>;
+    <span class="kw">if</span> (saved) <span class="kw">return</span> saved;
+    <span class="kw">return</span> window.<span class="fn">matchMedia</span>(<span class="str">'(prefers-color-scheme: dark)'</span>).<span class="prop">matches</span> ? <span class="str">'dark'</span> : <span class="str">'light'</span>;
+  }
+}</code></pre>
+      </div>
+
+      <h3>C. Jakarta Validation Destekli Tip-Güvenli Form (RegisterComponent)</h3>
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>src/app/features/auth/register/register.component.ts</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">TypeScript</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Component</span>, <span class="fn">inject</span>, <span class="fn">signal</span>, <span class="typ">ChangeDetectionStrategy</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { <span class="typ">ReactiveFormsModule</span>, <span class="typ">FormBuilder</span>, <span class="typ">Validators</span> } <span class="kw">from</span> <span class="str">'@angular/forms'</span>;
+<span class="kw">import</span> { <span class="typ">Router</span>, <span class="typ">RouterLink</span> } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { <span class="typ">HttpClient</span> } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+<span class="kw">import</span> { <span class="typ">ToastService</span> } <span class="kw">from</span> <span class="str">'@core/services/toast.service'</span>;
+
+@<span class="typ">Component</span>({
+  selector: <span class="str">'app-register'</span>,
+  standalone: <span class="kw">true</span>,
+  imports: [<span class="typ">ReactiveFormsModule</span>, <span class="typ">RouterLink</span>],
+  changeDetection: <span class="typ">ChangeDetectionStrategy</span>.<span class="prop">OnPush</span>,
+  template: <span class="str">`
+    &lt;div class="auth-card"&gt;
+      &lt;h2&gt;Kurumsal Hesap Oluştur&lt;/h2&gt;
+      &lt;p class="subtitle"&gt;Spring Boot Core API için güvenli kullanıcı kaydı&lt;/p&gt;
+
+      &lt;form [formGroup]="form" (ngSubmit)="onSubmit()"&gt;
+        &lt;div class="form-group"&gt;
+          &lt;label for="email"&gt;Kurumsal E-posta&lt;/label&gt;
+          &lt;input id="email" type="email" formControlName="email" placeholder="ad.soyad@enterprise.com" /&gt;
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            &lt;span class="error-msg"&gt;Geçerli bir e-posta adresi giriniz.&lt;/span&gt;
+          }
+        &lt;/div&gt;
+
+        &lt;div class="form-row"&gt;
+          &lt;div class="form-group"&gt;
+            &lt;label for="firstName"&gt;Ad&lt;/label&gt;
+            &lt;input id="firstName" formControlName="firstName" /&gt;
+          &lt;/div&gt;
+          &lt;div class="form-group"&gt;
+            &lt;label for="lastName"&gt;Soyad&lt;/label&gt;
+            &lt;input id="lastName" formControlName="lastName" /&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class="form-group"&gt;
+          &lt;label for="password"&gt;Parola&lt;/label&gt;
+          &lt;input id="password" type="password" formControlName="password" placeholder="En az 8 karakter" /&gt;
+        &lt;/div&gt;
+
+        &lt;button type="submit" [disabled]="form.invalid || isSubmitting()" class="btn-primary"&gt;
+          {{ isSubmitting() ? 'Kaydediliyor...' : 'Kayıt Ol' }}
+        &lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  `</span>
+})
+<span class="kw">export class</span> <span class="typ">RegisterComponent</span> {
+  <span class="kw">private readonly</span> fb = <span class="fn">inject</span>(<span class="typ">FormBuilder</span>);
+  <span class="kw">private readonly</span> http = <span class="fn">inject</span>(<span class="typ">HttpClient</span>);
+  <span class="kw">private readonly</span> router = <span class="fn">inject</span>(<span class="typ">Router</span>);
+  <span class="kw">private readonly</span> toast = <span class="fn">inject</span>(<span class="typ">ToastService</span>);
+
+  <span class="kw">readonly</span> isSubmitting = <span class="fn">signal</span>&lt;<span class="typ">boolean</span>&gt;(<span class="kw">false</span>);
+
+  <span class="kw">readonly</span> form = <span class="kw">this</span>.fb.<span class="fn">nonNullable</span>.<span class="fn">group</span>({
+    email: [<span class="str">''</span>, [<span class="typ">Validators</span>.<span class="prop">required</span>, <span class="typ">Validators</span>.<span class="prop">email</span>]],
+    firstName: [<span class="str">''</span>, [<span class="typ">Validators</span>.<span class="prop">required</span>, <span class="typ">Validators</span>.<span class="fn">minLength</span>(2), <span class="typ">Validators</span>.<span class="fn">maxLength</span>(50)]],
+    lastName: [<span class="str">''</span>, [<span class="typ">Validators</span>.<span class="prop">required</span>, <span class="typ">Validators</span>.<span class="fn">minLength</span>(2), <span class="typ">Validators</span>.<span class="fn">maxLength</span>(50)]],
+    password: [<span class="str">''</span>, [<span class="typ">Validators</span>.<span class="prop">required</span>, <span class="typ">Validators</span>.<span class="fn">minLength</span>(8), <span class="typ">Validators</span>.<span class="fn">maxLength</span>(100)]]
+  });
+
+  <span class="kw">async</span> <span class="fn">onSubmit</span>(): <span class="typ">Promise</span>&lt;<span class="typ">void</span>&gt; {
+    <span class="kw">if</span> (<span class="kw">this</span>.form.<span class="prop">invalid</span>) <span class="kw">return</span>;
+
+    <span class="kw">this</span>.isSubmitting.<span class="fn">set</span>(<span class="kw">true</span>);
+    <span class="kw">try</span> {
+      <span class="kw">await</span> <span class="kw">this</span>.http.<span class="fn">post</span>(<span class="str">'/api/v1/auth/register'</span>, <span class="kw">this</span>.form.<span class="fn">getRawValue</span>()).<span class="fn">toPromise</span>();
+      <span class="kw">this</span>.toast.<span class="fn">success</span>(<span class="str">'Hesabınız başarıyla oluşturuldu! Lütfen giriş yapınız.'</span>);
+      <span class="kw">this</span>.router.<span class="fn">navigate</span>([<span class="str">'/auth/login'</span>]);
+    } <span class="kw">finally</span> {
+      <span class="kw">this</span>.isSubmitting.<span class="fn">set</span>(<span class="kw">false</span>);
+    }
+  }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 7: DEVOPS, DOCKER & CI/CD -->
+    <section id="s7-devops">
+      <div class="section-header">
+        <div class="section-badge">7</div>
+        <h2 class="section-title">Production Build, Dockerization, Nginx &amp; DevOps CI/CD</h2>
+      </div>
+      <p class="section-desc">
+        Üretim dağıtımında Angular 21'in <code>application</code> esbuild derleyicisi ile statik HTML/JS/CSS paketleri üretilir. Multi-stage Docker yapısı ve Nginx Alpine imajı ile SPA rotalama ve katı güvenlik başlıkları (CSP, HSTS) yapılandırılır.
+      </p>
+
+      <h3>A. Multi-Stage Dockerfile (Node 24 -> Nginx Alpine)</h3>
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>Dockerfile</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">Dockerfile</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code><span class="cmt"># ==========================================</span>
+<span class="cmt"># STAGE 1: Build Application with Node 24</span>
+<span class="cmt"># ==========================================</span>
+<span class="kw">FROM</span> node:24-alpine <span class="kw">AS</span> builder
+<span class="kw">WORKDIR</span> /app
+
+<span class="cmt"># Paket tanımlarını kopyala ve bağımlılıkları yükle</span>
+<span class="kw">COPY</span> package*.json ./
+<span class="kw">RUN</span> npm ci
+
+<span class="cmt"># Kaynak kodları kopyala ve production derlemesi yap</span>
+<span class="kw">COPY</span> . .
+<span class="kw">RUN</span> npm run build -- --configuration=production
+
+<span class="cmt"># ==========================================</span>
+<span class="cmt"># STAGE 2: Lightweight Nginx Alpine Runtime</span>
+<span class="cmt"># ==========================================</span>
+<span class="kw">FROM</span> nginx:1.27-alpine <span class="kw">AS</span> runner
+<span class="kw">WORKDIR</span> /usr/share/nginx/html
+
+<span class="cmt"># Varsayılan nginx içeriğini temizle</span>
+<span class="kw">RUN</span> rm -rf ./*
+
+<span class="cmt"># Derlenen Angular uygulamasını kopyala</span>
+<span class="kw">COPY</span> --from=builder /app/dist/core-frontend-portal/browser .
+
+<span class="cmt"># Kurumsal Nginx konfigürasyonunu ekle</span>
+<span class="kw">COPY</span> nginx.conf /etc/nginx/conf.d/default.conf
+
+<span class="cmt"># Güvenlik: Port 80 üzerinde non-root kullanıcı veya standart çalıştırma</span>
+<span class="kw">EXPOSE</span> 80
+
+<span class="kw">CMD</span> ["nginx", "-g", "daemon off;"]</code></pre>
+      </div>
+
+      <h3>B. Kurumsal Nginx Konfigürasyonu (nginx.conf)</h3>
+      <p>
+        SPA rotalama fallback'i (<code>try_files</code>), gzip sıkıştırma, statik dosya önbellek optimizasyonu ve siber güvenlik başlıkları:
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>nginx.conf</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">Nginx</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code>server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Gzip Sıkıştırma
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied expired no-cache no-store private auth;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/x-javascript application/xml application/json image/svg+xml;
+    gzip_disable "MSIE [1-6]\.";
+
+    # Kurumsal Siber Güvenlik Başlıkları
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.enterprise.com https://auth.enterprise.com;" always;
+
+    # Statik Varlıklar için Uzun Süreli Önbellek (Cache-Control: 1 Yıl)
+    location ~* \.(?:css|js|woff2?|svg|gif|png|jpe?g|ico)$ {
+        expires 1y;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        access_log off;
+    }
+
+    # SPA Fallback Rotalama: Tanımlanmayan yolları index.html'e yönlendir
+    location / {
+        try_files $uri $uri/ /index.html;
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+    }
+
+    # Sağlık Kontrolü (Health Check Endpoint)
+    location /healthz {
+        access_log off;
+        return 200 "healthy\n";
+    }
+}</code></pre>
+      </div>
+
+      <h3>C. GitHub Actions CI/CD Pipeline (.github/workflows/frontend-ci.yml)</h3>
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            <span>.github/workflows/frontend-ci.yml</span>
+          </div>
+          <div class="code-actions">
+            <span class="lang-badge">YAML</span>
+            <button class="copy-btn">Kopyala</button>
+          </div>
+        </div>
+        <pre><code>name: Frontend CI/CD Quality Gate
+
+on:
+  push:
+    branches: [ development, main ]
+  pull_request:
+    branches: [ development, main ]
+
+jobs:
+  build-and-test:
+    name: Lint, Test &amp; Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js v24 LTS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Unit Tests (Headless)
+        run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless
+
+      - name: Build Production Bundle
+        run: npm run build -- --configuration=production
+
+      - name: Build Docker Image
+        run: docker build -t core-frontend-portal:latest .</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    <span id="toastMsg">Panoya kopyalandı!</span>
+  </div>
+
+  <!-- INTERACTIVE JAVASCRIPT -->
+  <script>
+    // Tab Değiştirme
+    function switchTab(evt, tabId) {
+      const container = evt.currentTarget.closest('.tabs-wrap');
+      const btns = container.querySelectorAll('.tab-btn');
+      const tabs = container.querySelectorAll('.tab-content');
+
+      btns.forEach(b => b.classList.remove('active'));
+      tabs.forEach(t => t.classList.remove('active'));
+
+      evt.currentTarget.classList.add('active');
+      container.querySelector('#' + tabId).classList.add('active');
+    }
+
+    // Kod Kopyalama
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const codeBox = btn.closest('.code-box') || btn.closest('.tree-box');
+        if (!codeBox) return;
+        const pre = codeBox.querySelector('pre');
+        if (!pre) return;
+        const text = pre.innerText;
+
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.innerText;
+          btn.innerText = 'Kopyalandı!';
+          btn.classList.add('copied');
+          showToast('Kod panoya kopyalandı.');
+
+          setTimeout(() => {
+            btn.innerText = original;
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      });
+    });
+
+    // Toast Gösterimi
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Karanlık / Aydınlık Tema Değiştirme
+    const themeBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeLabel = document.getElementById('themeLabel');
+
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const target = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', target);
+
+      if (target === 'light') {
+        themeIcon.innerText = '🌙';
+        themeLabel.innerText = 'Koyu Tema';
+      } else {
+        themeIcon.innerText = '☀️';
+        themeLabel.innerText = 'Açık Tema';
+      }
+    });
+
+    // Sidebar ScrollSpy
+    const sections = document.querySelectorAll('section');
+    const navItems = document.querySelectorAll('.nav-item');
+
+    window.addEventListener('scroll', () => {
+      let currentId = '';
+      sections.forEach(sec => {
+        const top = sec.offsetTop - 120;
+        if (window.pageYOffset >= top) {
+          currentId = sec.getAttribute('id');
+        }
+      });
+
+      navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === '#' + currentId) {
+          item.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

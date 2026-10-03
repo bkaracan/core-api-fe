@@ -39,7 +39,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             break;
           }
           case 400: {
-            if (problem.invalidParams && problem.invalidParams.length > 0) {
+            if (problem.errors && problem.errors.length > 0) {
+              const fieldErrors = problem.errors
+                .map((p) => `${p.field}: ${p.message}`)
+                .join(', ');
+              toastService.warning(fieldErrors, `Doğrulama Hatası (${problem.errorCode || '400'})`);
+            } else if (problem.invalidParams && problem.invalidParams.length > 0) {
               const fieldErrors = problem.invalidParams
                 .map((p) => `${p.name}: ${p.reason}`)
                 .join(', ');

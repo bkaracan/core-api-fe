@@ -1,0 +1,211 @@
+<div class="min-h-screen bg-[var(--color-bg-subtle)] text-[var(--color-text-main)] flex flex-col font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+  <!-- Sticky Landing Navbar with Section Spy -->
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-[var(--color-bg-subtle)]/80 border-b border-[var(--color-border-subtle)] transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+      <!-- Brand Logo -->
+      <a
+        routerLink="/"
+        (click)="scrollTo('hero')"
+        class="flex items-center gap-3 cursor-pointer group"
+      >
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-emerald-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+          改善
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold text-base tracking-tight text-[var(--color-text-main)]">Kaizen Habits</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">+1%</span>
+          </div>
+          <p class="text-[11px] text-[var(--color-text-muted)] hidden sm:block">Davranışsal Zaman & Alışkanlık Mimarisi</p>
+        </div>
+      </a>
+
+      <!-- Desktop Section Spy Navigation Links -->
+      <nav class="hidden lg:flex items-center gap-1 p-1 rounded-2xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] text-xs font-semibold">
+        @for (item of navItems; track item.id) {
+          <button
+            type="button"
+            (click)="scrollTo(item.id)"
+            [class.bg-indigo-600]="scrollService.activeSection() === item.id"
+            [class.text-white]="scrollService.activeSection() === item.id"
+            [class.shadow-md]="scrollService.activeSection() === item.id"
+            [class.text-[var(--color-text-muted)]]="scrollService.activeSection() !== item.id"
+            [class.hover:text-[var(--color-text-main)]]="scrollService.activeSection() !== item.id"
+            class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer"
+          >
+            {{ item.label }}
+          </button>
+        }
+      </nav>
+
+      <!-- Right Actions (Theme Switcher & Auth) -->
+      <div class="flex items-center gap-3">
+        <!-- Theme Toggle -->
+        <button
+          type="button"
+          (click)="themeService.toggleTheme()"
+          class="p-2.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] hover:bg-[var(--color-bg-subtle)] transition-colors cursor-pointer text-sm"
+          [title]="themeService.currentTheme() === 'dark' ? 'Açık Moda Geç' : 'Koyu Moda Geç'"
+        >
+          @if (themeService.currentTheme() === 'dark') {
+            <span>☀️</span>
+          } @else {
+            <span>🌙</span>
+          }
+        </button>
+
+        @if (authService.isAuthenticated()) {
+          <a
+            routerLink="/dashboard"
+            class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-indigo-600/20 flex items-center gap-2 cursor-pointer"
+          >
+            <span>Panele Git</span>
+            <span class="text-xs">➔</span>
+          </a>
+        } @else {
+          <a
+            routerLink="/auth/login"
+            class="hidden sm:inline-block px-4 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] hover:bg-[var(--color-bg-subtle)] text-xs sm:text-sm font-semibold transition-all cursor-pointer"
+          >
+            Giriş Yap
+          </a>
+
+          <a
+            routerLink="/auth/register"
+            class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-indigo-600/25 cursor-pointer"
+          >
+            Başla
+          </a>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- Section 1: Hero — The Compound Horizon (%1'in Gücü) -->
+  <app-hero-compound />
+
+  <!-- Section 2: Kaizen Döngüsü — İsrafı (Muda) Yok Etme & 2 Dakika Kuralı -->
+  <app-kaizen-muda />
+
+  <!-- Section 3: 4 Alışkanlık Yasası Motoru (Feature Deep-Dive) -->
+  <app-habit-loop-showcase />
+
+  <!-- Section 4: Kimlik Odaklı Sistem (Identity-Based Tracking & Voting) -->
+  <app-identity-matrix />
+
+  <!-- Section 5: Canlı Metrikler & Felsefi Alıntılar (Wisdom & Traction) -->
+  <app-philosophy-quote-slider />
+
+  <!-- Section 6: Final CTA & Başlangıç Ritüeli -->
+  <section id="cta" class="py-24 md:py-32 border-t border-[var(--color-border-subtle)] relative overflow-hidden bg-gradient-to-b from-transparent to-indigo-950/20">
+    <div class="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-indigo-500/10 rounded-full blur-[140px]"></div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-semibold text-emerald-400">
+        <span>Başlangıç Ritüeli</span>
+        <span>•</span>
+        <span>Sıfır Sürtünme</span>
+      </div>
+
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
+        Büyük Sıçramaları Unutun. <br />
+        <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">
+          Bugün %1 ile Başlayın.
+        </span>
+      </h2>
+
+      <p class="text-base sm:text-lg text-[var(--color-text-muted)] max-w-2xl mx-auto">
+        Kusursuz planları beklemenize gerek yok. Tek bir 2 dakikalık atomik adım atın, kimliğinizi dönüştürün ve Kaizen çarkını harekete geçirin.
+      </p>
+
+      <!-- Fast Onboarding Input -->
+      <form (submit)="onFastSubmit($event)" class="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+        <input
+          type="email"
+          [(ngModel)]="fastEmail"
+          name="email"
+          placeholder="E-posta adresinizi girin..."
+          class="flex-1 px-4 py-3.5 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] placeholder-[var(--color-text-muted)] text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+        />
+        <button
+          type="submit"
+          class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/25 transition-all cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap"
+        >
+          <span>Hemen Başla</span>
+          <span>➔</span>
+        </button>
+      </form>
+
+      <div class="flex items-center justify-center gap-6 text-xs text-[var(--color-text-muted)]">
+        <span>🔒 Kredi Kartı Gerekmez</span>
+        <span>⚡ 60 Saniyede Kurulum</span>
+        <span>🎯 OAuth 2.1 Güvenliği</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Global Footer -->
+  <footer class="border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] py-12 text-xs text-[var(--color-text-muted)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <!-- Col 1: Brand -->
+        <div class="space-y-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-500 flex items-center justify-center text-white font-bold text-sm">
+              改善
+            </div>
+            <span class="font-bold text-sm text-[var(--color-text-main)]">Kaizen Habits Platform</span>
+          </div>
+          <p class="leading-relaxed">
+            James Clear'ın "Atomik Alışkanlıklar" ve Masaaki Imai'nin "Kaizen" metodolojisiyle güçlendirilmiş davranışsal zaman yönetimi.
+          </p>
+        </div>
+
+        <!-- Col 2: Navigation -->
+        <div>
+          <h4 class="font-bold text-[var(--color-text-main)] mb-3 uppercase tracking-wider text-[11px]">Bölümler</h4>
+          <ul class="space-y-2">
+            <li><button type="button" (click)="scrollTo('hero')" class="hover:text-indigo-400 transition-colors cursor-pointer">%1 Bileşik Ufuk</button></li>
+            <li><button type="button" (click)="scrollTo('kaizen')" class="hover:text-indigo-400 transition-colors cursor-pointer">Kaizen & Muda İsrafı</button></li>
+            <li><button type="button" (click)="scrollTo('laws')" class="hover:text-indigo-400 transition-colors cursor-pointer">4 Alışkanlık Yasası</button></li>
+            <li><button type="button" (click)="scrollTo('identity')" class="hover:text-indigo-400 transition-colors cursor-pointer">Kimlik Matrisi</button></li>
+            <li><button type="button" (click)="scrollTo('metrics')" class="hover:text-indigo-400 transition-colors cursor-pointer">Bilgelik & İstatistikler</button></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Behavioral Laws -->
+        <div>
+          <h4 class="font-bold text-[var(--color-text-main)] mb-3 uppercase tracking-wider text-[11px]">4 Alışkanlık Yasası</h4>
+          <ul class="space-y-2">
+            <li><span class="text-indigo-400 font-mono">1.</span> Görünür Kıl (İşaret)</li>
+            <li><span class="text-indigo-400 font-mono">2.</span> Çekici Kıl (İstek)</li>
+            <li><span class="text-indigo-400 font-mono">3.</span> Kolaylaştır (Tepki)</li>
+            <li><span class="text-indigo-400 font-mono">4.</span> Doyurucu Kıl (Ödül)</li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Platform & Security -->
+        <div>
+          <h4 class="font-bold text-[var(--color-text-main)] mb-3 uppercase tracking-wider text-[11px]">Mimari & Güvenlik</h4>
+          <ul class="space-y-2">
+            <li>OAuth 2.1 Authorization Code + PKCE</li>
+            <li>Angular 21 Reactive Signals Mimari</li>
+            <li>REST API Uyumlu Veri Modelleri</li>
+            <li>PDCA Retrospektif Döngüsü</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="border-t border-[var(--color-border-subtle)] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          © 2026 Core Enterprise & Kaizen Platform. Tüm hakları saklıdır.
+        </div>
+        <div class="flex items-center gap-6">
+          <span class="font-mono text-emerald-400">1.01³⁶⁵ ≈ 37.78</span>
+          <span>•</span>
+          <span class="italic">"Sürekli Küçük İyileşmeler"</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>

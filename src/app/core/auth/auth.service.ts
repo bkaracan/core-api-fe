@@ -53,6 +53,11 @@ export class AuthService {
     return this.http.post<ApiResponse<UserProfileResponse>>('/api/v1/auth/register', request);
   }
 
+  loginWithSocial(provider: 'google' | 'github'): void {
+    const cleanBase = environment.apiUrl.replace(/\/+$/, '');
+    window.location.href = `${cleanBase}/oauth2/authorization/${provider}`;
+  }
+
   async initiateSsoLogin(): Promise<void> {
     const verifier = generateCodeVerifier();
     const challenge = await generateCodeChallenge(verifier);

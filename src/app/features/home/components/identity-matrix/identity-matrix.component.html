@@ -1,0 +1,215 @@
+<section id="identity" class="py-20 md:py-28 border-t border-[var(--color-border-subtle)] relative">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Section Header -->
+    <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-semibold text-emerald-400">
+        <span>Kimlik Odaklı Dönüşüm</span>
+        <span>•</span>
+        <span>Identity-Based Habits</span>
+      </div>
+
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight">
+        "Ne Yapmak İstiyorsun?" Değil, <br />
+        <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">
+          "Kime Dönüşmek İstiyorsun?"
+        </span>
+      </h2>
+
+      <p class="text-base sm:text-lg text-[var(--color-text-muted)]">
+        James Clear der ki: <em>"Her eyleminiz, olmak istediğiniz insana verdiğiniz bir oydur. Hiçbir tekil oy seçimi tek başına belirlemez; ama oylar biriktikçe kimliğiniz değişir."</em>
+      </p>
+    </div>
+
+    <!-- Comparison Table: Hedef Odaklı vs Kimlik Odaklı -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+      <div class="p-6 rounded-3xl border border-rose-500/20 bg-rose-500/5 space-y-4">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl p-2 rounded-xl bg-rose-500/10 text-rose-400">❌</span>
+          <div>
+            <h3 class="font-bold text-base text-rose-300">Hedef Odaklı Yaklaşım (Kırılgan)</h3>
+            <span class="text-xs text-[var(--color-text-muted)]">Geçici motivasyona bağımlıdır</span>
+          </div>
+        </div>
+        <ul class="space-y-2.5 text-xs sm:text-sm text-[var(--color-text-muted)]">
+          <li class="flex items-start gap-2">
+            <span class="text-rose-400">•</span>
+            <span>Hedefe ulaşılınca ("Maraton bitti") davranış durur ve eski tembelliğe dönülür.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-rose-400">•</span>
+            <span>"Ben bu hedefi başarmak zorundayım" zihniyeti yoğun stres ve erteleme yaratır.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-rose-400">•</span>
+            <span>Ölçüt yalnızca sonuca odaklıdır; süreci ve kimliği beslemez.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="p-6 rounded-3xl border border-emerald-500/30 bg-emerald-500/5 space-y-4 shadow-lg shadow-emerald-500/5">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl p-2 rounded-xl bg-emerald-500/10 text-emerald-400">✨</span>
+          <div>
+            <h3 class="font-bold text-base text-emerald-300">Kimlik Odaklı Yaklaşım (Sürdürülebilir)</h3>
+            <span class="text-xs text-[var(--color-text-muted)]">Karakterin ve değerlerin doğal sonucudur</span>
+          </div>
+        </div>
+        <ul class="space-y-2.5 text-xs sm:text-sm text-[var(--color-text-muted)]">
+          <li class="flex items-start gap-2">
+            <span class="text-emerald-400">✓</span>
+            <span>"Ben her gün öğrenen biriyim" dendiğinde kitap okumak zorunluluk değil, doğal kimlik yansımasıdır.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-emerald-400">✓</span>
+            <span>Her mikro-adım, o kimliğe verilen somut bir kanıt niteliğindedir.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-emerald-400">✓</span>
+            <span>Bitiş çizgisi yoktur; sürekli Kaizen iyileşmesi ömür boyu devam eder.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Interactive Persona & Vote Casting Playground -->
+    <div class="rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-6 sm:p-8 lg:p-12 shadow-2xl relative">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--color-border-subtle)] pb-6 mb-8">
+        <div>
+          <span class="text-xs uppercase font-bold tracking-wider text-emerald-400 block mb-1">
+            🗳️ Davranışsal Sandık Simülatörü
+          </span>
+          <h3 class="text-2xl font-bold tracking-tight text-[var(--color-text-main)]">
+            Kimliğin İçin Bugün Bir Oy Ver (Cast a Vote)
+          </h3>
+        </div>
+
+        <!-- Identity Selector Tabs -->
+        <div class="flex flex-wrap gap-2">
+          @for (p of personas(); track p.id) {
+            <button
+              type="button"
+              (click)="selectPersona(p.id)"
+              [class.border-emerald-500]="activePersonaId() === p.id"
+              [class.bg-emerald-500/10]="activePersonaId() === p.id"
+              [class.text-emerald-300]="activePersonaId() === p.id"
+              class="px-4 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2"
+            >
+              <span>{{ p.avatarIcon }}</span>
+              <span>{{ p.title.split(' ')[0] }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Active Persona Display & Vote Bar -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Persona Info & Level Progress -->
+        <div class="lg:col-span-5 p-6 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] space-y-6">
+          <div class="flex items-center gap-4">
+            <span class="text-4xl p-3 rounded-2xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)]">
+              {{ activePersona().avatarIcon }}
+            </span>
+            <div>
+              <span class="text-xs font-mono text-emerald-400 font-bold">SEVİYE {{ activePersona().level }} KİMLİK</span>
+              <h4 class="text-lg font-bold text-[var(--color-text-main)] leading-snug">
+                {{ activePersona().title }}
+              </h4>
+            </div>
+          </div>
+
+          <div class="italic text-xs sm:text-sm text-[var(--color-text-muted)] bg-[var(--color-bg-card)] p-3 rounded-xl border border-[var(--color-border-subtle)]">
+            {{ activePersona().statement }}
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-medium text-[var(--color-text-muted)]">Kimlik Gücü / Toplanan Oylar:</span>
+              <span class="font-mono font-bold text-emerald-400">{{ activePersona().totalVotes }} / {{ activePersona().votesThreshold }} Oy</span>
+            </div>
+            <div class="w-full h-3 rounded-full bg-[var(--color-border-subtle)] overflow-hidden">
+              <div
+                class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-300"
+                [style.width.%]="progressPercentage()"
+              ></div>
+            </div>
+            <div class="text-[11px] text-[var(--color-text-muted)] text-right">
+              Sonraki seviye için {{ activePersona().votesThreshold - activePersona().totalVotes }} oy kaldı
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-300">
+            <span class="font-semibold block mb-0.5">🔄 Zihniyet Dönüşümü:</span>
+            {{ activePersona().goalContrast }}
+          </div>
+        </div>
+
+        <!-- Daily Atomic Habit Voting Checklist -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+              Günün Atomik Oyları (Tamamladıkça İşaretle):
+            </span>
+            @if (lastVotedHabitName()) {
+              <span class="text-xs font-semibold text-emerald-400 animate-pulse">
+                +1 Oy Verildi! 🗳️
+              </span>
+            }
+          </div>
+
+          <div class="space-y-3">
+            @for (habit of activePersona().habits; track habit.id) {
+              <div
+                (click)="castVote(habit.id)"
+                [class.border-emerald-500/60]="habit.completedToday"
+                [class.bg-emerald-500/10]="habit.completedToday"
+                class="p-4 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] hover:border-emerald-500/40 transition-all cursor-pointer flex items-center justify-between gap-4 group"
+              >
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-6 h-6 rounded-lg border flex items-center justify-center text-xs transition-all"
+                    [class.bg-emerald-500]="habit.completedToday"
+                    [class.border-emerald-400]="habit.completedToday"
+                    [class.text-white]="habit.completedToday"
+                    [class.border-[var(--color-border-subtle)]]="!habit.completedToday"
+                  >
+                    @if (habit.completedToday) {
+                      ✓
+                    }
+                  </div>
+                  <div>
+                    <div
+                      class="text-sm font-semibold transition-colors"
+                      [class.text-emerald-300]="habit.completedToday"
+                      [class.text-[var(--color-text-main)]]="!habit.completedToday"
+                    >
+                      {{ habit.name }}
+                    </div>
+                    <span class="text-[11px] text-[var(--color-text-muted)]">
+                      Kategori: {{ habit.tag }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <span
+                    class="px-2 py-1 rounded-md text-xs font-mono font-bold transition-all"
+                    [class.bg-emerald-500/20]="habit.completedToday"
+                    [class.text-emerald-400]="habit.completedToday"
+                    [class.bg-[var(--color-bg-card)]]="!habit.completedToday"
+                    [class.text-[var(--color-text-muted)]]="!habit.completedToday"
+                  >
+                    +{{ habit.points }} Oy
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="text-xs text-[var(--color-text-muted)] italic text-center pt-2">
+            💡 Bir günde büyük başarılar elde edemezsiniz; fakat her küçük oy ile olmak istediğiniz kişiyi inşa edebilirsiniz.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

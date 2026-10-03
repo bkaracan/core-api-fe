@@ -1,0 +1,315 @@
+<section id="hero" class="relative overflow-hidden pt-12 pb-24 md:pt-20 md:pb-32">
+  <!-- Subtle Background Glows -->
+  <div class="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[720px] h-[480px] bg-gradient-to-tr from-indigo-600/15 via-violet-500/10 to-emerald-500/10 blur-[130px] rounded-full"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <!-- Top Pill: Kaizen & Atomic Habits Badge -->
+    <div class="flex justify-center mb-6">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 backdrop-blur-md text-xs font-semibold text-indigo-400 tracking-wide">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Kaizen (改善) × Atomik Alışkanlıklar Mimarisi</span>
+        <span class="text-indigo-400/50">|</span>
+        <span class="font-mono text-indigo-300">1.01³⁶⁵ ≈ 37.78</span>
+      </div>
+    </div>
+
+    <!-- Main Hero Headings -->
+    <div class="text-center max-w-4xl mx-auto space-y-6">
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.12]">
+        Devasa Hedefler Değil, <br class="hidden sm:inline" />
+        <span class="bg-gradient-to-r from-indigo-400 via-violet-300 to-emerald-400 bg-clip-text text-transparent">
+          Atomik Adımlar.
+        </span>
+        <br />
+        Sürekli İyileşme ile Zamanını Yeniden Tanımla.
+      </h1>
+
+      <p class="text-lg sm:text-xl text-[var(--color-text-muted)] max-w-2xl mx-auto leading-relaxed">
+        Radikal sıçramalar tükenmişlik yaratır; her gün atılan sürtünmesiz <strong>%1'lik mikro-adımlar</strong> ise bir yılda 37 katlık bileşik dönüşüm inşa eder. <em>Muda</em> (israfı) elemine et, odağını geri kazan.
+      </p>
+
+      <!-- Primary & Secondary CTA Buttons -->
+      <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+        @if (authService.isAuthenticated()) {
+          <a
+            routerLink="/dashboard"
+            class="px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/35 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer text-sm sm:text-base"
+          >
+            <span>Panele Git</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+        } @else {
+          <a
+            routerLink="/auth/register"
+            class="px-7 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/35 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer text-sm sm:text-base"
+          >
+            <span>İlk Mikro-Alışkanlığını Oluştur</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </a>
+        }
+
+        <button
+          type="button"
+          (click)="scrollToKaizen()"
+          class="px-6 py-3.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] hover:bg-[var(--color-bg-subtle)] text-[var(--color-text-main)] font-semibold transition-all flex items-center gap-2 cursor-pointer text-sm sm:text-base"
+        >
+          <span>Felsefeyi Keşfet</span>
+          <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Feature Pill Checklist -->
+      <div class="flex flex-wrap items-center justify-center gap-6 pt-4 text-xs sm:text-sm text-[var(--color-text-muted)]">
+        <span class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          Sıfır Sürtünmeli Başlangıç
+        </span>
+        <span class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          2 Dakika Kuralı Simülasyonu
+        </span>
+        <span class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          Kimlik Odaklı Takip (Zinciri Kırma)
+        </span>
+      </div>
+    </div>
+
+    <!-- Interactive Section: %1 Compound Growth Simulator Widget -->
+    <div class="mt-14 max-w-5xl mx-auto rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)]/90 backdrop-blur-xl p-6 sm:p-8 lg:p-10 shadow-2xl relative">
+      <!-- Glow ambient behind card -->
+      <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent rounded-3xl pointer-events-none"></div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+        <!-- Controls Column -->
+        <div class="lg:col-span-5 space-y-6">
+          <div>
+            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-400">
+              <span>Bileşik Ufuk Simülatörü</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+              <span class="text-[var(--color-text-muted)]">The Compound Horizon</span>
+            </div>
+            <h2 class="text-2xl font-bold mt-1 tracking-tight">Günlük Mikro-Oranı Belirle</h2>
+            <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mt-1">
+              Her gün kendinize kattığınız mikro değerin veya ihmalin 365 gün sonrasındaki katlanarak büyüyen gerçek matematiksel etkisini izleyin.
+            </p>
+          </div>
+
+          <!-- Slider Control -->
+          <div class="space-y-3 p-4 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)]">
+            <div class="flex justify-between items-center text-sm">
+              <span class="font-medium text-[var(--color-text-muted)]">Günlük Gelişim Oranı:</span>
+              <span
+                class="font-mono text-base font-bold px-2.5 py-0.5 rounded-lg"
+                [class.bg-emerald-500/20]="math.dailyChangeRate() > 0"
+                [class.text-emerald-400]="math.dailyChangeRate() > 0"
+                [class.bg-rose-500/20]="math.dailyChangeRate() < 0"
+                [class.text-rose-400]="math.dailyChangeRate() < 0"
+                [class.bg-slate-500/20]="math.dailyChangeRate() === 0"
+                [class.text-slate-400]="math.dailyChangeRate() === 0"
+              >
+                {{ math.dailyChangeRate() > 0 ? '+' : '' }}{{ math.dailyChangeRate().toFixed(1) }}% / gün
+              </span>
+            </div>
+
+            <input
+              type="range"
+              min="-1.5"
+              max="2.5"
+              step="0.1"
+              [value]="math.dailyChangeRate()"
+              (input)="onSliderInput($event)"
+              class="w-full h-2 rounded-lg bg-[var(--color-border-subtle)] accent-indigo-500 cursor-pointer"
+            />
+
+            <div class="flex justify-between text-[11px] text-[var(--color-text-muted)] font-mono">
+              <span>-1.5% (İhmal)</span>
+              <span>0% (Durgunluk)</span>
+              <span class="text-emerald-400 font-bold">+1.0% (Kaizen)</span>
+              <span>+2.5%</span>
+            </div>
+          </div>
+
+          <!-- Preset Badges -->
+          <div class="space-y-2">
+            <span class="text-xs font-medium text-[var(--color-text-muted)]">Örnek Felsefi Senaryolar:</span>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                (click)="math.setPreset('kaizen_1')"
+                [class.border-emerald-500]="math.dailyChangeRate() === 1.0"
+                [class.bg-emerald-500/10]="math.dailyChangeRate() === 1.0"
+                class="px-3 py-2 rounded-xl text-left border border-[var(--color-border-subtle)] hover:bg-[var(--color-bg-subtle)] transition-all cursor-pointer text-xs"
+              >
+                <div class="font-semibold text-emerald-400">✨ Altın %1 Kaizen</div>
+                <div class="text-[11px] text-[var(--color-text-muted)]">1.01³⁶⁵ ≈ 37.78×</div>
+              </button>
+
+              <button
+                type="button"
+                (click)="math.setPreset('kaizen_micro')"
+                [class.border-indigo-500]="math.dailyChangeRate() === 0.5"
+                [class.bg-indigo-500/10]="math.dailyChangeRate() === 0.5"
+                class="px-3 py-2 rounded-xl text-left border border-[var(--color-border-subtle)] hover:bg-[var(--color-bg-subtle)] transition-all cursor-pointer text-xs"
+              >
+                <div class="font-semibold text-indigo-400">🌱 %0.5 Mikro Başlangıç</div>
+                <div class="text-[11px] text-[var(--color-text-muted)]">1.005³⁶⁵ ≈ 6.17×</div>
+              </button>
+
+              <button
+                type="button"
+                (click)="math.setPreset('kaizen_high')"
+                [class.border-violet-500]="math.dailyChangeRate() === 1.5"
+                [class.bg-violet-500/10]="math.dailyChangeRate() === 1.5"
+                class="px-3 py-2 rounded-xl text-left border border-[var(--color-border-subtle)] hover:bg-[var(--color-bg-subtle)] transition-all cursor-pointer text-xs"
+              >
+                <div class="font-semibold text-violet-400">🚀 %1.5 Yüksek İvme</div>
+                <div class="text-[11px] text-[var(--color-text-muted)]">1.015³⁶⁵ ≈ 229×</div>
+              </button>
+
+              <button
+                type="button"
+                (click)="math.setPreset('decline_1')"
+                [class.border-rose-500]="math.dailyChangeRate() === -1.0"
+                [class.bg-rose-500/10]="math.dailyChangeRate() === -1.0"
+                class="px-3 py-2 rounded-xl text-left border border-[var(--color-border-subtle)] hover:bg-[var(--color-bg-subtle)] transition-all cursor-pointer text-xs"
+              >
+                <div class="font-semibold text-rose-400">⚠️ -%1 İhmal Döngüsü</div>
+                <div class="text-[11px] text-[var(--color-text-muted)]">0.99³⁶⁵ ≈ 0.03×</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart & Metric Visualizer Column -->
+        <div class="lg:col-span-7 flex flex-col justify-between h-full space-y-6">
+          <!-- Top Results Badges -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div class="p-3.5 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)]">
+              <span class="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] block font-semibold">1 Yıl Sonu Çarpan</span>
+              <div
+                class="text-2xl sm:text-3xl font-black font-mono mt-1"
+                [class.text-emerald-400]="math.compoundMultiplier() >= 1"
+                [class.text-rose-400]="math.compoundMultiplier() < 1"
+              >
+                {{ math.formattedCompoundMultiplier() }}
+              </div>
+              <span class="text-[10px] text-[var(--color-text-muted)]">Gelişim Katsayısı</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)]">
+              <span class="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] block font-semibold">Bileşik Fark</span>
+              <div class="text-2xl sm:text-3xl font-black font-mono mt-1 text-indigo-400">
+                +{{ math.percentageChange() }}%
+              </div>
+              <span class="text-[10px] text-[var(--color-text-muted)]">Başlangıç noktasına göre</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] col-span-2 sm:col-span-1">
+              <span class="text-[11px] uppercase tracking-wider text-[var(--color-text-muted)] block font-semibold">İhmal Çarpanı</span>
+              <div class="text-2xl sm:text-3xl font-black font-mono mt-1 text-rose-400">
+                {{ math.formattedDeclineMultiplier() }}
+              </div>
+              <span class="text-[10px] text-[var(--color-text-muted)]">(0.99³⁶⁵ düşüş riski)</span>
+            </div>
+          </div>
+
+          <!-- Dynamic SVG Compound Graph -->
+          <div class="relative p-4 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] overflow-hidden">
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="font-semibold text-[var(--color-text-main)]">365 Günlük Dinamik Eğri Karşılaştırması</span>
+              <div class="flex items-center gap-3 text-[11px]">
+                <span class="flex items-center gap-1">
+                  <span class="w-2.5 h-0.5 bg-emerald-400 inline-block"></span>
+                  <span class="text-emerald-400 font-medium">Bileşik</span>
+                </span>
+                <span class="flex items-center gap-1">
+                  <span class="w-2.5 h-0.5 bg-indigo-400/60 inline-block"></span>
+                  <span class="text-[var(--color-text-muted)]">Doğrusal</span>
+                </span>
+                <span class="flex items-center gap-1">
+                  <span class="w-2.5 h-0.5 bg-rose-400/60 inline-block"></span>
+                  <span class="text-rose-400/80">İhmal</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- SVG Container -->
+            <svg viewBox="0 0 500 240" class="w-full h-48 sm:h-56 overflow-visible">
+              <defs>
+                <linearGradient id="compoundGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.3" />
+                  <stop offset="100%" stop-color="#10b981" stop-opacity="0.0" />
+                </linearGradient>
+              </defs>
+
+              <!-- Grid reference lines -->
+              <line x1="24" y1="216" x2="476" y2="216" stroke="currentColor" stroke-opacity="0.1" stroke-width="1" />
+              <line x1="24" y1="120" x2="476" y2="120" stroke="currentColor" stroke-opacity="0.05" stroke-dasharray="3,3" />
+
+              <!-- Baseline 1.0 Line -->
+              <path [attr.d]="math.svgPaths().baselinePath" stroke="currentColor" stroke-opacity="0.25" stroke-width="1.5" stroke-dasharray="4,4" />
+
+              <!-- Decline Curve -->
+              <path [attr.d]="math.svgPaths().declinePath" fill="none" stroke="#f43f5e" stroke-width="2" stroke-opacity="0.7" stroke-dasharray="3,3" />
+
+              <!-- Linear Curve -->
+              <path [attr.d]="math.svgPaths().linearPath" fill="none" stroke="#818cf8" stroke-width="2" stroke-opacity="0.5" />
+
+              <!-- Compound Area Fill -->
+              <path [attr.d]="math.svgPaths().compoundArea" fill="url(#compoundGradient)" />
+
+              <!-- Compound Curve -->
+              <path [attr.d]="math.svgPaths().compoundPath" fill="none" stroke="#34d399" stroke-width="3" stroke-linecap="round" />
+
+              <!-- Current Value Pulse Circle at Day 365 -->
+              <circle
+                cx="476"
+                [attr.cy]="math.svgPaths().currentEndY"
+                r="6"
+                fill="#10b981"
+                class="animate-pulse"
+              />
+              <circle
+                cx="476"
+                [attr.cy]="math.svgPaths().currentEndY"
+                r="11"
+                fill="#10b981"
+                fill-opacity="0.2"
+              />
+            </svg>
+
+            <!-- Bottom Timeline Axis -->
+            <div class="flex justify-between items-center text-[10px] text-[var(--color-text-muted)] font-mono pt-1">
+              <span>0. Gün (Başlangıç)</span>
+              <span>90. Gün</span>
+              <span>180. Gün</span>
+              <span>270. Gün</span>
+              <span class="font-bold text-emerald-400">365. Gün (Dönüşüm)</span>
+            </div>
+          </div>
+
+          <!-- Wisdom Callout -->
+          <div class="text-xs text-[var(--color-text-muted)] flex items-start gap-2 bg-indigo-500/5 p-3 rounded-xl border border-indigo-500/10">
+            <span class="text-indigo-400 text-sm">💡</span>
+            <span>
+              <strong>James Clear Formülü:</strong> Alışkanlıklar kişisel gelişimin bileşik faizidir. Para nasıl bileşik faizle katlanarak büyürse, alışkanlıklarınızın etkisi de tekrarladıkça öyle katlanır.
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

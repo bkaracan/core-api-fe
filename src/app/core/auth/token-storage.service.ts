@@ -4,11 +4,22 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root'
 })
 export class TokenStorageService {
-  private readonly _accessToken = signal<string | null>(null);
+  private static readonly TOKEN_KEY = 'core_api_access_token';
+
+  private readonly _accessToken = signal<string | null>(
+    typeof localStorage !== 'undefined' ? localStorage.getItem('core_api_access_token') : null
+  );
   readonly accessToken = this._accessToken.asReadonly();
 
   setAccessToken(token: string | null): void {
     this._accessToken.set(token);
+    if (typeof localStorage !== 'undefined') {
+      if (token) {
+        localStorage.setItem(TokenStorageService.TOKEN_KEY, token);
+      } else {
+        localStorage.removeItem(TokenStorageService.TOKEN_KEY);
+      }
+    }
   }
 
   getAccessToken(): string | null {
@@ -17,6 +28,9 @@ export class TokenStorageService {
 
   clearToken(): void {
     this._accessToken.set(null);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(TokenStorageService.TOKEN_KEY);
+    }
   }
 
   // PKCE temporary handshake state

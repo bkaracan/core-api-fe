@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Angular 21 UI/UX Mimarisi, Reusable Bileşenler &amp; A11y Standartları | Kurumsal Frontend Standartları</title>
+  <meta name="description" content="Angular 21 Atomic Design hiyerarşisi, sinyal tabanlı tema motoru, Toast, Modal, Skeleton kurumsal UI bileşen kiti ve WCAG 2.1 AA erişilebilirlik standartları.">
+  <style>
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "JetBrains Mono", "Fira Code", Consolas, Menlo, Monaco, monospace;
+      
+      --bg: #0b0f19;
+      --panel: #0f172a;
+      --panel-alt: #162035;
+      --panel-card: #1e293b;
+      --border: #243247;
+      --border-light: #334155;
+      
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --angular-red: #e11d48;
+      --indigo: #6366f1;
+      --teal: #14b8a6;
+      --teal-glow: rgba(20, 184, 166, 0.18);
+      --amber: #f59e0b;
+      --green: #10b981;
+      --rose: #f43f5e;
+      
+      --code-bg: #050811;
+      --code-header: #0e1526;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --panel-alt: #f1f5f9;
+      --panel-card: #ffffff;
+      --border: #e2e8f0;
+      --border-light: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --teal: #0d9488;
+      --code-bg: #0f172a;
+      --code-header: #1e293b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 15px; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    aside {
+      width: 320px;
+      border-right: 1px solid var(--border);
+      background: var(--panel);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand-box {
+      padding: 1.5rem 1.5rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--teal) 0%, var(--indigo) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 15px var(--teal-glow);
+      flex-shrink: 0;
+    }
+
+    .brand-title { font-size: 1.05rem; font-weight: 800; color: var(--text); line-height: 1.2; }
+    .brand-sub { font-size: 0.72rem; color: var(--teal); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    nav.nav-menu { padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
+    .nav-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); padding: 0.75rem 0.75rem 0.25rem; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover { color: var(--text); background: var(--panel-alt); border-left-color: var(--teal); }
+    .nav-item.active { color: #fff; background: rgba(20, 184, 166, 0.12); font-weight: 600; border-left-color: var(--teal); }
+
+    .nav-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--panel-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .nav-item.active .nav-num { background: var(--teal); color: #000; border-color: var(--teal); }
+
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    .theme-toggle-btn {
+      background: var(--panel-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.35rem 0.7rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.76rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: var(--transition);
+    }
+
+    main { flex: 1; padding: 3rem 4rem 6rem; max-width: 1280px; overflow-x: hidden; }
+
+    .hero { margin-bottom: 3.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--border); }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--teal);
+      background: var(--teal-glow);
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 {
+      font-size: 2.3rem;
+      font-weight: 900;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 70%, var(--teal) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] .hero h1 {
+      background: linear-gradient(135deg, #0f172a 30%, #334155 70%, var(--teal) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p { font-size: 1.05rem; color: var(--text-muted); max-width: 860px; line-height: 1.68; }
+
+    section { margin-bottom: 4rem; scroll-margin-top: 2rem; }
+    .section-header {
+      margin-bottom: 1.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 800;
+      background: var(--teal-glow);
+      color: var(--teal);
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      flex-shrink: 0;
+    }
+
+    .section-title { font-size: 1.55rem; font-weight: 800; color: var(--text); }
+    .section-desc { font-size: 0.96rem; color: var(--text-muted); margin-bottom: 1.75rem; line-height: 1.65; }
+
+    h3 { font-size: 1.2rem; font-weight: 700; margin: 2rem 0 1rem; color: var(--text); display: flex; align-items: center; gap: 0.5rem; }
+    h3::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+
+    .code-box {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--code-bg);
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .code-header {
+      background: var(--code-header);
+      padding: 0.65rem 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .file-path { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); }
+    .lang-badge { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 4px; background: var(--panel-card); color: var(--text-dim); border: 1px solid var(--border); }
+    .copy-btn { background: var(--panel-card); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; padding: 0.25rem 0.65rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 600; transition: var(--transition); }
+    .copy-btn:hover { color: #fff; border-color: var(--teal); background: rgba(20, 184, 166, 0.15); }
+    .copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+
+    pre { padding: 1.25rem 1.4rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.65; color: #e2e8f0; }
+
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--green); color: #fff; padding: 0.75rem 1.25rem; border-radius: var(--radius-sm); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; z-index: 1000; transform: translateY(100px); opacity: 0; transition: var(--transition); pointer-events: none; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    .kw { color: #f43f5e; font-weight: 600; }
+    .str { color: #34d399; }
+    .fn { color: #60a5fa; }
+    .prop { color: #38bdf8; }
+    .typ { color: #fbbf24; }
+
+    @media (max-width: 1080px) { body { flex-direction: column; } aside { width: 100%; height: auto; position: static; } main { padding: 2rem 1.5rem; } }
+  </style>
+</head>
+<body>
+
+  <aside>
+    <div class="brand-box">
+      <div class="brand-icon">🎨</div>
+      <div class="brand-text">
+        <span class="brand-title">UI/UX Mimarisi</span>
+        <span class="brand-sub">Atomic Design &amp; A11y</span>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <span class="nav-label">Standart Başlıkları</span>
+      <a href="#s1-atomic" class="nav-item active"><span class="nav-num">1</span><span>Atomic Design Hiyerarşisi</span></a>
+      <a href="#s2-theme" class="nav-item"><span class="nav-num">2</span><span>Sinyal Tabanlı Tema Motoru</span></a>
+      <a href="#s3-ui-kit" class="nav-item"><span class="nav-num">3</span><span>Kurumsal UI Kiti (Toast, Modal)</span></a>
+      <a href="#s4-a11y" class="nav-item"><span class="nav-num">4</span><span>WCAG 2.1 AA Erişilebilirlik</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span>Angular 21 UI Kit</span>
+      <button class="theme-toggle-btn" id="themeToggleBtn"><span id="themeIcon">☀️</span><span id="themeLabel">Açık</span></button>
+    </div>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <div class="hero-eyebrow">Enterprise Frontend Standard 07</div>
+      <h1>Angular 21 UI/UX Mimarisi, Reusable Bileşenler &amp; A11y Standartları</h1>
+      <p>
+        Component-Driven / Atomic Design hiyerarşisi, reaktif Dark/Light tema motoru, kurumsal Toast ve Modal altyapısı, Zoneless OnPush veri tabloları ve WCAG 2.1 AA erişilebilirlik standartları.
+      </p>
+    </header>
+
+    <!-- SECTION 1: ATOMIC -->
+    <section id="s1-atomic">
+      <div class="section-header">
+        <div class="section-badge">1</div>
+        <h2 class="section-title">Atomic Design Bileşen Hiyerarşisi</h2>
+      </div>
+      <p class="section-desc">
+        Bileşenler yeniden kullanılabilirlik ve bağımsızlık seviyelerine göre <code>src/app/shared/components/</code> altında ayrıştırılır.
+      </p>
+      <ul style="color: var(--text-muted); font-size: 0.9rem; padding-left: 1.5rem; line-height: 1.8;">
+        <li><strong>Atoms:</strong> Button, Badge, Spinner, Checkbox, Avatar (İş mantığı içermeyen en küçük saf birimler).</li>
+        <li><strong>Molecules:</strong> SearchBar, FormField (Label + Input + Error), Breadcrumb.</li>
+        <li><strong>Organisms:</strong> DataTable (filtre, sıralama, sayfalama birleşik), Shell Navbar, Sidebar.</li>
+        <li><strong>Shell / Layout:</strong> Tüm ekranı sarmalayan kurumsal uygulama kabuğu.</li>
+      </ul>
+    </section>
+
+    <!-- SECTION 2: THEME -->
+    <section id="s2-theme">
+      <div class="section-header">
+        <div class="section-badge">2</div>
+        <h2 class="section-title">Sinyal Tabanlı Reaktif Tema Motoru (ThemeService)</h2>
+      </div>
+      <p class="section-desc">
+        Kullanıcı tercihi LocalStorage ve sistem tercihi (`prefers-color-scheme`) ile senkronize edilir.
+      </p>
+
+      <div class="code-box">
+        <div class="code-header">
+          <div class="file-path"><span>src/app/core/services/theme.service.ts</span></div>
+          <div class="code-actions"><span class="lang-badge">TypeScript</span><button class="copy-btn">Kopyala</button></div>
+        </div>
+        <pre><code><span class="kw">import</span> { <span class="typ">Injectable</span>, <span class="fn">signal</span>, <span class="fn">effect</span> } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+
+@<span class="typ">Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export class</span> <span class="typ">ThemeService</span> {
+  <span class="kw">readonly</span> currentTheme = <span class="fn">signal</span>&lt;<span class="str">'dark'</span> | <span class="str">'light'</span>&gt;(<span class="str">'dark'</span>);
+
+  <span class="fn">constructor</span>() {
+    <span class="fn">effect</span>(() =&gt; {
+      document.<span class="prop">documentElement</span>.<span class="fn">setAttribute</span>(<span class="str">'data-theme'</span>, <span class="kw">this</span>.<span class="fn">currentTheme</span>());
+      localStorage.<span class="fn">setItem</span>(<span class="str">'theme'</span>, <span class="kw">this</span>.<span class="fn">currentTheme</span>());
+    });
+  }
+
+  <span class="fn">toggle</span>(): <span class="typ">void</span> {
+    <span class="kw">this</span>.currentTheme.<span class="fn">update</span>(t =&gt; t === <span class="str">'dark'</span> ? <span class="str">'light'</span> : <span class="str">'dark'</span>);
+  }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 3: UI KIT -->
+    <section id="s3-ui-kit">
+      <div class="section-header">
+        <div class="section-badge">3</div>
+        <h2 class="section-title">Kurumsal UI Kiti (Toast &amp; Modal)</h2>
+      </div>
+      <p class="section-desc">
+        Global bildirimler sinyal tabanlı Toast servisi ile yönetilir. Diyalog pencerelerinde odak yakalama (focus trap) ve klavye gezintisi zorunludur.
+      </p>
+    </section>
+
+    <!-- SECTION 4: A11Y -->
+    <section id="s4-a11y">
+      <div class="section-header">
+        <div class="section-badge">4</div>
+        <h2 class="section-title">WCAG 2.1 AA Erişilebilirlik Standartları</h2>
+      </div>
+      <p class="section-desc">
+        Tüm butonlarda `aria-label`, diyaloglarda `role="dialog"`, formlarda `aria-describedby` ile hata ilişkisi ve klavye odağı (`focus-visible`) kurumsal şarttır.
+      </p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"><span>Kopyalandı!</span></div>
+
+  <script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const box = btn.closest('.code-box');
+        const pre = box.querySelector('pre');
+        navigator.clipboard.writeText(pre.innerText).then(() => {
+          btn.innerText = 'Kopyalandı!';
+          btn.classList.add('copied');
+          const toast = document.getElementById('toast');
+          toast.classList.add('show');
+          setTimeout(() => {
+            btn.innerText = 'Kopyala';
+            btn.classList.remove('copied');
+            toast.classList.remove('show');
+          }, 2000);
+        });
+      });
+    });
+
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const target = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', target);
+      document.getElementById('themeIcon').innerText = target === 'light' ? '🌙' : '☀️';
+      document.getElementById('themeLabel').innerText = target === 'light' ? 'Koyu' : 'Açık';
+    });
+
+    window.addEventListener('scroll', () => {
+      const sections = document.querySelectorAll('section');
+      const navItems = document.querySelectorAll('.nav-item');
+      let currentId = '';
+      sections.forEach(sec => {
+        if (window.pageYOffset >= sec.offsetTop - 120) currentId = sec.getAttribute('id');
+      });
+      navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === '#' + currentId) item.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
