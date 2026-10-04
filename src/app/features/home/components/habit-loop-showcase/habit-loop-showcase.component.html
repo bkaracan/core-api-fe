@@ -54,7 +54,7 @@
 
     <!-- Active Law Detail Showcase Panel -->
     <div class="rounded-3xl border {{ activeLaw().colorTheme.border }} bg-gradient-to-br {{ activeLaw().colorTheme.gradient }} bg-[var(--color-bg-card)] p-6 sm:p-8 lg:p-12 shadow-2xl relative transition-all duration-300">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         <!-- Left Text Column -->
         <div class="lg:col-span-6 space-y-6">
           <div class="space-y-2">
@@ -92,49 +92,153 @@
 
         <!-- Right Interactive Playground Column -->
         <div class="lg:col-span-6 space-y-6">
-          <!-- Habit Stacking Demo Card (Alışkanlık Demetleme) -->
-          <div class="p-6 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] shadow-inner space-y-4">
-            <div class="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
-              <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
-                <span>🔗</span> Alışkanlık Demetleme (Habit Stacking Formülü)
-              </span>
-              <span class="text-[10px] font-mono text-[var(--color-text-muted)]">Canlı Örnek</span>
+          <!-- 4. YASA ÖZEL: Kategori Rozetleri & Küme Terfi Simülatörü -->
+          @if (activeLawId() === 4) {
+            <div class="p-6 rounded-2xl bg-[var(--color-bg-subtle)] border border-emerald-500/30 shadow-inner space-y-4">
+              <div class="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                  <span>🏆</span> Kategori Rozetleri & Küme Terfi Simülatörü
+                </span>
+                <span class="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                  Canlı Deneyim
+                </span>
+              </div>
+
+              <p class="text-xs text-[var(--color-text-muted)]">
+                Görevleri tamamladıkça kategori rozeti kazanın. Rozetler biriktikçe küme atlayın:
+                <strong class="text-emerald-400">10 Bronz ➔ Gümüş ➔ 25 Gümüş ➔ Altın ➔ Platin ➔ Elmas!</strong>
+              </p>
+
+              <!-- Simülasyon Kategori Listesi -->
+              <div class="space-y-3">
+                @for (cat of demoCategories(); track cat.key) {
+                  <div class="relative pt-5 pb-3 px-3 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] space-y-2 transition-all hover:border-emerald-500/40 group shadow-2xs">
+                    <!-- Üstten Tutturulan Ataç ve Küme Rozet Tag'i (Paperclip Attached Tier Tag) -->
+                    <div class="absolute -top-3.5 right-3 z-20 flex flex-col items-center pointer-events-none">
+                      <!-- Gerçekçi Ataç Teli -->
+                      <div
+                        class="relative -mb-2 z-30 transition-transform group-hover:-translate-y-0.5"
+                        [ngClass]="getTierPaperclipStyle(cat.tier)"
+                      >
+                        <svg class="w-3.5 h-5 drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)]" viewBox="0 0 16 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M5 2C2.79 2 1 3.79 1 6V18C1 21.31 3.69 24 7 24C10.31 24 13 21.31 13 18V4C13 2.34 11.66 1 10 1C8.34 1 7 2.34 7 4V17C7 17.55 7.45 18 8 18C8.55 18 9 17.55 9 17V7"
+                            stroke="currentColor"
+                            stroke-width="2.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      </div>
+
+                      <!-- Ataçla Tutturulan Küme Tag'i -->
+                      <div
+                        class="px-2 py-0.5 pt-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1 shadow-sm border backdrop-blur-md transition-all group-hover:scale-105"
+                        [ngClass]="getTierBadgeStyle(cat.tier)"
+                      >
+                        <span>{{ cat.tierIcon }}</span>
+                        <span class="font-black">{{ cat.tierName }}</span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="text-xl">{{ cat.icon }}</span>
+                        <div>
+                          <div class="text-xs font-bold text-[var(--color-text-main)]">{{ cat.name }}</div>
+                          <div class="text-[10px] text-[var(--color-text-muted)] flex items-center gap-1">
+                            <span>Toplam:</span>
+                            <strong class="text-emerald-400 font-mono">{{ cat.totalBadges }} Rozet</strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        (click)="simulateEarnBadge(cat.key)"
+                        class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                        title="1 Görev Tamamla ve Rozet Kazan"
+                      >
+                        <span>+1 Rozet</span>
+                        <span>✨</span>
+                      </button>
+                    </div>
+
+                    <!-- İlerleme Çubuğu -->
+                    <div>
+                      <div class="flex items-center justify-between text-[10px] text-[var(--color-text-muted)] mb-1">
+                        <span>Küme İlerlemesi: <strong>{{ cat.badgesInCurrentTier }} / {{ cat.requiredForNext }}</strong></span>
+                        @if (cat.requiredForNext > 0) {
+                          <span class="text-emerald-400 font-semibold font-mono">
+                            Hedef: {{ cat.nextTierIcon }} {{ cat.nextTierName }} ({{ cat.requiredForNext - cat.badgesInCurrentTier }} kaldı)
+                          </span>
+                        } @else {
+                          <span class="text-amber-400 font-semibold font-mono">👑 Zirve Elmas Ustalık</span>
+                        }
+                      </div>
+                      <div class="w-full bg-[var(--color-bg-subtle)] h-2 rounded-full overflow-hidden border border-[var(--color-border-subtle)]">
+                        <div
+                          class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-300 rounded-full"
+                          [style.width.%]="cat.requiredForNext > 0 ? (cat.badgesInCurrentTier / cat.requiredForNext) * 100 : 100"
+                        ></div>
+                      </div>
+                    </div>
+
+                    @if (cat.justPromoted) {
+                      <div class="p-2 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] text-emerald-300 flex items-center gap-1.5 animate-pulse">
+                        <span>🎉</span>
+                        <span class="font-bold">TEBRİKLER! {{ cat.tierIcon }} {{ cat.tierName }}'ne terfi ettiniz!</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
             </div>
+          } @else {
+            <!-- 1, 2, 3. Yasalar İçin: Habit Stacking Demo Card (Alışkanlık Demetleme) -->
+            <div class="p-6 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] shadow-inner space-y-4">
+              <div class="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5">
+                  <span>🔗</span> Alışkanlık Demetleme (Habit Stacking Formülü)
+                </span>
+                <span class="text-[10px] font-mono text-[var(--color-text-muted)]">Canlı Örnek</span>
+              </div>
 
-            <div class="space-y-3 text-xs sm:text-sm">
-              <div class="p-3 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] flex items-start gap-3">
-                <span class="text-base">☕</span>
-                <div>
-                  <div class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">1. Mevcut Güçlü Alışkanlık (İşaret)</div>
-                  <div class="font-semibold text-[var(--color-text-main)]">{{ activeLaw().stackingExample.currentHabit }}</div>
+              <div class="space-y-3 text-xs sm:text-sm">
+                <div class="p-3 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] flex items-start gap-3">
+                  <span class="text-base">☕</span>
+                  <div>
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">1. Mevcut Güçlü Alışkanlık (İşaret)</div>
+                    <div class="font-semibold text-[var(--color-text-main)]">{{ activeLaw().stackingExample.currentHabit }}</div>
+                  </div>
                 </div>
-              </div>
 
-              <div class="flex justify-center text-indigo-400">
-                <span>⬇️</span>
-              </div>
-
-              <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-start gap-3">
-                <span class="text-base">🎯</span>
-                <div>
-                  <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">2. Yeni Atomik Adım (Tepki)</div>
-                  <div class="font-semibold text-indigo-300">{{ activeLaw().stackingExample.newHabit }}</div>
+                <div class="flex justify-center text-indigo-400">
+                  <span>⬇️</span>
                 </div>
-              </div>
 
-              <div class="flex justify-center text-emerald-400">
-                <span>⬇️</span>
-              </div>
+                <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-start gap-3">
+                  <span class="text-base">🎯</span>
+                  <div>
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-400">2. Yeni Atomik Adım (Tepki)</div>
+                    <div class="font-semibold text-indigo-300">{{ activeLaw().stackingExample.newHabit }}</div>
+                  </div>
+                </div>
 
-              <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3">
-                <span class="text-base">🏆</span>
-                <div>
-                  <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">3. Anında Ödül (Doyurucu Kıl)</div>
-                  <div class="font-semibold text-emerald-300">{{ activeLaw().stackingExample.immediateReward }}</div>
+                <div class="flex justify-center text-emerald-400">
+                  <span>⬇️</span>
+                </div>
+
+                <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-3">
+                  <span class="text-base">🏆</span>
+                  <div>
+                    <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">3. Anında Ödül (Doyurucu Kıl)</div>
+                    <div class="font-semibold text-emerald-300">{{ activeLaw().stackingExample.immediateReward }}</div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          }
 
           <!-- Streak / Don't Break the Chain Widget Demo -->
           <div class="p-5 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] space-y-3">

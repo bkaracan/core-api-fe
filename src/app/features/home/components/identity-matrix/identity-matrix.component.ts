@@ -12,36 +12,36 @@ import { IdentityPersona } from '../../models/behavioral-habit.model';
 export class IdentityMatrixComponent {
   readonly personas = signal<IdentityPersona[]>([
     {
-      id: 'engineer',
-      title: 'Derin Odaklanan Yazılım Mimarı',
-      statement: '"Ben her gün temiz kod yazan ve mimariyi sürekli iyileştiren biriyim."',
-      goalContrast: 'Hedef: "Büyük projeyi bitir" ➔ Kimlik: "Her gün 1 test yazıp 1 refactor yapan mühendis"',
-      avatarIcon: '💻',
+      id: 'pro',
+      title: 'Üretken Profesyonel & Değer Üreten',
+      statement: '"Ben her gün işine özen gösteren, odaklanan ve kaliteli değer üreten biriyim."',
+      goalContrast: 'Hedef: "Büyük projeyi bitir" ➔ Kimlik: "Her gün kesintisiz odakla en kritik görevini tamamlayan üretici"',
+      avatarIcon: '💼',
       color: 'indigo',
       level: 4,
       totalVotes: 87,
       votesThreshold: 100,
       habits: [
         {
-          id: 'eng-1',
-          name: 'İlk 45 dakika bildirimleri sessize alarak derin kod yaz',
+          id: 'pro-1',
+          name: 'İlk 45 dakika bildirimleri sessize alarak derin odakla çalış',
           points: 1,
           completedToday: true,
           tag: 'Derin Odak'
         },
         {
-          id: 'eng-2',
-          name: 'Gereksiz 1 kütüphaneyi veya teknik borcu temizle',
+          id: 'pro-2',
+          name: 'Günün en kritik 1 görevini ertelemeden bitir',
           points: 1,
           completedToday: false,
-          tag: 'Kaizen Temizlik'
+          tag: 'Önceliklendirme'
         },
         {
-          id: 'eng-3',
-          name: '1 API uç noktasının dokümantasyonunu güncelle',
+          id: 'pro-3',
+          name: 'Çalışma alanını ve günün yapılacaklar listesini düzenle',
           points: 1,
           completedToday: false,
-          tag: 'Süreklilik'
+          tag: 'Kaizen Düzen'
         }
       ]
     },
@@ -115,16 +115,22 @@ export class IdentityMatrixComponent {
     }
   ]);
 
-  readonly activePersonaId = signal<string>('engineer');
+  readonly activePersonaId = signal<string>('pro');
   readonly lastVotedHabitName = signal<string | null>(null);
 
   readonly activePersona = computed(() => {
     return this.personas().find((p) => p.id === this.activePersonaId()) || this.personas()[0];
   });
 
+  readonly remainingVotes = computed(() => {
+    const p = this.activePersona();
+    return Math.max(0, p.votesThreshold - p.totalVotes);
+  });
+
   readonly progressPercentage = computed(() => {
     const p = this.activePersona();
-    return Math.min(100, Math.round((p.totalVotes / p.votesThreshold) * 100));
+    if (p.votesThreshold <= 0) return 0;
+    return Math.min(100, Math.max(0, Math.round((p.totalVotes / p.votesThreshold) * 100)));
   });
 
   selectPersona(id: string): void {
@@ -136,25 +142,37 @@ export class IdentityMatrixComponent {
     const currentPersonas = this.personas();
     const updated = currentPersonas.map((persona) => {
       if (persona.id === this.activePersonaId()) {
-        const updatedHabits = persona.habits.map((h) => {
-          if (h.id === habitId) {
-            const nextState = !h.completedToday;
-            if (nextState) {
-              this.lastVotedHabitName.set(h.name);
-            }
-            return { ...h, completedToday: nextState };
-          }
-          return h;
-        });
+        const targetHabit = persona.habits.find((h) => h.id === habitId);
+        if (!targetHabit) return persona;
 
-        const newVotes = persona.habits.reduce((acc, h) => {
-          const habitMatched = updatedHabits.find((uh) => uh.id === h.id);
-          return acc + (habitMatched?.completedToday ? 1 : 0);
-        }, persona.totalVotes - (persona.habits.find((h) => h.id === habitId)?.completedToday ? 1 : 0) + (updatedHabits.find((h) => h.id === habitId)?.completedToday ? 1 : 0));
+        const nextCompleted = !targetHabit.completedToday;
+        const voteDelta = nextCompleted ? (targetHabit.points || 1) : -(targetHabit.points || 1);
+
+        const updatedHabits = persona.habits.map((h) =>
+          h.id === habitId ? { ...h, completedToday: nextCompleted } : h
+        );
+
+        if (nextCompleted) {
+          this.lastVotedHabitName.set(targetHabit.name);
+        } else {
+          this.lastVotedHabitName.set(null);
+        }
+
+        let newTotalVotes = Math.max(0, persona.totalVotes + voteDelta);
+        let newLevel = persona.level;
+        let newThreshold = persona.votesThreshold;
+
+        // Seviye atlama kontrolü (Level-up threshold)
+        if (newTotalVotes >= newThreshold) {
+          newLevel += 1;
+          newThreshold = Math.round(newThreshold * 1.4);
+        }
 
         return {
           ...persona,
-          totalVotes: Math.max(0, newVotes),
+          level: newLevel,
+          totalVotes: newTotalVotes,
+          votesThreshold: newThreshold,
           habits: updatedHabits
         };
       }

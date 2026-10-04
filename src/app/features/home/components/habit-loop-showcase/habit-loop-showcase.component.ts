@@ -2,6 +2,21 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HabitLaw } from '../../models/behavioral-habit.model';
 
+export interface DemoCategoryProgress {
+  key: string;
+  name: string;
+  icon: string;
+  totalBadges: number;
+  tier: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'DIAMOND';
+  tierName: string;
+  tierIcon: string;
+  badgesInCurrentTier: number;
+  requiredForNext: number;
+  nextTierName: string;
+  nextTierIcon: string;
+  justPromoted: boolean;
+}
+
 @Component({
   selector: 'app-habit-loop-showcase',
   standalone: true,
@@ -109,24 +124,24 @@ export class HabitLoopShowcaseComponent {
       stage: 'reward',
       numberText: '4. YASA',
       title: 'Doyurucu Kıl (Ödül / Reward)',
-      subTitle: 'Zinciri Kırma (Don\'t Break the Chain) & Görsel İlerleme',
-      ruleTitle: 'Ödül Hissi: Anında Tamamlanma Dopamini',
+      subTitle: 'Kategori Rozetleri, Küme Terfileri & Zinciri Kırma',
+      ruleTitle: 'Ödül Hissi: Kategori Rozetleri ve Küme Terfisi (Bronz ➔ Elmas)',
       description:
-        'Hemen ödüllendirilen davranışlar tekrarlanır; hemen cezalandırılan davranışlardan kaçınılır. Günlük zincirlerin uzamasını izlemek beyninize güçlü bir zafer hissi verir.',
-      quote: '"Bir kural var: Zinciri asla kırma. Eğer bir gün kaçırırsan, asla üst üste iki kez kaçırma."',
+        'Hemen ödüllendirilen davranışlar tekrarlanır. Tamamlanan her görev o kategoriye özel rozet kazandırır. Rozetler biriktikçe Bronz, Gümüş, Altın, Platin ve Elmas kümelerine terfi ederek zafer hissini taçlandırırsınız.',
+      quote: '"Başarı, bir gecede gerçekleşen büyük sıçramalardan değil; her gün kazanılan atomik rozetlerin ve terfi edilen kümelerin bileşik sonucudur."',
       digitalFeature: {
-        title: 'Canlı Streak (Seri) & Zincir Görselleştirmesi',
+        title: 'Kategori Rozetleri & Küme Terfi Motoru',
         details: [
-          'Etkileşimli GitHub tarzı yeşil hücre matrisi ve mikro-kutlamalar',
-          'Kritik kural: "Asla üst üste 2 gün kaçırma" koruma algoritması',
-          'Gün sonu retrospektif karnesi ve Kaizen PDCA puanı'
+          'Kategoriye özel rozet kazanımı: Her tamamlanan alışkanlık o alanda rozet kazandırır',
+          'Sürdürülebilir Küme Terfisi: 10 Bronz Rozet ➔ Gümüş Küme, 25 Gümüş Rozet ➔ Altın Küme, 50 Altın Rozet ➔ Platin, 100 Platin ➔ Elmas Küme',
+          'Canlı Streak (Zinciri Kırma) ve mikro-kutlama animasyonları'
         ],
-        actionLabel: 'Zinciri İncele'
+        actionLabel: 'Rozet & Küme Sistemini Keşfet'
       },
       stackingExample: {
-        currentHabit: 'Günün son atomik adımını işaretlediğimde',
-        newHabit: '1 dakikalık Kaizen retrospektif notumu alacağım',
-        immediateReward: 'Seri sayacının 1 gün daha artması ve altın rozet kazanımı'
+        currentHabit: 'Günün atomik görevini tamamladığımda',
+        newHabit: 'Kategori rozetimi alıp küme terfi çubuğumu ilerleteceğim',
+        immediateReward: 'Kategori rozeti kazanımı ve gümüş/altın kümeye adım adım yükselme dopamini'
       },
       colorTheme: {
         gradient: 'from-emerald-500/20 to-teal-500/10',
@@ -145,6 +160,52 @@ export class HabitLoopShowcaseComponent {
     true, true, true, true, true, false, false
   ]);
 
+  // 4. Yasa Rozet ve Küme Terfi Simülatörü
+  readonly demoCategories = signal<DemoCategoryProgress[]>([
+    {
+      key: 'kariyer',
+      name: 'Mesleki / Çalışma',
+      icon: '💼',
+      totalBadges: 9, // 1 rozet sonra Gümüş'e terfi edecek! (10 Bronz)
+      tier: 'BRONZE',
+      tierName: 'Bronz Küme',
+      tierIcon: '🥉',
+      badgesInCurrentTier: 9,
+      requiredForNext: 10,
+      nextTierName: 'Gümüş Küme',
+      nextTierIcon: '🥈',
+      justPromoted: false
+    },
+    {
+      key: 'beden',
+      name: 'Beden / Sağlık',
+      icon: '🏃',
+      totalBadges: 34, // 1 rozet sonra Altın'a terfi edecek! (10 + 25 = 35)
+      tier: 'SILVER',
+      tierName: 'Gümüş Küme',
+      tierIcon: '🥈',
+      badgesInCurrentTier: 24,
+      requiredForNext: 25,
+      nextTierName: 'Altın Küme',
+      nextTierIcon: '🥇',
+      justPromoted: false
+    },
+    {
+      key: 'zihin',
+      name: 'Zihin / Gelişim',
+      icon: '📖',
+      totalBadges: 84, // 1 rozet sonra Platin'e terfi edecek! (35 + 50 = 85)
+      tier: 'GOLD',
+      tierName: 'Altın Küme',
+      tierIcon: '🥇',
+      badgesInCurrentTier: 49,
+      requiredForNext: 50,
+      nextTierName: 'Platin Küme',
+      nextTierIcon: '💠',
+      justPromoted: false
+    }
+  ]);
+
   readonly activeLaw = () => {
     return this.laws.find((l) => l.id === this.activeLawId()) || this.laws[0];
   };
@@ -161,5 +222,116 @@ export class HabitLoopShowcaseComponent {
 
   get completedStreakCount(): number {
     return this.streakDays().filter(Boolean).length;
+  }
+
+  simulateEarnBadge(key: string): void {
+    this.demoCategories.update((list) =>
+      list.map((item) => {
+        if (item.key !== key) return item;
+        const newTotal = item.totalBadges + 1;
+        const calc = this.calculateTierFromTotal(newTotal);
+        const justPromoted = calc.tier !== item.tier;
+        return {
+          ...item,
+          totalBadges: newTotal,
+          tier: calc.tier,
+          tierName: calc.tierName,
+          tierIcon: calc.tierIcon,
+          badgesInCurrentTier: calc.badgesInCurrentTier,
+          requiredForNext: calc.requiredForNext,
+          nextTierName: calc.nextTierName,
+          nextTierIcon: calc.nextTierIcon,
+          justPromoted
+        };
+      })
+    );
+  }
+
+  private calculateTierFromTotal(total: number) {
+    if (total < 10) {
+      return {
+        tier: 'BRONZE' as const,
+        tierName: 'Bronz Küme',
+        tierIcon: '🥉',
+        badgesInCurrentTier: total,
+        requiredForNext: 10,
+        nextTierName: 'Gümüş Küme',
+        nextTierIcon: '🥈'
+      };
+    } else if (total < 35) { // 10 + 25
+      return {
+        tier: 'SILVER' as const,
+        tierName: 'Gümüş Küme',
+        tierIcon: '🥈',
+        badgesInCurrentTier: total - 10,
+        requiredForNext: 25,
+        nextTierName: 'Altın Küme',
+        nextTierIcon: '🥇'
+      };
+    } else if (total < 85) { // 35 + 50
+      return {
+        tier: 'GOLD' as const,
+        tierName: 'Altın Küme',
+        tierIcon: '🥇',
+        badgesInCurrentTier: total - 35,
+        requiredForNext: 50,
+        nextTierName: 'Platin Küme',
+        nextTierIcon: '💠'
+      };
+    } else if (total < 185) { // 85 + 100
+      return {
+        tier: 'PLATINUM' as const,
+        tierName: 'Platin Küme',
+        tierIcon: '💠',
+        badgesInCurrentTier: total - 85,
+        requiredForNext: 100,
+        nextTierName: 'Elmas Küme',
+        nextTierIcon: '💎'
+      };
+    } else {
+      return {
+        tier: 'DIAMOND' as const,
+        tierName: 'Elmas Küme',
+        tierIcon: '💎',
+        badgesInCurrentTier: total - 185,
+        requiredForNext: 0,
+        nextTierName: 'Zirve Seviye',
+        nextTierIcon: '👑'
+      };
+    }
+  }
+
+  getTierBadgeStyle(tier: string): string {
+    switch (tier) {
+      case 'BRONZE':
+        return 'bg-gradient-to-b from-amber-800/25 to-amber-950/20 text-amber-700 dark:text-amber-300 border-amber-600/40 shadow-amber-950/10';
+      case 'SILVER':
+        return 'bg-gradient-to-b from-slate-200/50 to-slate-400/20 text-slate-700 dark:text-slate-200 border-slate-400/50 shadow-slate-900/10';
+      case 'GOLD':
+        return 'bg-gradient-to-b from-amber-300/35 to-yellow-500/20 text-amber-800 dark:text-amber-200 border-amber-400/60 shadow-amber-500/20';
+      case 'PLATINUM':
+        return 'bg-gradient-to-b from-teal-300/35 to-cyan-500/20 text-teal-800 dark:text-teal-200 border-teal-400/60 shadow-teal-500/20';
+      case 'DIAMOND':
+        return 'bg-gradient-to-b from-cyan-300/45 to-blue-500/25 text-cyan-800 dark:text-cyan-100 border-cyan-400/70 shadow-cyan-500/30 shadow-md ring-1 ring-cyan-400/40 animate-pulse';
+      default:
+        return 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20';
+    }
+  }
+
+  getTierPaperclipStyle(tier: string): string {
+    switch (tier) {
+      case 'BRONZE':
+        return 'text-amber-600 dark:text-amber-400';
+      case 'SILVER':
+        return 'text-slate-400 dark:text-slate-300';
+      case 'GOLD':
+        return 'text-amber-500 dark:text-yellow-400';
+      case 'PLATINUM':
+        return 'text-teal-500 dark:text-cyan-400';
+      case 'DIAMOND':
+        return 'text-cyan-400 dark:text-cyan-200 filter drop-shadow-[0_0_5px_rgba(34,211,238,0.7)]';
+      default:
+        return 'text-slate-400 dark:text-slate-400';
+    }
   }
 }

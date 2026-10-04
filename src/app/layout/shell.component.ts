@@ -65,44 +65,76 @@ import { ThemeService } from '@core/services/theme.service';
       <div class="flex-1 flex overflow-hidden">
         <!-- Sidebar Navigation -->
         <aside class="w-64 border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-4 flex flex-col justify-between hidden md:flex">
-          <nav class="space-y-1.5" aria-label="Ana Menü">
-            <a
-              routerLink="/dashboard"
-              routerLinkActive="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold"
-              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-main)] transition-colors"
-            >
-              <span>📊</span>
-              <span>Dashboard</span>
-            </a>
+          <div class="space-y-6">
+            <!-- User Workspace Section -->
+            <div>
+              <div class="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+                Kişisel Alan
+              </div>
+              <nav class="space-y-1" aria-label="Kullanıcı Menüsü">
+                <a
+                  routerLink="/dashboard"
+                  routerLinkActive="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-main)] transition-colors"
+                >
+                  <span class="text-base">🎯</span>
+                  <span>Gelişim Paneli</span>
+                </a>
 
-            <a
-              routerLink="/users"
-              routerLinkActive="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold"
-              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-main)] transition-colors"
-            >
-              <span>👥</span>
-              <span>Kullanıcı Yönetimi</span>
-            </a>
+                <a
+                  routerLink="/users/profile"
+                  routerLinkActive="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold"
+                  class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-main)] transition-colors"
+                >
+                  <span class="text-base">⚙️</span>
+                  <span>Profil & Güvenlik</span>
+                </a>
+              </nav>
+            </div>
 
-            <a
-              routerLink="/users/profile"
-              routerLinkActive="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold"
-              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-main)] transition-colors"
-            >
-              <span>⚙️</span>
-              <span>Profil & Güvenlik</span>
-            </a>
-          </nav>
+            <!-- Admin Infrastructure Section (Only visible for ROLE_ADMIN) -->
+            @if (authService.hasRole('ROLE_ADMIN')) {
+              <div>
+                <div class="px-3 mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-indigo-500">
+                  <span>Yönetim & Sistem</span>
+                  <span class="px-1.5 py-0.2 rounded bg-indigo-500/10 text-[9px]">Admin</span>
+                </div>
+                <nav class="space-y-1" aria-label="Admin Menüsü">
+                  <a
+                    routerLink="/admin/system-health"
+                    routerLinkActive="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-main)] transition-colors"
+                  >
+                    <span class="text-base">🖥️</span>
+                    <span>Sistem Sağlığı</span>
+                  </a>
 
-          <!-- System Status Footer -->
-          <div class="p-3 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] text-xs space-y-1">
+                  <a
+                    routerLink="/users"
+                    routerLinkActive="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-main)] transition-colors"
+                  >
+                    <span class="text-base">👥</span>
+                    <span>Kullanıcı Yönetimi</span>
+                  </a>
+                </nav>
+              </div>
+            }
+          </div>
+
+          <!-- User Status Footer -->
+          <div class="p-3.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] text-xs space-y-2">
             <div class="flex items-center justify-between text-[var(--color-text-muted)]">
-              <span>Ortam:</span>
-              <span class="font-mono font-semibold text-emerald-600">PRODUCTION</span>
+              <span>Yetki Düzeyi:</span>
+              <span class="font-semibold font-mono text-indigo-600 dark:text-indigo-400">
+                {{ authService.hasRole('ROLE_ADMIN') ? 'Sistem Yöneticisi' : 'Atomik Üye' }}
+              </span>
             </div>
             <div class="flex items-center justify-between text-[var(--color-text-muted)]">
-              <span>Protokol:</span>
-              <span class="font-mono">OAuth 2.1 PKCE</span>
+              <span>Hedef Felsefe:</span>
+              <span class="font-medium text-emerald-600 dark:text-emerald-400">Her Gün %1 Kaizen</span>
             </div>
           </div>
         </aside>

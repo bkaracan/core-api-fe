@@ -133,7 +133,11 @@
               ></div>
             </div>
             <div class="text-[11px] text-[var(--color-text-muted)] text-right">
-              Sonraki seviye için {{ activePersona().votesThreshold - activePersona().totalVotes }} oy kaldı
+              @if (remainingVotes() > 0) {
+                Sonraki seviye için <strong class="text-emerald-400 font-semibold">{{ remainingVotes() }}</strong> oy kaldı
+              } @else {
+                <span class="text-emerald-400 font-semibold">Tebrikler! Seviye atlamaya hak kazandınız 🎉</span>
+              }
             </div>
           </div>
 
