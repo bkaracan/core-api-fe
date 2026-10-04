@@ -1,6 +1,10 @@
-<div class="min-h-screen bg-[var(--color-bg-subtle)] text-[var(--color-text-main)] flex flex-col font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+<div
+  class="min-h-screen bg-[var(--color-bg-subtle)] text-[var(--color-text-main)] flex flex-col font-sans selection:bg-indigo-500 selection:text-white transition-colors duration-200"
+>
   <!-- Sticky Landing Navbar with Section Spy -->
-  <header class="sticky top-0 z-50 backdrop-blur-xl bg-[var(--color-bg-subtle)]/80 border-b border-[var(--color-border-subtle)] transition-all">
+  <header
+    class="sticky top-0 z-50 backdrop-blur-xl bg-[var(--color-bg-subtle)]/80 border-b border-[var(--color-border-subtle)] transition-all"
+  >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
       <!-- Brand Logo -->
       <a
@@ -8,20 +12,31 @@
         (click)="scrollTo('hero')"
         class="flex items-center gap-3 cursor-pointer group"
       >
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-emerald-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+        <div
+          class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-emerald-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform"
+        >
           改善
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <span class="font-extrabold text-base tracking-tight text-[var(--color-text-main)]">Kaizen Habits</span>
-            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">+1%</span>
+            <span class="font-extrabold text-base tracking-tight text-[var(--color-text-main)]"
+              >Kaizen Habits</span
+            >
+            <span
+              class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20"
+              >+1%</span
+            >
           </div>
-          <p class="text-[11px] text-[var(--color-text-muted)] hidden sm:block">Davranışsal Zaman & Alışkanlık Mimarisi</p>
+          <p class="text-[11px] text-[var(--color-text-muted)] hidden sm:block">
+            Davranışsal Zaman & Alışkanlık Mimarisi
+          </p>
         </div>
       </a>
 
       <!-- Desktop Section Spy Navigation Links -->
-      <nav class="hidden lg:flex items-center gap-1 p-1 rounded-2xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] text-xs font-semibold">
+      <nav
+        class="hidden lg:flex items-center gap-1 p-1 rounded-2xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] text-xs font-semibold"
+      >
         @for (item of navItems; track item.id) {
           <button
             type="button"
@@ -97,11 +112,18 @@
   <app-philosophy-quote-slider />
 
   <!-- Section 6: Final CTA & Başlangıç Ritüeli -->
-  <section id="cta" class="py-24 md:py-32 border-t border-[var(--color-border-subtle)] relative overflow-hidden bg-gradient-to-b from-transparent to-indigo-950/20">
-    <div class="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-indigo-500/10 rounded-full blur-[140px]"></div>
+  <section
+    id="cta"
+    class="py-24 md:py-32 border-t border-[var(--color-border-subtle)] relative overflow-hidden bg-gradient-to-b from-transparent to-indigo-950/20"
+  >
+    <div
+      class="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-indigo-500/10 rounded-full blur-[140px]"
+    ></div>
 
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-semibold text-emerald-400">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-semibold text-emerald-400"
+      >
         <span>Başlangıç Ritüeli</span>
         <span>•</span>
         <span>Sıfır Sürtünme</span>
@@ -109,17 +131,23 @@
 
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
         Büyük Sıçramaları Unutun. <br />
-        <span class="bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">
+        <span
+          class="bg-gradient-to-r from-emerald-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent"
+        >
           Bugün %1 ile Başlayın.
         </span>
       </h2>
 
       <p class="text-base sm:text-lg text-[var(--color-text-muted)] max-w-2xl mx-auto">
-        Kusursuz planları beklemenize gerek yok. Tek bir 2 dakikalık atomik adım atın, kimliğinizi dönüştürün ve Kaizen çarkını harekete geçirin.
+        Kusursuz planları beklemenize gerek yok. Tek bir 2 dakikalık atomik adım atın, kimliğinizi
+        dönüştürün ve Kaizen çarkını harekete geçirin.
       </p>
 
       <!-- Fast Onboarding Input -->
-      <form (submit)="onFastSubmit($event)" class="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+      <form
+        (submit)="onFastSubmit($event)"
+        class="max-w-md mx-auto flex flex-col sm:flex-row gap-3"
+      >
         <input
           type="email"
           [(ngModel)]="fastEmail"
@@ -145,37 +173,92 @@
   </section>
 
   <!-- Global Footer -->
-  <footer class="border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] py-12 text-xs text-[var(--color-text-muted)]">
+  <footer
+    class="border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] py-12 text-xs text-[var(--color-text-muted)]"
+  >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
         <!-- Col 1: Brand -->
         <div class="space-y-3">
           <div class="flex items-center gap-2.5">
-            <div class="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-500 flex items-center justify-center text-white font-bold text-sm">
+            <div
+              class="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-500 flex items-center justify-center text-white font-bold text-sm"
+            >
               改善
             </div>
-            <span class="font-bold text-sm text-[var(--color-text-main)]">Kaizen Habits Platform</span>
+            <span class="font-bold text-sm text-[var(--color-text-main)]"
+              >Kaizen Habits Platform</span
+            >
           </div>
           <p class="leading-relaxed">
-            James Clear'ın "Atomik Alışkanlıklar" ve Masaaki Imai'nin "Kaizen" metodolojisiyle güçlendirilmiş davranışsal zaman yönetimi.
+            James Clear'ın "Atomik Alışkanlıklar" ve Masaaki Imai'nin "Kaizen" metodolojisiyle
+            güçlendirilmiş davranışsal zaman yönetimi.
           </p>
         </div>
 
         <!-- Col 2: Navigation -->
         <div>
-          <h4 class="font-bold text-[var(--color-text-main)] mb-3 uppercase tracking-wider text-[11px]">Bölümler</h4>
+          <h4
+            class="font-bold text-[var(--color-text-main)] mb-3 uppercase tracking-wider text-[11px]"
+          >
+            Bölümler
+          </h4>
           <ul class="space-y-2">
-            <li><button type="button" (click)="scrollTo('hero')" class="hover:text-indigo-400 transition-colors cursor-pointer">%1 Bileşik Ufuk</button></li>
-            <li><button type="button" (click)="scrollTo('kaizen')" class="hover:text-indigo-400 transition-colors cursor-pointer">Kaizen & Muda İsrafı</button></li>
-            <li><button type="button" (click)="scrollTo('laws')" class="hover:text-indigo-400 transition-colors cursor-pointer">4 Alışkanlık Yasası</button></li>
-            <li><button type="button" (click)="scrollTo('identity')" class="hover:text-indigo-400 transition-colors cursor-pointer">Kimlik Matrisi</button></li>
-            <li><button type="button" (click)="scrollTo('metrics')" class="hover:text-indigo-400 transition-colors cursor-pointer">Bilgelik & İstatistikler</button></li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollTo('hero')"
+                class="hover:text-indigo-400 transition-colors cursor-pointer"
+              >
+                %1 Bileşik Ufuk
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollTo('kaizen')"
+                class="hover:text-indigo-400 transition-colors cursor-pointer"
+              >
+                Kaizen & Muda İsrafı
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollTo('laws')"
+                class="hover:text-indigo-400 transition-colors cursor-pointer"
+              >
+                4 Alışkanlık Yasası
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollTo('identity')"
+                class="hover:text-indigo-400 transition-colors cursor-pointer"
+              >
+                Kimlik Matrisi
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                (click)="scrollTo('metrics')"
+                class="hover:text-indigo-400 transition-colors cursor-pointer"
+              >
+                Bilgelik & İstatistikler
+              </button>
+            </li>
           </ul>
         </div>
 
         <!-- Col 3: Behavioral Laws -->
         <div>
-          <h4 class="font-bold text-[var(--color-text-main)] mb-3 uppercase tracking-wider text-[11px]">4 Alışkanlık Yasası</h4>
+          <h4
+            class="font-bold text-[var(--color-text-main)] mb-3 uppercase tracking-wider text-[11px]"
+          >
+            4 Alışkanlık Yasası
+          </h4>
           <ul class="space-y-2">
             <li><span class="text-indigo-400 font-mono">1.</span> Görünür Kıl (İşaret)</li>
             <li><span class="text-indigo-400 font-mono">2.</span> Çekici Kıl (İstek)</li>
@@ -186,7 +269,11 @@
 
         <!-- Col 4: Platform & Security -->
         <div>
-          <h4 class="font-bold text-[var(--color-text-main)] mb-3 uppercase tracking-wider text-[11px]">Mimari & Güvenlik</h4>
+          <h4
+            class="font-bold text-[var(--color-text-main)] mb-3 uppercase tracking-wider text-[11px]"
+          >
+            Mimari & Güvenlik
+          </h4>
           <ul class="space-y-2">
             <li>OAuth 2.1 Authorization Code + PKCE</li>
             <li>Angular 21 Reactive Signals Mimari</li>
@@ -196,10 +283,10 @@
         </div>
       </div>
 
-      <div class="border-t border-[var(--color-border-subtle)] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div>
-          © 2026 Core Enterprise & Kaizen Platform. Tüm hakları saklıdır.
-        </div>
+      <div
+        class="border-t border-[var(--color-border-subtle)] pt-8 flex flex-col sm:flex-row items-center justify-between gap-4"
+      >
+        <div>© 2026 Core Enterprise & Kaizen Platform. Tüm hakları saklıdır.</div>
         <div class="flex items-center gap-6">
           <span class="font-mono text-emerald-400">1.01³⁶⁵ ≈ 37.78</span>
           <span>•</span>

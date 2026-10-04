@@ -23,7 +23,8 @@ export interface HabitResponse {
   identityPublicId?: string;
   identityName?: string;
   title: string;
-  category: 'ZIHIN' | 'BEDEN' | 'KARIYER' | 'ODAK' | 'SOSYAL' | 'HOBI' | 'SINEMA_KULTUR' | 'EGLENCE_OYUN';
+  category:
+    'ZIHIN' | 'BEDEN' | 'KARIYER' | 'ODAK' | 'SOSYAL' | 'HOBI' | 'SINEMA_KULTUR' | 'EGLENCE_OYUN';
   cueTrigger: string;
   targetLocation?: string;
   habitStackCurrent?: string;

@@ -9,16 +9,24 @@ import { ThemeService } from '@core/services/theme.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="min-h-screen bg-[var(--color-bg-subtle)] text-[var(--color-text-main)] flex flex-col font-sans transition-colors duration-200">
+    <div
+      class="min-h-screen bg-[var(--color-bg-subtle)] text-[var(--color-text-main)] flex flex-col font-sans transition-colors duration-200"
+    >
       <!-- Enterprise Top Navigation Bar -->
-      <header class="h-16 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs backdrop-blur-md">
+      <header
+        class="h-16 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs backdrop-blur-md"
+      >
         <div class="flex items-center gap-4">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-500/20">
+          <div
+            class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-500/20"
+          >
             C
           </div>
           <div>
             <h1 class="text-base font-bold tracking-tight">Core Enterprise</h1>
-            <p class="text-xs text-[var(--color-text-muted)] hidden sm:block">Microservices Governance Portal</p>
+            <p class="text-xs text-[var(--color-text-muted)] hidden sm:block">
+              Microservices Governance Portal
+            </p>
           </div>
         </div>
 
@@ -42,11 +50,15 @@ import { ThemeService } from '@core/services/theme.service';
           <!-- Current User Profile Info -->
           @if (authService.currentUser(); as user) {
             <div class="flex items-center gap-3 pl-3 border-l border-[var(--color-border-subtle)]">
-              <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold flex items-center justify-center text-xs">
+              <div
+                class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 font-semibold flex items-center justify-center text-xs"
+              >
                 {{ user.firstName[0] || 'U' }}{{ user.lastName[0] || 'P' }}
               </div>
               <div class="hidden sm:block text-left text-xs">
-                <div class="font-semibold leading-tight">{{ user.firstName }} {{ user.lastName }}</div>
+                <div class="font-semibold leading-tight">
+                  {{ user.firstName }} {{ user.lastName }}
+                </div>
                 <div class="text-[var(--color-text-muted)]">{{ user.email }}</div>
               </div>
               <button
@@ -64,11 +76,15 @@ import { ThemeService } from '@core/services/theme.service';
       <!-- Main Shell Body (Sidebar + Content) -->
       <div class="flex-1 flex overflow-hidden">
         <!-- Sidebar Navigation -->
-        <aside class="w-64 border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-4 flex flex-col justify-between hidden md:flex">
+        <aside
+          class="w-64 border-r border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-4 flex flex-col justify-between hidden md:flex"
+        >
           <div class="space-y-6">
             <!-- User Workspace Section -->
             <div>
-              <div class="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+              <div
+                class="px-3 mb-2 text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]"
+              >
                 Kişisel Alan
               </div>
               <nav class="space-y-1" aria-label="Kullanıcı Menüsü">
@@ -96,7 +112,9 @@ import { ThemeService } from '@core/services/theme.service';
             <!-- Admin Infrastructure Section (Only visible for ROLE_ADMIN) -->
             @if (authService.hasRole('ROLE_ADMIN')) {
               <div>
-                <div class="px-3 mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-indigo-500">
+                <div
+                  class="px-3 mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-indigo-500"
+                >
                   <span>Yönetim & Sistem</span>
                   <span class="px-1.5 py-0.2 rounded bg-indigo-500/10 text-[9px]">Admin</span>
                 </div>
@@ -125,7 +143,9 @@ import { ThemeService } from '@core/services/theme.service';
           </div>
 
           <!-- User Status Footer -->
-          <div class="p-3.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] text-xs space-y-2">
+          <div
+            class="p-3.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] text-xs space-y-2"
+          >
             <div class="flex items-center justify-between text-[var(--color-text-muted)]">
               <span>Yetki Düzeyi:</span>
               <span class="font-semibold font-mono text-indigo-600 dark:text-indigo-400">
@@ -134,7 +154,9 @@ import { ThemeService } from '@core/services/theme.service';
             </div>
             <div class="flex items-center justify-between text-[var(--color-text-muted)]">
               <span>Hedef Felsefe:</span>
-              <span class="font-medium text-emerald-600 dark:text-emerald-400">Her Gün %1 Kaizen</span>
+              <span class="font-medium text-emerald-600 dark:text-emerald-400"
+                >Her Gün %1 Kaizen</span
+              >
             </div>
           </div>
         </aside>
@@ -145,7 +167,7 @@ import { ThemeService } from '@core/services/theme.service';
         </main>
       </div>
     </div>
-  `
+  `,
 })
 export class ShellComponent implements OnInit {
   readonly authService = inject(AuthService);
@@ -156,7 +178,7 @@ export class ShellComponent implements OnInit {
       this.authService.fetchCurrentUser().subscribe({
         error: () => {
           this.authService.logout();
-        }
+        },
       });
     }
   }

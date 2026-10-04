@@ -5,6 +5,6 @@ export const environment = {
     issuer: 'https://auth.enterprise.com',
     clientId: 'web-portal-client',
     redirectUri: 'https://portal.enterprise.com/auth/callback',
-    scope: 'openid profile email'
-  }
+    scope: 'openid profile email',
+  },
 };

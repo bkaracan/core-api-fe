@@ -14,11 +14,15 @@ import { ActuatorHealthResponse, ActuatorInfoResponse } from '@core/models';
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+            <span
+              class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
+            >
               Yönetici Paneli (Admin)
             </span>
           </div>
-          <h2 class="text-2xl font-bold tracking-tight text-[var(--color-text-main)] mt-1">Sistem & Altyapı Sağlığı</h2>
+          <h2 class="text-2xl font-bold tracking-tight text-[var(--color-text-main)] mt-1">
+            Sistem & Altyapı Sağlığı
+          </h2>
           <p class="text-sm text-[var(--color-text-muted)]">
             Spring Boot 4.1.1 Actuator Telemetrisi, HikariCP Bağlantı Havuzu ve Mikroservis Durumu
           </p>
@@ -56,10 +60,16 @@ import { ActuatorHealthResponse, ActuatorInfoResponse } from '@core/models';
 
       <!-- Key Enterprise Metric Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="p-5 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs">
+        <div
+          class="p-5 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs"
+        >
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-[var(--color-text-muted)]">Backend Yanıt Süresi</span>
-            <span class="text-emerald-500 text-sm font-semibold font-mono">{{ latencyMs() !== null ? latencyMs() + ' ms' : '--' }}</span>
+            <span class="text-xs font-medium text-[var(--color-text-muted)]"
+              >Backend Yanıt Süresi</span
+            >
+            <span class="text-emerald-500 text-sm font-semibold font-mono">{{
+              latencyMs() !== null ? latencyMs() + ' ms' : '--'
+            }}</span>
           </div>
           <div class="text-2xl font-bold mt-2 text-[var(--color-text-main)]">
             {{ health()?.status === 'UP' ? 'Aktif (200 OK)' : 'Bağlantı Yok' }}
@@ -67,7 +77,9 @@ import { ActuatorHealthResponse, ActuatorInfoResponse } from '@core/models';
           <div class="text-xs text-[var(--color-text-muted)] mt-1">/actuator/health uç noktası</div>
         </div>
 
-        <div class="p-5 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs">
+        <div
+          class="p-5 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs"
+        >
           <div class="flex items-center justify-between">
             <span class="text-xs font-medium text-[var(--color-text-muted)]">Kimlik Protokolü</span>
             <span class="text-indigo-500 text-sm font-semibold">Aktif</span>
@@ -76,37 +88,53 @@ import { ActuatorHealthResponse, ActuatorInfoResponse } from '@core/models';
           <div class="text-xs text-[var(--color-text-muted)] mt-1">PKCE S256 & Argon2id</div>
         </div>
 
-        <div class="p-5 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs">
+        <div
+          class="p-5 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs"
+        >
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-[var(--color-text-muted)]">Dağıtık İzleme (Tracing)</span>
+            <span class="text-xs font-medium text-[var(--color-text-muted)]"
+              >Dağıtık İzleme (Tracing)</span
+            >
             <span class="text-sky-500 text-sm font-semibold">Aktif</span>
           </div>
           <div class="text-2xl font-bold mt-2 text-[var(--color-text-main)]">X-Trace-Id</div>
           <div class="text-xs text-[var(--color-text-muted)] mt-1">SLF4J MDC HTTP Entegrasyonu</div>
         </div>
 
-        <div class="p-5 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs">
+        <div
+          class="p-5 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs"
+        >
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-[var(--color-text-muted)]">Aktif Yönetici Rolü</span>
+            <span class="text-xs font-medium text-[var(--color-text-muted)]"
+              >Aktif Yönetici Rolü</span
+            >
             <span class="text-amber-500 text-sm font-semibold">RBAC</span>
           </div>
           <div class="text-2xl font-bold mt-2 text-[var(--color-text-main)] truncate">
             {{ (authService.userRoles()[0] || 'ROLE_ADMIN').replace('ROLE_', '') }}
           </div>
-          <div class="text-xs text-[var(--color-text-muted)] mt-1">{{ authService.currentUser()?.email || 'Admin Kullanıcı' }}</div>
+          <div class="text-xs text-[var(--color-text-muted)] mt-1">
+            {{ authService.currentUser()?.email || 'Admin Kullanıcı' }}
+          </div>
         </div>
       </div>
 
       <!-- Microservices Architecture Status -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 p-6 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs space-y-4">
+        <div
+          class="lg:col-span-2 p-6 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs space-y-4"
+        >
           <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-[var(--color-text-main)]">Spring Boot Servis Entegrasyon Durumu</h3>
+            <h3 class="text-base font-bold text-[var(--color-text-main)]">
+              Spring Boot Servis Entegrasyon Durumu
+            </h3>
             <span class="text-xs font-mono text-[var(--color-text-muted)]">Port: 8080</span>
           </div>
 
           <div class="space-y-3">
-            <div class="flex items-center justify-between p-3.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)]">
+            <div
+              class="flex items-center justify-between p-3.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)]"
+            >
               <div class="flex items-center gap-3">
                 <span
                   class="w-3 h-3 rounded-full"
@@ -115,7 +143,9 @@ import { ActuatorHealthResponse, ActuatorInfoResponse } from '@core/models';
                 ></span>
                 <div>
                   <div class="text-sm font-semibold">Core API Servisi (Spring Boot)</div>
-                  <div class="text-xs text-[var(--color-text-muted)]">/api/v1/auth ve /api/v1/users REST Uç Noktaları</div>
+                  <div class="text-xs text-[var(--color-text-muted)]">
+                    /api/v1/auth ve /api/v1/users REST Uç Noktaları
+                  </div>
                 </div>
               </div>
               <span
@@ -129,30 +159,45 @@ import { ActuatorHealthResponse, ActuatorInfoResponse } from '@core/models';
               </span>
             </div>
 
-            <div class="flex items-center justify-between p-3.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)]">
+            <div
+              class="flex items-center justify-between p-3.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)]"
+            >
               <div class="flex items-center gap-3">
                 <span
                   class="w-3 h-3 rounded-full"
-                  [class.bg-emerald-500]="health()?.components?.['db']?.status === 'UP' || health()?.status === 'UP'"
+                  [class.bg-emerald-500]="
+                    health()?.components?.['db']?.status === 'UP' || health()?.status === 'UP'
+                  "
                   [class.bg-slate-500]="health()?.status !== 'UP'"
                 ></span>
                 <div>
                   <div class="text-sm font-semibold">PostgreSQL & Flyway Migrations</div>
-                  <div class="text-xs text-[var(--color-text-muted)]">HikariCP Bağlantı Havuzu & Veritabanı Sağlığı</div>
+                  <div class="text-xs text-[var(--color-text-muted)]">
+                    HikariCP Bağlantı Havuzu & Veritabanı Sağlığı
+                  </div>
                 </div>
               </div>
               <span
                 class="text-xs font-mono px-2 py-1 rounded-md font-medium"
-                [class.bg-emerald-500/10]="health()?.components?.['db']?.status === 'UP' || health()?.status === 'UP'"
-                [class.text-emerald-500]="health()?.components?.['db']?.status === 'UP' || health()?.status === 'UP'"
+                [class.bg-emerald-500/10]="
+                  health()?.components?.['db']?.status === 'UP' || health()?.status === 'UP'
+                "
+                [class.text-emerald-500]="
+                  health()?.components?.['db']?.status === 'UP' || health()?.status === 'UP'
+                "
                 [class.bg-slate-500/10]="health()?.status !== 'UP'"
                 [class.text-slate-500]="health()?.status !== 'UP'"
               >
-                {{ health()?.components?.['db']?.status || (health()?.status === 'UP' ? 'CONNECTED' : 'UNKNOWN') }}
+                {{
+                  health()?.components?.['db']?.status ||
+                    (health()?.status === 'UP' ? 'CONNECTED' : 'UNKNOWN')
+                }}
               </span>
             </div>
 
-            <div class="flex items-center justify-between p-3.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)]">
+            <div
+              class="flex items-center justify-between p-3.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)]"
+            >
               <div class="flex items-center gap-3">
                 <span
                   class="w-3 h-3 rounded-full"
@@ -161,7 +206,9 @@ import { ActuatorHealthResponse, ActuatorInfoResponse } from '@core/models';
                 ></span>
                 <div>
                   <div class="text-sm font-semibold">Spring Authorization Server (SAS)</div>
-                  <div class="text-xs text-[var(--color-text-muted)]">OAuth 2.1, OIDC 1.0 & PKCE (web-portal-client)</div>
+                  <div class="text-xs text-[var(--color-text-muted)]">
+                    OAuth 2.1, OIDC 1.0 & PKCE (web-portal-client)
+                  </div>
                 </div>
               </div>
               <span
@@ -178,12 +225,16 @@ import { ActuatorHealthResponse, ActuatorInfoResponse } from '@core/models';
         </div>
 
         <!-- System Details Card -->
-        <div class="p-6 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs space-y-4">
+        <div
+          class="p-6 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs space-y-4"
+        >
           <h3 class="text-base font-bold text-[var(--color-text-main)]">Sistem & Çalışma Ortamı</h3>
           <div class="space-y-3 text-xs">
             <div class="flex justify-between py-1.5 border-b border-[var(--color-border-subtle)]">
               <span class="text-[var(--color-text-muted)]">Java Sürümü:</span>
-              <span class="font-mono font-medium text-[var(--color-text-main)]">Java 21 (Loom)</span>
+              <span class="font-mono font-medium text-[var(--color-text-main)]"
+                >Java 21 (Loom)</span
+              >
             </div>
             <div class="flex justify-between py-1.5 border-b border-[var(--color-border-subtle)]">
               <span class="text-[var(--color-text-muted)]">Spring Boot:</span>
@@ -191,7 +242,9 @@ import { ActuatorHealthResponse, ActuatorInfoResponse } from '@core/models';
             </div>
             <div class="flex justify-between py-1.5 border-b border-[var(--color-border-subtle)]">
               <span class="text-[var(--color-text-muted)]">Frontend:</span>
-              <span class="font-mono font-medium text-[var(--color-text-main)]">Angular 21 (Zoneless)</span>
+              <span class="font-mono font-medium text-[var(--color-text-main)]"
+                >Angular 21 (Zoneless)</span
+              >
             </div>
             <div class="flex justify-between py-1.5 border-b border-[var(--color-border-subtle)]">
               <span class="text-[var(--color-text-muted)]">Şifreleme:</span>
@@ -207,25 +260,38 @@ import { ActuatorHealthResponse, ActuatorInfoResponse } from '@core/models';
 
       <!-- Modern Angular 21 @defer Block Showcase -->
       @defer (on viewport) {
-        <div class="p-6 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs space-y-3">
+        <div
+          class="p-6 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs space-y-3"
+        >
           <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-[var(--color-text-main)]">Gelişmiş Tehdit & Güvenlik Analitiği (Deferred Loaded)</h3>
-            <span class="text-xs font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-500 font-semibold">&#64;defer on viewport</span>
+            <h3 class="text-base font-bold text-[var(--color-text-main)]">
+              Gelişmiş Tehdit & Güvenlik Analitiği (Deferred Loaded)
+            </h3>
+            <span
+              class="text-xs font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-500 font-semibold"
+              >&#64;defer on viewport</span
+            >
           </div>
           <p class="text-xs text-[var(--color-text-muted)]">
-            Angular 21 deferrable view optimizasyonu ile bu bileşen yalnızca görünür alana geldiğinde ayrıştırılıp render edilmiştir.
+            Angular 21 deferrable view optimizasyonu ile bu bileşen yalnızca görünür alana
+            geldiğinde ayrıştırılıp render edilmiştir.
           </p>
-          <div class="h-28 rounded-xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-emerald-500/10 border border-dashed border-indigo-500/30 flex items-center justify-center text-xs text-indigo-600 dark:text-indigo-400 font-mono">
-            🛡️ Kurumsal Standart: Virtual Threads (Java 21 Loom) + Argon2id + S256 PKCE Koruması Devrede
+          <div
+            class="h-28 rounded-xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-emerald-500/10 border border-dashed border-indigo-500/30 flex items-center justify-center text-xs text-indigo-600 dark:text-indigo-400 font-mono"
+          >
+            🛡️ Kurumsal Standart: Virtual Threads (Java 21 Loom) + Argon2id + S256 PKCE Koruması
+            Devrede
           </div>
         </div>
       } @placeholder {
-        <div class="h-24 rounded-2xl border border-dashed border-[var(--color-border-subtle)] flex items-center justify-center text-xs text-[var(--color-text-muted)] animate-pulse">
+        <div
+          class="h-24 rounded-2xl border border-dashed border-[var(--color-border-subtle)] flex items-center justify-center text-xs text-[var(--color-text-muted)] animate-pulse"
+        >
           Güvenlik analitiği modülü yükleniyor...
         </div>
       }
     </div>
-  `
+  `,
 })
 export class SystemHealthComponent implements OnInit {
   readonly authService = inject(AuthService);
@@ -255,7 +321,7 @@ export class SystemHealthComponent implements OnInit {
         this.latencyMs.set(null);
         this.health.set({ status: 'DOWN' });
         this.isRefreshing.set(false);
-      }
+      },
     });
 
     this.actuatorService.getInfo().subscribe({
@@ -264,7 +330,7 @@ export class SystemHealthComponent implements OnInit {
       },
       error: () => {
         // Optional info endpoint
-      }
+      },
     });
   }
 }

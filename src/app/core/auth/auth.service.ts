@@ -12,11 +12,11 @@ import {
   OAuthTokenResponse,
   RegisterUserRequest,
   SetPasswordRequest,
-  UserProfileResponse
+  UserProfileResponse,
 } from '@core/models';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -38,15 +38,13 @@ export class AuthService {
   }
 
   loginLocal(credentials: LoginRequest): Observable<ApiResponse<AuthTokenResponse>> {
-    return this.http
-      .post<ApiResponse<AuthTokenResponse>>('/api/v1/auth/login', credentials)
-      .pipe(
-        tap((response) => {
-          if (response.success && response.data) {
-            this.setSession(response.data.accessToken, response.data.user);
-          }
-        })
-      );
+    return this.http.post<ApiResponse<AuthTokenResponse>>('/api/v1/auth/login', credentials).pipe(
+      tap((response) => {
+        if (response.success && response.data) {
+          this.setSession(response.data.accessToken, response.data.user);
+        }
+      }),
+    );
   }
 
   register(request: RegisterUserRequest): Observable<ApiResponse<UserProfileResponse>> {
@@ -99,16 +97,18 @@ export class AuthService {
       .set('code_verifier', verifier);
 
     const headers = new HttpHeaders({
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     });
 
     return this.http
-      .post<OAuthTokenResponse>(`${environment.auth.issuer}/oauth2/token`, payload.toString(), { headers })
+      .post<OAuthTokenResponse>(`${environment.auth.issuer}/oauth2/token`, payload.toString(), {
+        headers,
+      })
       .pipe(
         tap((res) => {
           this.tokenStorage.clearPkceState();
           this.tokenStorage.setAccessToken(res.access_token);
-        })
+        }),
       );
   }
 
@@ -118,7 +118,7 @@ export class AuthService {
         if (response.success && response.data) {
           this.currentUser.set(response.data);
         }
-      })
+      }),
     );
   }
 

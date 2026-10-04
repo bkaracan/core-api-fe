@@ -22,10 +22,10 @@ import { AuthService } from '@core/auth/auth.service';
     KaizenMudaComponent,
     HabitLoopShowcaseComponent,
     IdentityMatrixComponent,
-    PhilosophyQuoteSliderComponent
+    PhilosophyQuoteSliderComponent,
   ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss'
+  styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, OnDestroy {
   readonly scrollService = inject(HabitFlowScrollService);
@@ -38,7 +38,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     { id: 'kaizen', label: 'Kaizen (İsraf Yok)' },
     { id: 'laws', label: '4 Alışkanlık Yasası' },
     { id: 'identity', label: 'Kimlik Matrisi' },
-    { id: 'metrics', label: 'Metrikler & Bilgelik' }
+    { id: 'metrics', label: 'Metrikler & Bilgelik' },
   ];
 
   fastEmail: string = '';
@@ -58,7 +58,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     e.preventDefault();
     if (this.fastEmail) {
       this.router.navigate(['/auth/register'], {
-        queryParams: { email: this.fastEmail }
+        queryParams: { email: this.fastEmail },
       });
     } else {
       this.router.navigate(['/auth/register']);

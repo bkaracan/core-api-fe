@@ -2,7 +2,9 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header Section -->
     <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 text-xs font-semibold text-indigo-400">
+      <div
+        class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/20 bg-indigo-500/10 text-xs font-semibold text-indigo-400"
+      >
         <span>Kaizen (改善) Metodolojisi</span>
         <span>•</span>
         <span>Muda Eleminasyonu</span>
@@ -16,20 +18,27 @@
       </h2>
 
       <p class="text-base sm:text-lg text-[var(--color-text-muted)]">
-        Kaizen öğretisine göre gelişim, iradenin zorlanmasıyla değil; sistemdeki <strong>sürtünmenin, karmaşanın ve israfın (Muda)</strong> ayıklanmasıyla elde edilir.
+        Kaizen öğretisine göre gelişim, iradenin zorlanmasıyla değil; sistemdeki
+        <strong>sürtünmenin, karmaşanın ve israfın (Muda)</strong> ayıklanmasıyla elde edilir.
       </p>
     </div>
 
     <!-- 3 Muda/Muri/Mura Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
       @for (card of mudaCards; track card.id) {
-        <div class="rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-6 sm:p-7 flex flex-col justify-between hover:border-indigo-500/40 transition-all duration-300 shadow-lg hover:shadow-indigo-500/5 group">
+        <div
+          class="rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] p-6 sm:p-7 flex flex-col justify-between hover:border-indigo-500/40 transition-all duration-300 shadow-lg hover:shadow-indigo-500/5 group"
+        >
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="text-3xl p-3 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] group-hover:scale-110 transition-transform">
+              <span
+                class="text-3xl p-3 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] group-hover:scale-110 transition-transform"
+              >
                 {{ card.icon }}
               </span>
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-full border {{ card.badgeColor }}">
+              <span
+                class="text-xs font-semibold px-2.5 py-1 rounded-full border {{ card.badgeColor }}"
+              >
                 {{ card.tag }}
               </span>
             </div>
@@ -42,11 +51,14 @@
             </div>
 
             <div class="text-xs sm:text-sm text-[var(--color-text-muted)] leading-relaxed mb-4">
-              <strong class="text-[var(--color-text-main)]">Sorun:</strong> {{ card.wasteDescription }}
+              <strong class="text-[var(--color-text-main)]">Sorun:</strong>
+              {{ card.wasteDescription }}
             </div>
           </div>
 
-          <div class="p-3.5 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] text-xs text-emerald-400">
+          <div
+            class="p-3.5 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] text-xs text-emerald-400"
+          >
             <div class="font-semibold text-emerald-300 flex items-center gap-1.5 mb-0.5">
               <span>🌱</span> Kaizen Çözümü
             </div>
@@ -59,28 +71,35 @@
     </div>
 
     <!-- Interactive 2-Minute Rule Simulation (2 Dakika Kuralı) -->
-    <div class="rounded-3xl border border-[var(--color-border-subtle)] bg-gradient-to-br from-[var(--color-bg-card)] via-[var(--color-bg-card)] to-indigo-950/20 p-6 sm:p-8 lg:p-12 shadow-2xl relative overflow-hidden">
+    <div
+      class="rounded-3xl border border-[var(--color-border-subtle)] bg-gradient-to-br from-[var(--color-bg-card)] via-[var(--color-bg-card)] to-indigo-950/20 p-6 sm:p-8 lg:p-12 shadow-2xl relative overflow-hidden"
+    >
       <!-- Glow ambient -->
-      <div class="pointer-events-none absolute -top-24 -right-24 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"></div>
+      <div
+        class="pointer-events-none absolute -top-24 -right-24 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl"
+      ></div>
 
       <div class="max-w-3xl mb-8">
-        <div class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">
+        <div
+          class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2"
+        >
           <span>⚡ İnteraktif Davranış Laboratuvarı</span>
           <span>•</span>
           <span>James Clear 3. Yasası (Kolaylaştır)</span>
         </div>
-        <h3 class="text-2xl sm:text-3xl font-bold tracking-tight">
-          2 Dakika Kuralı Simülatörü
-        </h3>
+        <h3 class="text-2xl sm:text-3xl font-bold tracking-tight">2 Dakika Kuralı Simülatörü</h3>
         <p class="text-sm sm:text-base text-[var(--color-text-muted)] mt-1">
-          Yeni bir alışkanlığa başlarken yapılması <strong>iki dakikadan az</strong> sürmelidir. Bir alışkanlığı optimize etmeden önce, varlığını standartlaştırmalısınız.
+          Yeni bir alışkanlığa başlarken yapılması <strong>iki dakikadan az</strong> sürmelidir. Bir
+          alışkanlığı optimize etmeden önce, varlığını standartlaştırmalısınız.
         </p>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <!-- Task Selection List -->
         <div class="lg:col-span-6 space-y-3">
-          <span class="text-xs font-semibold text-[var(--color-text-muted)] block uppercase tracking-wider">
+          <span
+            class="text-xs font-semibold text-[var(--color-text-muted)] block uppercase tracking-wider"
+          >
             Direnç Yaratan Hedefi Seç:
           </span>
 
@@ -93,7 +112,9 @@
               class="w-full text-left p-4 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] hover:border-indigo-500/50 transition-all cursor-pointer group flex flex-col gap-1.5"
             >
               <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-indigo-400 px-2 py-0.5 rounded-md bg-indigo-500/10">
+                <span
+                  class="text-xs font-semibold text-indigo-400 px-2 py-0.5 rounded-md bg-indigo-500/10"
+                >
                   {{ task.category }}
                 </span>
                 <span class="text-[11px] font-mono text-[var(--color-text-muted)]">
@@ -114,9 +135,13 @@
         </div>
 
         <!-- Simulation Interactive Box -->
-        <div class="lg:col-span-6 p-6 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] flex flex-col justify-between h-full space-y-6">
+        <div
+          class="lg:col-span-6 p-6 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] flex flex-col justify-between h-full space-y-6"
+        >
           <div>
-            <span class="text-xs uppercase font-semibold tracking-wider text-[var(--color-text-muted)]">
+            <span
+              class="text-xs uppercase font-semibold tracking-wider text-[var(--color-text-muted)]"
+            >
               Aktif Atomik Görev
             </span>
             <h4 class="text-xl font-bold mt-1 text-[var(--color-text-main)]">
@@ -132,14 +157,18 @@
             <div class="flex items-end justify-between">
               <div>
                 <span class="text-xs text-[var(--color-text-muted)]">Kalan Süre (Simülasyon):</span>
-                <div class="text-4xl sm:text-5xl font-mono font-black tracking-tight text-indigo-400">
+                <div
+                  class="text-4xl sm:text-5xl font-mono font-black tracking-tight text-indigo-400"
+                >
                   {{ formattedTime() }}
                 </div>
               </div>
 
               <div class="text-right">
                 <span class="text-xs text-[var(--color-text-muted)]">Sürtünme:</span>
-                <div class="text-sm font-bold text-emerald-400 font-mono">0 Direnç (Sıfır İrade Kaybı)</div>
+                <div class="text-sm font-bold text-emerald-400 font-mono">
+                  0 Direnç (Sıfır İrade Kaybı)
+                </div>
               </div>
             </div>
 
@@ -183,13 +212,16 @@
             }
 
             @if (hasCompletedSimulation()) {
-              <div class="w-full p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 space-y-2">
+              <div
+                class="w-full p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 space-y-2"
+              >
                 <div class="font-bold flex items-center gap-2 text-sm sm:text-base">
                   <span>🎉</span>
                   <span>Tebrikler! Kaizen Döngüsü Başlatıldı.</span>
                 </div>
                 <p class="text-xs text-emerald-200/90 leading-relaxed">
-                  En zor aşama başlamaktı. Zihniniz 2 dakikalık mikro-görevi tamamlayarak erteleme bariyerini yıktı. Şimdi ritmi korumak çok daha kolay!
+                  En zor aşama başlamaktı. Zihniniz 2 dakikalık mikro-görevi tamamlayarak erteleme
+                  bariyerini yıktı. Şimdi ritmi korumak çok daha kolay!
                 </p>
                 <button
                   type="button"

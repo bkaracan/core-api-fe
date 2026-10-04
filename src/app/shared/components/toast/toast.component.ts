@@ -16,10 +16,13 @@ import { ToastService, Toast } from '@core/services/toast.service';
         <div
           class="pointer-events-auto p-4 rounded-xl shadow-2xl border backdrop-blur-md transition-all duration-300 transform translate-y-0"
           [ngClass]="{
-            'bg-emerald-500/15 border-emerald-500/30 text-emerald-950 dark:text-emerald-200': toast.type === 'success',
-            'bg-rose-500/15 border-rose-500/30 text-rose-950 dark:text-rose-200': toast.type === 'error',
-            'bg-amber-500/15 border-amber-500/30 text-amber-950 dark:text-amber-200': toast.type === 'warning',
-            'bg-sky-500/15 border-sky-500/30 text-sky-950 dark:text-sky-200': toast.type === 'info'
+            'bg-emerald-500/15 border-emerald-500/30 text-emerald-950 dark:text-emerald-200':
+              toast.type === 'success',
+            'bg-rose-500/15 border-rose-500/30 text-rose-950 dark:text-rose-200':
+              toast.type === 'error',
+            'bg-amber-500/15 border-amber-500/30 text-amber-950 dark:text-amber-200':
+              toast.type === 'warning',
+            'bg-sky-500/15 border-sky-500/30 text-sky-950 dark:text-sky-200': toast.type === 'info',
           }"
         >
           <div class="flex items-start justify-between gap-3">
@@ -39,7 +42,7 @@ import { ToastService, Toast } from '@core/services/toast.service';
         </div>
       }
     </aside>
-  `
+  `,
 })
 export class ToastComponent {
   readonly toastService = inject(ToastService);

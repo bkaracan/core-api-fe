@@ -14,8 +14,12 @@ import { HasRoleDirective } from '@shared/directives/has-role.directive';
     <div class="space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="text-2xl font-bold tracking-tight text-[var(--color-text-main)]">Kullanıcı Yönetimi</h2>
-          <p class="text-sm text-[var(--color-text-muted)]">Sistemdeki aktif kullanıcıları ve rollerini denetleyin.</p>
+          <h2 class="text-2xl font-bold tracking-tight text-[var(--color-text-main)]">
+            Kullanıcı Yönetimi
+          </h2>
+          <p class="text-sm text-[var(--color-text-muted)]">
+            Sistemdeki aktif kullanıcıları ve rollerini denetleyin.
+          </p>
         </div>
 
         <div class="flex items-center gap-3">
@@ -36,10 +40,14 @@ import { HasRoleDirective } from '@shared/directives/has-role.directive';
       </div>
 
       <!-- User Directory Table Card -->
-      <div class="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs overflow-hidden">
+      <div
+        class="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs overflow-hidden"
+      >
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
-            <thead class="bg-[var(--color-bg-subtle)] border-b border-[var(--color-border-subtle)] text-[var(--color-text-muted)] text-xs uppercase font-semibold">
+            <thead
+              class="bg-[var(--color-bg-subtle)] border-b border-[var(--color-border-subtle)] text-[var(--color-text-muted)] text-xs uppercase font-semibold"
+            >
               <tr>
                 <th scope="col" class="py-3 px-4">Kullanıcı</th>
                 <th scope="col" class="py-3 px-4">Durum</th>
@@ -54,17 +62,23 @@ import { HasRoleDirective } from '@shared/directives/has-role.directive';
                 <tr class="hover:bg-[var(--color-bg-subtle)] transition-colors">
                   <td class="py-3.5 px-4">
                     <div class="flex items-center gap-3">
-                      <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-semibold flex items-center justify-center text-xs">
+                      <div
+                        class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-semibold flex items-center justify-center text-xs"
+                      >
                         {{ user.firstName[0] || 'U' }}{{ user.lastName[0] || 'P' }}
                       </div>
                       <div>
-                        <div class="font-medium text-[var(--color-text-main)]">{{ user.firstName }} {{ user.lastName }}</div>
+                        <div class="font-medium text-[var(--color-text-main)]">
+                          {{ user.firstName }} {{ user.lastName }}
+                        </div>
                         <div class="text-xs text-[var(--color-text-muted)]">{{ user.email }}</div>
                       </div>
                     </div>
                   </td>
                   <td class="py-3.5 px-4">
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600">
+                    <span
+                      class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600"
+                    >
                       <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                       {{ user.status }}
                     </span>
@@ -72,21 +86,28 @@ import { HasRoleDirective } from '@shared/directives/has-role.directive';
                   <td class="py-3.5 px-4">
                     <div class="flex flex-wrap gap-1">
                       @for (role of user.roles; track role) {
-                        <span class="px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-500 font-mono text-[10px] font-semibold">
+                        <span
+                          class="px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-500 font-mono text-[10px] font-semibold"
+                        >
                           {{ role }}
                         </span>
                       }
                     </div>
                   </td>
                   <td class="py-3.5 px-4">
-                    <span [ngClass]="user.hasLocalPassword ? 'text-emerald-600' : 'text-amber-600'" class="text-xs font-medium">
+                    <span
+                      [ngClass]="user.hasLocalPassword ? 'text-emerald-600' : 'text-amber-600'"
+                      class="text-xs font-medium"
+                    >
                       {{ user.hasLocalPassword ? 'Var' : 'Yok' }}
                     </span>
                   </td>
                   <td class="py-3.5 px-4">
                     <div class="flex gap-1">
                       @for (soc of user.socialAccounts; track soc.publicId) {
-                        <span class="text-xs font-mono px-1.5 py-0.5 rounded bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)]">
+                        <span
+                          class="text-xs font-mono px-1.5 py-0.5 rounded bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)]"
+                        >
                           {{ soc.provider }}
                         </span>
                       }
@@ -95,7 +116,9 @@ import { HasRoleDirective } from '@shared/directives/has-role.directive';
                       }
                     </div>
                   </td>
-                  <td class="py-3.5 px-4 text-right text-xs font-mono text-[var(--color-text-muted)]">
+                  <td
+                    class="py-3.5 px-4 text-right text-xs font-mono text-[var(--color-text-muted)]"
+                  >
                     {{ user.createdAt | date: 'dd.MM.yyyy' }}
                   </td>
                 </tr>
@@ -111,7 +134,7 @@ import { HasRoleDirective } from '@shared/directives/has-role.directive';
         </div>
       </div>
     </div>
-  `
+  `,
 })
 export class UserListComponent implements OnInit {
   private readonly userService = inject(UserService);
@@ -137,7 +160,7 @@ export class UserListComponent implements OnInit {
         if (res.success && res.data) {
           this.users.set([res.data]);
         }
-      }
+      },
     });
 
     this.userService.getUsers().subscribe({
@@ -148,7 +171,7 @@ export class UserListComponent implements OnInit {
       },
       error: () => {
         // Silently fallback if multi-user query is restricted by role
-      }
+      },
     });
   }
 
@@ -160,7 +183,7 @@ export class UserListComponent implements OnInit {
       (u) =>
         u.firstName.toLowerCase().includes(q) ||
         u.lastName.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q)
+        u.email.toLowerCase().includes(q),
     );
   }
 }

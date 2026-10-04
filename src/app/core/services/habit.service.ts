@@ -9,11 +9,11 @@ import {
   HabitResponse,
   IdentityResponse,
   KaizenReflectionRequest,
-  KaizenReflectionResponse
+  KaizenReflectionResponse,
 } from '@core/models';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HabitService {
   private readonly http = inject(HttpClient);
@@ -40,8 +40,8 @@ export class HabitService {
         },
         error: () => {
           this.isLoading.set(false);
-        }
-      })
+        },
+      }),
     );
   }
 
@@ -56,24 +56,27 @@ export class HabitService {
             this.summary.update((current) => {
               if (!current) return current;
               const updatedHabits = current.habits.map((h) =>
-                h.publicId === updatedHabit.publicId ? updatedHabit : h
+                h.publicId === updatedHabit.publicId ? updatedHabit : h,
               );
               const completedCount = updatedHabits.filter((h) => h.completedToday).length;
-              const rate = updatedHabits.length > 0 ? Math.round((completedCount / updatedHabits.length) * 100) : 0;
+              const rate =
+                updatedHabits.length > 0
+                  ? Math.round((completedCount / updatedHabits.length) * 100)
+                  : 0;
               const earnedXp = updatedHabits.reduce(
                 (acc, h) => (h.completedToday ? acc + h.rewardXp : acc),
-                0
+                0,
               );
               return {
                 ...current,
                 habits: updatedHabits,
                 completedHabits: completedCount,
                 completionRate: rate,
-                totalEarnedXp: earnedXp
+                totalEarnedXp: earnedXp,
               };
             });
           }
-        })
+        }),
       );
   }
 
@@ -88,17 +91,20 @@ export class HabitService {
             return {
               ...current,
               habits: updated,
-              totalHabits: updated.length
+              totalHabits: updated.length,
             };
           });
         }
-      })
+      }),
     );
   }
 
   castVote(identityPublicId: string): Observable<ApiResponse<IdentityResponse>> {
     return this.http
-      .post<ApiResponse<IdentityResponse>>(`/api/v1/habits/identities/${identityPublicId}/vote`, null)
+      .post<ApiResponse<IdentityResponse>>(
+        `/api/v1/habits/identities/${identityPublicId}/vote`,
+        null,
+      )
       .pipe(
         tap((res) => {
           if (res.success && res.data) {
@@ -106,16 +112,16 @@ export class HabitService {
             this.summary.update((current) => {
               if (!current) return current;
               const updatedIdentities = current.identities.map((i) =>
-                i.publicId === updatedIdentity.publicId ? updatedIdentity : i
+                i.publicId === updatedIdentity.publicId ? updatedIdentity : i,
               );
               return {
                 ...current,
                 identities: updatedIdentities,
-                totalIdentityVotes: updatedIdentities.reduce((acc, i) => acc + i.totalVotes, 0)
+                totalIdentityVotes: updatedIdentities.reduce((acc, i) => acc + i.totalVotes, 0),
               };
             });
           }
-        })
+        }),
       );
   }
 
@@ -128,29 +134,33 @@ export class HabitService {
             if (!current) return current;
             return {
               ...current,
-              identities: [...current.identities, newIdentity]
+              identities: [...current.identities, newIdentity],
             };
           });
         }
-      })
+      }),
     );
   }
 
-  saveReflection(request: KaizenReflectionRequest): Observable<ApiResponse<KaizenReflectionResponse>> {
-    return this.http.post<ApiResponse<KaizenReflectionResponse>>('/api/v1/habits/reflections', request).pipe(
-      tap((res) => {
-        if (res.success && res.data) {
-          const newReflection = res.data;
-          this.summary.update((current) => {
-            if (!current) return current;
-            return {
-              ...current,
-              todayReflection: newReflection
-            };
-          });
-        }
-      })
-    );
+  saveReflection(
+    request: KaizenReflectionRequest,
+  ): Observable<ApiResponse<KaizenReflectionResponse>> {
+    return this.http
+      .post<ApiResponse<KaizenReflectionResponse>>('/api/v1/habits/reflections', request)
+      .pipe(
+        tap((res) => {
+          if (res.success && res.data) {
+            const newReflection = res.data;
+            this.summary.update((current) => {
+              if (!current) return current;
+              return {
+                ...current,
+                todayReflection: newReflection,
+              };
+            });
+          }
+        }),
+      );
   }
 
   deleteHabit(publicId: string): Observable<ApiResponse<void>> {
@@ -163,11 +173,11 @@ export class HabitService {
             return {
               ...current,
               habits: updated,
-              totalHabits: updated.length
+              totalHabits: updated.length,
             };
           });
         }
-      })
+      }),
     );
   }
 }

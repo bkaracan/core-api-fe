@@ -1,7 +1,7 @@
 import { Injectable, signal, OnDestroy } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HabitFlowScrollService implements OnDestroy {
   readonly activeSection = signal<string>('hero');
@@ -25,8 +25,8 @@ export class HabitFlowScrollService implements OnDestroy {
       {
         root: null,
         rootMargin: '-20% 0px -50% 0px',
-        threshold: [0.1, 0.5]
-      }
+        threshold: [0.1, 0.5],
+      },
     );
 
     sectionIds.forEach((id) => {

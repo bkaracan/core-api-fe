@@ -10,7 +10,7 @@ describe('ActuatorService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [ActuatorService, provideHttpClient(), provideHttpClientTesting()]
+      providers: [ActuatorService, provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(ActuatorService);
     httpTesting = TestBed.inject(HttpTestingController);

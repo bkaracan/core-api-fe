@@ -5,13 +5,13 @@ import {
   ViewContainerRef,
   effect,
   inject,
-  signal
+  signal,
 } from '@angular/core';
 import { AuthService } from '@core/auth/auth.service';
 
 @Directive({
   selector: '[appHasRole]',
-  standalone: true
+  standalone: true,
 })
 export class HasRoleDirective {
   private readonly templateRef = inject(TemplateRef<unknown>);

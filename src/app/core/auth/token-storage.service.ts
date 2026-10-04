@@ -1,13 +1,13 @@
 import { Injectable, signal } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TokenStorageService {
   private static readonly TOKEN_KEY = 'core_api_access_token';
 
   private readonly _accessToken = signal<string | null>(
-    typeof localStorage !== 'undefined' ? localStorage.getItem('core_api_access_token') : null
+    typeof localStorage !== 'undefined' ? localStorage.getItem('core_api_access_token') : null,
   );
   readonly accessToken = this._accessToken.asReadonly();
 

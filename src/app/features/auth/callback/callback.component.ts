@@ -12,13 +12,21 @@ import { TokenStorageService } from '@core/auth/token-storage.service';
   imports: [CommonModule],
   template: `
     <div class="min-h-screen flex items-center justify-center bg-[var(--color-bg-subtle)] p-4">
-      <div class="w-full max-w-sm bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] rounded-2xl shadow-xl p-8 text-center space-y-4">
+      <div
+        class="w-full max-w-sm bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] rounded-2xl shadow-xl p-8 text-center space-y-4"
+      >
         @if (isProcessing()) {
-          <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <h3 class="text-base font-semibold text-[var(--color-text-main)]">Kimlik Doğrulanıyor...</h3>
+          <div
+            class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"
+          ></div>
+          <h3 class="text-base font-semibold text-[var(--color-text-main)]">
+            Kimlik Doğrulanıyor...
+          </h3>
           <p class="text-xs text-[var(--color-text-muted)]">Oturum açma işlemi tamamlanıyor.</p>
         } @else {
-          <div class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center mx-auto text-xl font-bold">
+          <div
+            class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center mx-auto text-xl font-bold"
+          >
             ✕
           </div>
           <h3 class="text-base font-semibold text-rose-600">Yetkilendirme Başarısız</h3>
@@ -33,7 +41,7 @@ import { TokenStorageService } from '@core/auth/token-storage.service';
         }
       </div>
     </div>
-  `
+  `,
 })
 export class AuthCallbackComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -62,7 +70,7 @@ export class AuthCallbackComponent implements OnInit {
         error: () => {
           this.isProcessing.set(false);
           this.router.navigate(['/dashboard']);
-        }
+        },
       });
       return;
     }
@@ -89,7 +97,7 @@ export class AuthCallbackComponent implements OnInit {
             error: () => {
               this.isProcessing.set(false);
               this.router.navigate(['/dashboard']);
-            }
+            },
           });
         },
         error: (err: unknown) => {
@@ -97,7 +105,7 @@ export class AuthCallbackComponent implements OnInit {
           const msg = err instanceof Error ? err.message : 'SSO doğrulama işlemi başarısız oldu.';
           this.errorMessage.set(msg);
           this.toastService.error(msg);
-        }
+        },
       });
     } catch (err: unknown) {
       this.isProcessing.set(false);

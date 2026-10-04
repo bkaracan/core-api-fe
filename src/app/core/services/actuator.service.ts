@@ -1,14 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {
-  ActuatorHealthResponse,
-  ActuatorInfoResponse,
-  ActuatorMetricResponse
-} from '@core/models';
+import { ActuatorHealthResponse, ActuatorInfoResponse, ActuatorMetricResponse } from '@core/models';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ActuatorService {
   private readonly http = inject(HttpClient);

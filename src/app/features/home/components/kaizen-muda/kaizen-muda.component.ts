@@ -7,7 +7,7 @@ import { KaizenMudaCard, TwoMinuteTask } from '../../models/behavioral-habit.mod
   standalone: true,
   imports: [CommonModule],
   templateUrl: './kaizen-muda.component.html',
-  styleUrl: './kaizen-muda.component.scss'
+  styleUrl: './kaizen-muda.component.scss',
 })
 export class KaizenMudaComponent implements OnDestroy {
   readonly mudaCards: KaizenMudaCard[] = [
@@ -22,7 +22,7 @@ export class KaizenMudaComponent implements OnDestroy {
       kaizenSolution:
         'Kaizen Adımı: Görevi zihnin direnç gösteremeyeceği kadar küçük mikro parçalara (2 Dakika Kuralı) böl.',
       icon: '⚡',
-      badgeColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+      badgeColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
     },
     {
       id: 'muda',
@@ -35,7 +35,7 @@ export class KaizenMudaComponent implements OnDestroy {
       kaizenSolution:
         'Kaizen Adımı: Çevre tasarımı ve 1. Yasa (Görünür Kıl) ile sürtünmeyi sıfıra indir, tek tıkla başla.',
       icon: '⏳',
-      badgeColor: 'text-rose-400 bg-rose-500/10 border-rose-500/30'
+      badgeColor: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
     },
     {
       id: 'mura',
@@ -48,8 +48,8 @@ export class KaizenMudaComponent implements OnDestroy {
       kaizenSolution:
         'Kaizen Adımı: PDCA (Planla-Uygula-Kontrol Et-Önlem Al) retrospektifi ile ritmik ve tahmin edilebilir rutinler kur.',
       icon: '🔄',
-      badgeColor: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30'
-    }
+      badgeColor: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30',
+    },
   ];
 
   readonly tasks: TwoMinuteTask[] = [
@@ -60,7 +60,7 @@ export class KaizenMudaComponent implements OnDestroy {
       atomicMicroStep: 'Dosyayı aç, başlığı yaz ve 1 giriş cümlesi oluştur',
       timeSeconds: 120,
       completed: false,
-      whyItWorks: 'Başlama direnci aşıldığında zihin akış moduna geçer.'
+      whyItWorks: 'Başlama direnci aşıldığında zihin akış moduna geçer.',
     },
     {
       id: 'reading',
@@ -69,7 +69,7 @@ export class KaizenMudaComponent implements OnDestroy {
       atomicMicroStep: 'Kitabı eline al, kapağını aç ve sadece 1 paragraf oku',
       timeSeconds: 120,
       completed: false,
-      whyItWorks: '1 sayfa okuyan biri artık "okuyucu" kimliğini aktive etmiştir.'
+      whyItWorks: '1 sayfa okuyan biri artık "okuyucu" kimliğini aktive etmiştir.',
     },
     {
       id: 'fitness',
@@ -78,7 +78,7 @@ export class KaizenMudaComponent implements OnDestroy {
       atomicMicroStep: 'Koşu ayakkabılarını giy ve kapının önüne çık',
       timeSeconds: 120,
       completed: false,
-      whyItWorks: 'En büyük sürtünme ayakkabıyı giymektir; giydikten sonra devam gelir.'
+      whyItWorks: 'En büyük sürtünme ayakkabıyı giymektir; giydikten sonra devam gelir.',
     },
     {
       id: 'code',
@@ -87,8 +87,8 @@ export class KaizenMudaComponent implements OnDestroy {
       atomicMicroStep: 'İlk fonksiyon için boş bir test dosyası aç ve 1 test adı yaz',
       timeSeconds: 120,
       completed: false,
-      whyItWorks: 'Küçük bir yeşil test, dopamin salgılatır ve sonraki adımı kolaylaştırır.'
-    }
+      whyItWorks: 'Küçük bir yeşil test, dopamin salgılatır ve sonraki adımı kolaylaştırır.',
+    },
   ];
 
   readonly selectedTaskId = signal<string>('report');

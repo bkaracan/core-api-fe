@@ -7,7 +7,7 @@ import { IdentityPersona } from '../../models/behavioral-habit.model';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './identity-matrix.component.html',
-  styleUrl: './identity-matrix.component.scss'
+  styleUrl: './identity-matrix.component.scss',
 })
 export class IdentityMatrixComponent {
   readonly personas = signal<IdentityPersona[]>([
@@ -15,7 +15,8 @@ export class IdentityMatrixComponent {
       id: 'pro',
       title: 'Üretken Profesyonel & Değer Üreten',
       statement: '"Ben her gün işine özen gösteren, odaklanan ve kaliteli değer üreten biriyim."',
-      goalContrast: 'Hedef: "Büyük projeyi bitir" ➔ Kimlik: "Her gün kesintisiz odakla en kritik görevini tamamlayan üretici"',
+      goalContrast:
+        'Hedef: "Büyük projeyi bitir" ➔ Kimlik: "Her gün kesintisiz odakla en kritik görevini tamamlayan üretici"',
       avatarIcon: '💼',
       color: 'indigo',
       level: 4,
@@ -27,29 +28,30 @@ export class IdentityMatrixComponent {
           name: 'İlk 45 dakika bildirimleri sessize alarak derin odakla çalış',
           points: 1,
           completedToday: true,
-          tag: 'Derin Odak'
+          tag: 'Derin Odak',
         },
         {
           id: 'pro-2',
           name: 'Günün en kritik 1 görevini ertelemeden bitir',
           points: 1,
           completedToday: false,
-          tag: 'Önceliklendirme'
+          tag: 'Önceliklendirme',
         },
         {
           id: 'pro-3',
           name: 'Çalışma alanını ve günün yapılacaklar listesini düzenle',
           points: 1,
           completedToday: false,
-          tag: 'Kaizen Düzen'
-        }
-      ]
+          tag: 'Kaizen Düzen',
+        },
+      ],
     },
     {
       id: 'scholar',
       title: 'Sürekli Öğrenen Entelektüel',
       statement: '"Ben her gün yeni bir kavram öğrenen ve not alan meraklı bir zihnim."',
-      goalContrast: 'Hedef: "Yılda 50 kitap oku" ➔ Kimlik: "Günde en az 5 sayfa okumadan uyumayan okuyucu"',
+      goalContrast:
+        'Hedef: "Yılda 50 kitap oku" ➔ Kimlik: "Günde en az 5 sayfa okumadan uyumayan okuyucu"',
       avatarIcon: '📚',
       color: 'violet',
       level: 3,
@@ -61,29 +63,30 @@ export class IdentityMatrixComponent {
           name: 'Sabah kahvesi eşliğinde 1 akademik makale oku',
           points: 1,
           completedToday: true,
-          tag: 'Öğrenme'
+          tag: 'Öğrenme',
         },
         {
           id: 'sch-2',
           name: 'Okunan kitaptan tek bir atomik not çıkar (Zettelkasten)',
           points: 1,
           completedToday: false,
-          tag: 'Sentez'
+          tag: 'Sentez',
         },
         {
           id: 'sch-3',
           name: '10 dakika sesli kitap veya eğitici podcast dinle',
           points: 1,
           completedToday: false,
-          tag: 'Mikro Adım'
-        }
-      ]
+          tag: 'Mikro Adım',
+        },
+      ],
     },
     {
       id: 'wellness',
       title: 'Zinde ve Enerjik Birey',
       statement: '"Ben bedenine ve zihnine saygı duyan, enerjisini yöneten biriyim."',
-      goalContrast: 'Hedef: "15 kilo ver" ➔ Kimlik: "Her gün bedenini hareket ettiren ve su içen sağlıklı insan"',
+      goalContrast:
+        'Hedef: "15 kilo ver" ➔ Kimlik: "Her gün bedenini hareket ettiren ve su içen sağlıklı insan"',
       avatarIcon: '🏃',
       color: 'emerald',
       level: 5,
@@ -95,24 +98,24 @@ export class IdentityMatrixComponent {
           name: 'Uyanır uyanmaz 1 büyük bardak limonlu su iç',
           points: 1,
           completedToday: true,
-          tag: 'Hidrasyon'
+          tag: 'Hidrasyon',
         },
         {
           id: 'wel-2',
           name: '2 dakikalık esneme ve derin nefes ritüeli yap',
           points: 1,
           completedToday: false,
-          tag: 'Farkındalık'
+          tag: 'Farkındalık',
         },
         {
           id: 'wel-3',
           name: 'Öğle arasında 15 dakikalık yürüyüşe çık',
           points: 1,
           completedToday: false,
-          tag: 'Hareket'
-        }
-      ]
-    }
+          tag: 'Hareket',
+        },
+      ],
+    },
   ]);
 
   readonly activePersonaId = signal<string>('pro');
@@ -146,10 +149,10 @@ export class IdentityMatrixComponent {
         if (!targetHabit) return persona;
 
         const nextCompleted = !targetHabit.completedToday;
-        const voteDelta = nextCompleted ? (targetHabit.points || 1) : -(targetHabit.points || 1);
+        const voteDelta = nextCompleted ? targetHabit.points || 1 : -(targetHabit.points || 1);
 
         const updatedHabits = persona.habits.map((h) =>
-          h.id === habitId ? { ...h, completedToday: nextCompleted } : h
+          h.id === habitId ? { ...h, completedToday: nextCompleted } : h,
         );
 
         if (nextCompleted) {
@@ -173,7 +176,7 @@ export class IdentityMatrixComponent {
           level: newLevel,
           totalVotes: newTotalVotes,
           votesThreshold: newThreshold,
-          habits: updatedHabits
+          habits: updatedHabits,
         };
       }
       return persona;

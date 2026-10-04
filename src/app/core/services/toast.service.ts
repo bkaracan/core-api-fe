@@ -9,7 +9,7 @@ export interface Toast {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
   readonly toasts = signal<Toast[]>([]);
@@ -19,7 +19,7 @@ export class ToastService {
     const newToast: Toast = {
       ...toast,
       id,
-      duration: toast.duration ?? 5000
+      duration: toast.duration ?? 5000,
     };
 
     this.toasts.update((items) => [...items, newToast]);

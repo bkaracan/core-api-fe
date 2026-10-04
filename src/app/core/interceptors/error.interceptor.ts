@@ -19,7 +19,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             : {
                 title: error.statusText || 'Sunucu Hatası',
                 detail: error.message,
-                status: error.status
+                status: error.status,
               };
 
         const traceId = problem.traceId || error.headers?.get('X-Trace-Id') || 'N/A';
@@ -27,22 +27,22 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
         switch (status) {
           case 401: {
-            toastService.error('Oturum süreniz doldu veya yetkisiz erişim. Lütfen tekrar giriş yapın.');
+            toastService.error(
+              'Oturum süreniz doldu veya yetkisiz erişim. Lütfen tekrar giriş yapın.',
+            );
             authService.logout();
             break;
           }
           case 403: {
             toastService.error(
               problem.detail || 'Bu kaynağa erişim yetkiniz bulunmamaktadır.',
-              '403 Yetkisiz Erişim'
+              '403 Yetkisiz Erişim',
             );
             break;
           }
           case 400: {
             if (problem.errors && problem.errors.length > 0) {
-              const fieldErrors = problem.errors
-                .map((p) => `${p.field}: ${p.message}`)
-                .join(', ');
+              const fieldErrors = problem.errors.map((p) => `${p.field}: ${p.message}`).join(', ');
               toastService.warning(fieldErrors, `Doğrulama Hatası (${problem.errorCode || '400'})`);
             } else if (problem.invalidParams && problem.invalidParams.length > 0) {
               const fieldErrors = problem.invalidParams
@@ -64,20 +64,20 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           case 504: {
             toastService.error(
               `${problem.detail || 'Sunucu tarafında beklenmeyen bir hata oluştu.'} (Trace: ${traceId})`,
-              'Sistem Hatası'
+              'Sistem Hatası',
             );
             break;
           }
           default: {
             toastService.error(
               problem.detail || `Beklenmeyen bir hata oluştu: HTTP ${status}`,
-              'Hata'
+              'Hata',
             );
           }
         }
       }
 
       return throwError(() => error);
-    })
+    }),
   );
 };

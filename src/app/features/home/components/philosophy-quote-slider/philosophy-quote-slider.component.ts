@@ -7,7 +7,7 @@ import { PhilosophyQuote, LiveMetric } from '../../models/behavioral-habit.model
   standalone: true,
   imports: [CommonModule],
   templateUrl: './philosophy-quote-slider.component.html',
-  styleUrl: './philosophy-quote-slider.component.scss'
+  styleUrl: './philosophy-quote-slider.component.scss',
 })
 export class PhilosophyQuoteSliderComponent implements OnInit, OnDestroy {
   readonly quotes: PhilosophyQuote[] = [
@@ -17,32 +17,35 @@ export class PhilosophyQuoteSliderComponent implements OnInit, OnDestroy {
       author: 'James Clear',
       role: 'Yazar, "Atomik Alışkanlıklar"',
       source: 'Atomic Habits (Bölüm 1)',
-      tag: 'Sistem Yaklaşımı'
+      tag: 'Sistem Yaklaşımı',
     },
     {
       id: 'kaizen-imai',
-      quote: 'Kaizen demek, her gün, herkesle ve her yerde küçük sürekli iyileşmeler yapmak demektir. Büyük sıçramalar değil, minik adımlar esastır.',
+      quote:
+        'Kaizen demek, her gün, herkesle ve her yerde küçük sürekli iyileşmeler yapmak demektir. Büyük sıçramalar değil, minik adımlar esastır.',
       author: 'Masaaki Imai',
       role: 'Kaizen Enstitüsü Kurucusu',
       source: 'Kaizen: Japon Yönetiminin Başarısı',
-      tag: 'Sürekli İyileşme'
+      tag: 'Sürekli İyileşme',
     },
     {
       id: 'clear-compound',
-      quote: 'Alışkanlıklar kendini geliştirmenin bileşik faizidir. Para nasıl katlanarak büyürse, alışkanlıklarınızın etkisi de tekrarladıkça katlanır.',
+      quote:
+        'Alışkanlıklar kendini geliştirmenin bileşik faizidir. Para nasıl katlanarak büyürse, alışkanlıklarınızın etkisi de tekrarladıkça katlanır.',
       author: 'James Clear',
       role: 'Davranış Bilimi Araştırmacısı',
       source: '%1 Kuralı',
-      tag: 'Bileşik Etki'
+      tag: 'Bileşik Etki',
     },
     {
       id: 'aurelius-small',
-      quote: 'Bir bina tek bir tuğlayla tamamlanmaz, ancak tek bir tuğla konmadan da hiçbir şey inşa edilemez.',
+      quote:
+        'Bir bina tek bir tuğlayla tamamlanmaz, ancak tek bir tuğla konmadan da hiçbir şey inşa edilemez.',
       author: 'Marcus Aurelius',
       role: 'Stoacı Filozof & Roma İmparatoru',
       source: 'Kendime Düşünceler',
-      tag: 'Stoacı Disiplin'
-    }
+      tag: 'Stoacı Disiplin',
+    },
   ];
 
   readonly liveMetrics: LiveMetric[] = [
@@ -52,7 +55,7 @@ export class PhilosophyQuoteSliderComponent implements OnInit, OnDestroy {
       value: '48,290+',
       changeRate: '+12.4% bu hafta',
       subtext: 'Kullanıcılarımızın tamamladığı 2 dakikalık mikro-eylemler',
-      icon: '⚡'
+      icon: '⚡',
     },
     {
       id: 'focus',
@@ -60,7 +63,7 @@ export class PhilosophyQuoteSliderComponent implements OnInit, OnDestroy {
       value: '9,450 Saat',
       changeRate: 'Muda Tasarrufu',
       subtext: 'Erteleme ve dikkat dağınıklığından geri kazanılan zaman',
-      icon: '🛡️'
+      icon: '🛡️',
     },
     {
       id: 'multiplier',
@@ -68,7 +71,7 @@ export class PhilosophyQuoteSliderComponent implements OnInit, OnDestroy {
       value: '37.8×',
       changeRate: 'Yıllık Hedef',
       subtext: 'Her gün %1 daha iyi olan üyelerin kümülatif başarısı',
-      icon: '📈'
+      icon: '📈',
     },
     {
       id: 'streaks',
@@ -76,8 +79,8 @@ export class PhilosophyQuoteSliderComponent implements OnInit, OnDestroy {
       value: '14,820 Gün',
       changeRate: 'Zinciri Kırma Kuralı',
       subtext: 'Görsel streak takibiyle korunan alışkanlıklar',
-      icon: '🔗'
-    }
+      icon: '🔗',
+    },
   ];
 
   readonly activeQuoteIndex = signal<number>(0);

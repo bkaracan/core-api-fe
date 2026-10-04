@@ -22,7 +22,7 @@ export interface DemoCategoryProgress {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './habit-loop-showcase.component.html',
-  styleUrl: './habit-loop-showcase.component.scss'
+  styleUrl: './habit-loop-showcase.component.scss',
 })
 export class HabitLoopShowcaseComponent {
   readonly laws: HabitLaw[] = [
@@ -35,27 +35,28 @@ export class HabitLoopShowcaseComponent {
       ruleTitle: 'İşaret Tasarımı: Nerede ve Ne Zaman?',
       description:
         'İradeye güvenmeyin; çevreyi tasarlayın. Sistemimiz, alışkanlıklarınızı günün belirli saatlerine, takvim bloklarına ve bağlamsal konumlara bağlayarak unutulmaz kılar.',
-      quote: '"En güçlü işaretler belirgin ve net olanlardır. Ne zaman ve nerede yapacağınızı önceden planlayın."',
+      quote:
+        '"En güçlü işaretler belirgin ve net olanlardır. Ne zaman ve nerede yapacağınızı önceden planlayın."',
       digitalFeature: {
         title: 'Akıllı Tetikleyiciler & Zaman Bloklama',
         details: [
           'Bağlamsal tetikleme: "Sabah masaya oturduğumda..."',
           'Otomatik takvim senkronizasyonu ve dikkat dağıtmayan mikro-hatırlatıcılar',
-          'Çevre tasarımı ipuçları ve sürtünmesiz hazır çalışma alanları'
+          'Çevre tasarımı ipuçları ve sürtünmesiz hazır çalışma alanları',
         ],
-        actionLabel: 'Tetikleyiciyi Görselleştir'
+        actionLabel: 'Tetikleyiciyi Görselleştir',
       },
       stackingExample: {
         currentHabit: 'Sabah kahvemi doldurduktan sonra',
         newHabit: 'Core-API dashboardunu açıp günün 1 numaralı atomik hedefini belirleyeceğim',
-        immediateReward: 'Zihinsel berraklık ve odaklanmış bir sabah'
+        immediateReward: 'Zihinsel berraklık ve odaklanmış bir sabah',
       },
       colorTheme: {
         gradient: 'from-blue-500/20 to-indigo-500/10',
         border: 'border-blue-500/30',
         badge: 'text-blue-400 bg-blue-500/10',
-        accent: '#60a5fa'
-      }
+        accent: '#60a5fa',
+      },
     },
     {
       id: 2,
@@ -72,21 +73,21 @@ export class HabitLoopShowcaseComponent {
         details: [
           'Otomatik önerilen kanıtlanmış demetleme şablonları',
           'Dopamin optimizasyonu: İhtiyaç ile arzuyu akıllıca birleştirme',
-          'Sosyal taahhüt ve akran takdir mekanizmaları'
+          'Sosyal taahhüt ve akran takdir mekanizmaları',
         ],
-        actionLabel: 'Demetleme Kurgula'
+        actionLabel: 'Demetleme Kurgula',
       },
       stackingExample: {
         currentHabit: 'Günlük standup toplantım biter bitmez',
         newHabit: '30 dakikalık derin kodlama oturumu başlatacağım',
-        immediateReward: 'Günün en zor işini sabah 10:00 olmadan bitirmiş olma tatmini'
+        immediateReward: 'Günün en zor işini sabah 10:00 olmadan bitirmiş olma tatmini',
       },
       colorTheme: {
         gradient: 'from-violet-500/20 to-purple-500/10',
         border: 'border-violet-500/30',
         badge: 'text-violet-400 bg-violet-500/10',
-        accent: '#a78bfa'
-      }
+        accent: '#a78bfa',
+      },
     },
     {
       id: 3,
@@ -103,21 +104,21 @@ export class HabitLoopShowcaseComponent {
         details: [
           'OAuth 2.1 PKCE ile anında, kesintisiz güvenli giriş',
           'Otomatik olarak 2 dakikaya indirgenmiş mikro-başlangıç görevleri',
-          'Önceden yapılandırılmış çalışma ortamları ve tek dokunuşla başlatma'
+          'Önceden yapılandırılmış çalışma ortamları ve tek dokunuşla başlatma',
         ],
-        actionLabel: 'Sürtünmeyi Test Et'
+        actionLabel: 'Sürtünmeyi Test Et',
       },
       stackingExample: {
         currentHabit: 'Tarayıcıyı açtığım anda',
         newHabit: 'Doğrudan odak panelinde tek tıkla 25 dk Pomodoro başlatacağım',
-        immediateReward: 'Tereddüt etmeden akış moduna geçiş'
+        immediateReward: 'Tereddüt etmeden akış moduna geçiş',
       },
       colorTheme: {
         gradient: 'from-amber-500/20 to-orange-500/10',
         border: 'border-amber-500/30',
         badge: 'text-amber-400 bg-amber-500/10',
-        accent: '#fbbf24'
-      }
+        accent: '#fbbf24',
+      },
     },
     {
       id: 4,
@@ -128,36 +129,50 @@ export class HabitLoopShowcaseComponent {
       ruleTitle: 'Ödül Hissi: Kategori Rozetleri ve Küme Terfisi (Bronz ➔ Elmas)',
       description:
         'Hemen ödüllendirilen davranışlar tekrarlanır. Tamamlanan her görev o kategoriye özel rozet kazandırır. Rozetler biriktikçe Bronz, Gümüş, Altın, Platin ve Elmas kümelerine terfi ederek zafer hissini taçlandırırsınız.',
-      quote: '"Başarı, bir gecede gerçekleşen büyük sıçramalardan değil; her gün kazanılan atomik rozetlerin ve terfi edilen kümelerin bileşik sonucudur."',
+      quote:
+        '"Başarı, bir gecede gerçekleşen büyük sıçramalardan değil; her gün kazanılan atomik rozetlerin ve terfi edilen kümelerin bileşik sonucudur."',
       digitalFeature: {
         title: 'Kategori Rozetleri & Küme Terfi Motoru',
         details: [
           'Kategoriye özel rozet kazanımı: Her tamamlanan alışkanlık o alanda rozet kazandırır',
           'Sürdürülebilir Küme Terfisi: 10 Bronz Rozet ➔ Gümüş Küme, 25 Gümüş Rozet ➔ Altın Küme, 50 Altın Rozet ➔ Platin, 100 Platin ➔ Elmas Küme',
-          'Canlı Streak (Zinciri Kırma) ve mikro-kutlama animasyonları'
+          'Canlı Streak (Zinciri Kırma) ve mikro-kutlama animasyonları',
         ],
-        actionLabel: 'Rozet & Küme Sistemini Keşfet'
+        actionLabel: 'Rozet & Küme Sistemini Keşfet',
       },
       stackingExample: {
         currentHabit: 'Günün atomik görevini tamamladığımda',
         newHabit: 'Kategori rozetimi alıp küme terfi çubuğumu ilerleteceğim',
-        immediateReward: 'Kategori rozeti kazanımı ve gümüş/altın kümeye adım adım yükselme dopamini'
+        immediateReward:
+          'Kategori rozeti kazanımı ve gümüş/altın kümeye adım adım yükselme dopamini',
       },
       colorTheme: {
         gradient: 'from-emerald-500/20 to-teal-500/10',
         border: 'border-emerald-500/30',
         badge: 'text-emerald-400 bg-emerald-500/10',
-        accent: '#34d399'
-      }
-    }
+        accent: '#34d399',
+      },
+    },
   ];
 
   readonly activeLawId = signal<number>(1);
 
   // Interactive 14-day streak simulation
   readonly streakDays = signal<boolean[]>([
-    true, true, true, true, true, true, true,
-    true, true, true, true, true, false, false
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
   ]);
 
   // 4. Yasa Rozet ve Küme Terfi Simülatörü
@@ -174,7 +189,7 @@ export class HabitLoopShowcaseComponent {
       requiredForNext: 10,
       nextTierName: 'Gümüş Küme',
       nextTierIcon: '🥈',
-      justPromoted: false
+      justPromoted: false,
     },
     {
       key: 'beden',
@@ -188,7 +203,7 @@ export class HabitLoopShowcaseComponent {
       requiredForNext: 25,
       nextTierName: 'Altın Küme',
       nextTierIcon: '🥇',
-      justPromoted: false
+      justPromoted: false,
     },
     {
       key: 'zihin',
@@ -202,8 +217,8 @@ export class HabitLoopShowcaseComponent {
       requiredForNext: 50,
       nextTierName: 'Platin Küme',
       nextTierIcon: '💠',
-      justPromoted: false
-    }
+      justPromoted: false,
+    },
   ]);
 
   readonly activeLaw = () => {
@@ -241,9 +256,9 @@ export class HabitLoopShowcaseComponent {
           requiredForNext: calc.requiredForNext,
           nextTierName: calc.nextTierName,
           nextTierIcon: calc.nextTierIcon,
-          justPromoted
+          justPromoted,
         };
-      })
+      }),
     );
   }
 
@@ -256,9 +271,10 @@ export class HabitLoopShowcaseComponent {
         badgesInCurrentTier: total,
         requiredForNext: 10,
         nextTierName: 'Gümüş Küme',
-        nextTierIcon: '🥈'
+        nextTierIcon: '🥈',
       };
-    } else if (total < 35) { // 10 + 25
+    } else if (total < 35) {
+      // 10 + 25
       return {
         tier: 'SILVER' as const,
         tierName: 'Gümüş Küme',
@@ -266,9 +282,10 @@ export class HabitLoopShowcaseComponent {
         badgesInCurrentTier: total - 10,
         requiredForNext: 25,
         nextTierName: 'Altın Küme',
-        nextTierIcon: '🥇'
+        nextTierIcon: '🥇',
       };
-    } else if (total < 85) { // 35 + 50
+    } else if (total < 85) {
+      // 35 + 50
       return {
         tier: 'GOLD' as const,
         tierName: 'Altın Küme',
@@ -276,9 +293,10 @@ export class HabitLoopShowcaseComponent {
         badgesInCurrentTier: total - 35,
         requiredForNext: 50,
         nextTierName: 'Platin Küme',
-        nextTierIcon: '💠'
+        nextTierIcon: '💠',
       };
-    } else if (total < 185) { // 85 + 100
+    } else if (total < 185) {
+      // 85 + 100
       return {
         tier: 'PLATINUM' as const,
         tierName: 'Platin Küme',
@@ -286,7 +304,7 @@ export class HabitLoopShowcaseComponent {
         badgesInCurrentTier: total - 85,
         requiredForNext: 100,
         nextTierName: 'Elmas Küme',
-        nextTierIcon: '💎'
+        nextTierIcon: '💎',
       };
     } else {
       return {
@@ -296,7 +314,7 @@ export class HabitLoopShowcaseComponent {
         badgesInCurrentTier: total - 185,
         requiredForNext: 0,
         nextTierName: 'Zirve Seviye',
-        nextTierIcon: '👑'
+        nextTierIcon: '👑',
       };
     }
   }

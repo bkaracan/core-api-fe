@@ -10,7 +10,7 @@ import { AuthService } from '@core/auth/auth.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './hero-compound.component.html',
-  styleUrl: './hero-compound.component.scss'
+  styleUrl: './hero-compound.component.scss',
 })
 export class HeroCompoundComponent {
   readonly math = inject(CompoundMathService);

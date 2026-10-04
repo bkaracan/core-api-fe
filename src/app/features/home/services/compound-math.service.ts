@@ -2,7 +2,7 @@ import { Injectable, computed, signal } from '@angular/core';
 import { SimulationDataPoint } from '../models/behavioral-habit.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CompoundMathService {
   /**
@@ -85,7 +85,7 @@ export class CompoundMathService {
       day,
       compound: Number(Math.pow(1 + rate, day).toFixed(2)),
       linear: Number(Math.max(0, 1 + rate * day).toFixed(2)),
-      decline: Number(Math.max(0.01, Math.pow(1 - absRate, day)).toFixed(2))
+      decline: Number(Math.max(0.01, Math.pow(1 - absRate, day)).toFixed(2)),
     }));
   });
 
@@ -113,7 +113,9 @@ export class CompoundMathService {
 
     // Compound Curve
     const compoundPathD = points
-      .map((p, i) => `${i === 0 ? 'M' : 'L'} ${toX(p.day).toFixed(1)} ${toY(p.compound).toFixed(1)}`)
+      .map(
+        (p, i) => `${i === 0 ? 'M' : 'L'} ${toX(p.day).toFixed(1)} ${toY(p.compound).toFixed(1)}`,
+      )
       .join(' ');
 
     // Linear Path
@@ -140,7 +142,7 @@ export class CompoundMathService {
       declinePath: declinePathD,
       baselinePath: baselinePathD,
       currentEndY: toY(this.compoundMultiplier()),
-      baselineY
+      baselineY,
     };
   });
 

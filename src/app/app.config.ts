@@ -6,7 +6,7 @@ import {
   apiPrefixInterceptor,
   authInterceptor,
   errorInterceptor,
-  traceIdInterceptor
+  traceIdInterceptor,
 } from '@core/interceptors';
 
 export const appConfig: ApplicationConfig = {
@@ -18,8 +18,8 @@ export const appConfig: ApplicationConfig = {
         traceIdInterceptor,
         apiPrefixInterceptor,
         authInterceptor,
-        errorInterceptor
-      ])
-    )
-  ]
+        errorInterceptor,
+      ]),
+    ),
+  ],
 };
