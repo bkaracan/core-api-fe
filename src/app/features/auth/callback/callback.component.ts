@@ -15,7 +15,7 @@ import { TokenStorageService } from '@core/auth/token-storage.service';
       <div
         class="w-full max-w-sm bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] rounded-2xl shadow-xl p-8 text-center space-y-4"
       >
-        @if (isProcessing()) {
+        @if (status() === 'loading') {
           <div
             class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"
           ></div>
@@ -23,6 +23,16 @@ import { TokenStorageService } from '@core/auth/token-storage.service';
             Kimlik Doğrulanıyor...
           </h3>
           <p class="text-xs text-[var(--color-text-muted)]">Oturum açma işlemi tamamlanıyor.</p>
+        } @else if (status() === 'success') {
+          <div
+            class="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center mx-auto text-xl font-bold"
+          >
+            ✓
+          </div>
+          <h3 class="text-base font-semibold text-emerald-600">Giriş Başarılı</h3>
+          <p class="text-xs text-[var(--color-text-muted)]">
+            Gelişim paneline yönlendiriliyorsunuz...
+          </p>
         } @else {
           <div
             class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center mx-auto text-xl font-bold"
@@ -50,10 +60,22 @@ export class AuthCallbackComponent implements OnInit {
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly toastService = inject(ToastService);
 
-  readonly isProcessing = signal(true);
+  readonly status = signal<'loading' | 'success' | 'error'>('loading');
   readonly errorMessage = signal('Geçersiz istek parametreleri.');
 
   ngOnInit(): void {
+    const errorParam = this.route.snapshot.queryParamMap.get('error');
+    if (errorParam) {
+      this.status.set('error');
+      const friendlyMsg =
+        errorParam === 'social_auth_failed'
+          ? 'Sosyal sağlayıcı ile kimlik doğrulama başarısız oldu.'
+          : `Yetkilendirme Hatası: ${errorParam}`;
+      this.errorMessage.set(friendlyMsg);
+      this.toastService.error(friendlyMsg);
+      return;
+    }
+
     const directToken =
       this.route.snapshot.queryParamMap.get('token') ||
       this.route.snapshot.queryParamMap.get('accessToken') ||
@@ -63,12 +85,12 @@ export class AuthCallbackComponent implements OnInit {
       this.tokenStorage.setAccessToken(directToken);
       this.authService.fetchCurrentUser().subscribe({
         next: (profileRes) => {
-          this.isProcessing.set(false);
+          this.status.set('success');
           this.toastService.success(`Hoş geldiniz, ${profileRes.data.firstName}!`);
           this.router.navigate(['/dashboard']);
         },
         error: () => {
-          this.isProcessing.set(false);
+          this.status.set('success');
           this.router.navigate(['/dashboard']);
         },
       });
@@ -79,7 +101,7 @@ export class AuthCallbackComponent implements OnInit {
     const state = this.route.snapshot.queryParamMap.get('state');
 
     if (!code || !state) {
-      this.isProcessing.set(false);
+      this.status.set('error');
       this.errorMessage.set('Eksik yetkilendirme kodu veya durum bilgisi.');
       return;
     }
@@ -90,25 +112,25 @@ export class AuthCallbackComponent implements OnInit {
           // After token is saved in memory, fetch current user profile
           this.authService.fetchCurrentUser().subscribe({
             next: (profileRes) => {
-              this.isProcessing.set(false);
+              this.status.set('success');
               this.toastService.success(`Hoş geldiniz, ${profileRes.data.firstName}!`);
               this.router.navigate(['/dashboard']);
             },
             error: () => {
-              this.isProcessing.set(false);
+              this.status.set('success');
               this.router.navigate(['/dashboard']);
             },
           });
         },
         error: (err: unknown) => {
-          this.isProcessing.set(false);
+          this.status.set('error');
           const msg = err instanceof Error ? err.message : 'SSO doğrulama işlemi başarısız oldu.';
           this.errorMessage.set(msg);
           this.toastService.error(msg);
         },
       });
     } catch (err: unknown) {
-      this.isProcessing.set(false);
+      this.status.set('error');
       const msg = err instanceof Error ? err.message : 'PKCE parametreleri doğrulanamadı.';
       this.errorMessage.set(msg);
       this.toastService.error(msg);
