@@ -138,23 +138,32 @@ export interface CategoryTierItem {
             <div class="flex items-center gap-1.5 pt-1">
               @for (day of weekStreak(); track day.dayShort) {
                 <div
-                  class="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl border transition-all text-center"
-                  [class.border-emerald-500/40]="day.completed"
+                  class="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl border transition-all text-center relative"
+                  [class.ring-2]="day.isToday"
+                  [class.ring-indigo-500]="day.isToday"
+                  [class.border-emerald-500/50]="day.completed"
                   [class.bg-emerald-500/15]="day.completed"
                   [class.border-indigo-500]="day.isToday && !day.completed"
                   [class.bg-indigo-500/10]="day.isToday && !day.completed"
                   [class.border-[var(--color-border-subtle)]]="!day.completed && !day.isToday"
                   [class.bg-[var(--color-bg-card)]]="!day.completed && !day.isToday"
                 >
-                  <span class="text-[10px] font-bold text-[var(--color-text-muted)]">{{
-                    day.dayShort
-                  }}</span>
+                  <span
+                    class="text-[10px] font-bold"
+                    [class.text-indigo-600]="day.isToday"
+                    [class.dark:text-indigo-400]="day.isToday"
+                    [class.text-[var(--color-text-muted)]]="!day.isToday"
+                  >
+                    {{ day.dayShort }}
+                  </span>
                   <div
                     class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold"
                     [class.bg-emerald-500]="day.completed"
                     [class.text-white]="day.completed"
-                    [class.bg-[var(--color-bg-subtle)]]="!day.completed"
-                    [class.text-[var(--color-text-muted)]]="!day.completed"
+                    [class.bg-indigo-500/20]="day.isToday && !day.completed"
+                    [class.text-indigo-500]="day.isToday && !day.completed"
+                    [class.bg-[var(--color-bg-subtle)]]="!day.completed && !day.isToday"
+                    [class.text-[var(--color-text-muted)]]="!day.completed && !day.isToday"
                   >
                     {{ day.completed ? '✓' : day.isToday ? '•' : '○' }}
                   </div>
@@ -2378,15 +2387,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }).format(new Date());
 
   // 7 Günlük Haftalık Zincir Göstergesi
-  readonly weekStreak = signal<DayStreakItem[]>([
-    { dayName: 'Pazartesi', dayShort: 'Pzt', completed: false, isToday: false, score: 0 },
-    { dayName: 'Salı', dayShort: 'Sal', completed: false, isToday: false, score: 0 },
-    { dayName: 'Çarşamba', dayShort: 'Çar', completed: false, isToday: false, score: 0 },
-    { dayName: 'Perşembe', dayShort: 'Per', completed: false, isToday: false, score: 0 },
-    { dayName: 'Cuma', dayShort: 'Cum', completed: false, isToday: false, score: 0 },
-    { dayName: 'Cumartesi', dayShort: 'Cmt', completed: false, isToday: false, score: 0 },
-    { dayName: 'Pazar', dayShort: 'Paz', completed: false, isToday: true, score: 0 },
-  ]);
+  readonly weekStreak = signal<DayStreakItem[]>(this.generateInitialWeekStreak());
+
+  private generateInitialWeekStreak(): DayStreakItem[] {
+    const todayIndex = (new Date().getDay() + 6) % 7; // Pazartesi: 0, Salı: 1, ..., Pazar: 6
+    const weekDays: Array<{ name: string; short: string }> = [
+      { name: 'Pazartesi', short: 'Pzt' },
+      { name: 'Salı', short: 'Sal' },
+      { name: 'Çarşamba', short: 'Çar' },
+      { name: 'Perşembe', short: 'Per' },
+      { name: 'Cuma', short: 'Cum' },
+      { name: 'Cumartesi', short: 'Cmt' },
+      { name: 'Pazar', short: 'Paz' },
+    ];
+
+    return weekDays.map((d, idx) => ({
+      dayName: d.name,
+      dayShort: d.short,
+      completed: false,
+      isToday: idx === todayIndex,
+      score: 0,
+    }));
+  }
+
+  updateTodayStreakCompletion(): void {
+    const todayIndex = (new Date().getDay() + 6) % 7;
+    const hasCompletedHabit = this.habits().some((h) => h.completed);
+    this.weekStreak.update((days) =>
+      days.map((d, idx) => (idx === todayIndex ? { ...d, completed: hasCompletedHabit } : d)),
+    );
+  }
 
   // James Clear Kimlikleri (8 Dengeli Yaşam Kimliği)
   readonly identities = signal<UserIdentity[]>([
@@ -2717,6 +2747,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   };
                 }),
               );
+              this.updateTodayStreakCompletion();
             }
           }
         },
@@ -2990,6 +3021,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.castIdentityVote(habit.identityId, false);
     this.awardCategoryBadge(habit.category);
+    this.updateTodayStreakCompletion();
 
     this.habitService.toggleHabit(habitId, false).subscribe();
   }
@@ -3103,6 +3135,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         `"${habit.title}" tamamlanma durumu geri alındı.`,
         'Durum Güncellendi',
       );
+      this.updateTodayStreakCompletion();
       this.habitService.toggleHabit(id, false).subscribe();
     }
   }
