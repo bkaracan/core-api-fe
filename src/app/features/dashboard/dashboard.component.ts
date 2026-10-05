@@ -6,6 +6,7 @@ import { AuthService } from '@core/auth/auth.service';
 import { UserService } from '@core/services/user.service';
 import { ToastService } from '@core/services/toast.service';
 import { HabitService } from '@core/services/habit.service';
+import { GlassMarbleJarComponent } from '@shared/components/glass-marble-jar/glass-marble-jar.component';
 
 export type HabitTimerStatus = 'HAZIR' | 'DEVAM_EDIYOR' | 'DURAKLATILDI' | 'TAMAMLANDI';
 
@@ -71,7 +72,7 @@ export interface CategoryTierItem {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, GlassMarbleJarComponent],
   template: `
     <div class="space-y-8 max-w-7xl mx-auto pb-12">
       <!-- 1. HERO COMPOUND HORIZON & GÜNLÜK KAIZEN KARŞILAMA -->
@@ -608,19 +609,19 @@ export interface CategoryTierItem {
                 </div>
               </div>
 
-              <p class="text-[11px] text-[var(--color-text-muted)] italic">
+              <p
+                class="text-[11px] text-[var(--color-text-muted)] italic text-center px-1 min-h-[32px] flex items-center justify-center"
+              >
                 "{{ identity.tagline }}"
               </p>
 
-              <!-- Seviye İlerleme Çubuğu -->
-              <div
-                class="w-full bg-[var(--color-bg-card)] h-1.5 rounded-full overflow-hidden border border-[var(--color-border-subtle)]"
-              >
-                <div
-                  class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300"
-                  [style.width.%]="(identity.totalVotes / identity.votesThreshold) * 100"
-                ></div>
-              </div>
+              <!-- Cam Fanus ve 3D Bilye (Misket) Oy Sandığı -->
+              <app-glass-marble-jar
+                [votes]="identity.totalVotes"
+                [threshold]="identity.votesThreshold"
+                [color]="identity.color"
+                [identityName]="identity.name"
+              />
             </div>
           }
         </div>

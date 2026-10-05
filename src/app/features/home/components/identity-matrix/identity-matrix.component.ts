@@ -1,11 +1,12 @@
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IdentityPersona } from '../../models/behavioral-habit.model';
+import { GlassMarbleJarComponent } from '@shared/components/glass-marble-jar/glass-marble-jar.component';
 
 @Component({
   selector: 'app-identity-matrix',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, GlassMarbleJarComponent],
   templateUrl: './identity-matrix.component.html',
   styleUrl: './identity-matrix.component.scss',
 })
