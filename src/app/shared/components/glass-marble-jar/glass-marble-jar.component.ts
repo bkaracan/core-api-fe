@@ -115,27 +115,30 @@ export interface MarbleCoord {
         <div class="w-24 h-1.5 rounded-full bg-black/15 dark:bg-black/50 blur-[2px] -mt-0.5"></div>
       </div>
 
-      <!-- Doluluk ve Misket Sayacı Metni -->
-      <div class="mt-1.5 w-full flex items-center justify-between text-[10px] px-1 font-mono">
-        <span class="font-bold flex items-center gap-1.5" [style.color]="color()">
-          <span
-            class="inline-block w-2 h-2 rounded-full shadow-2xs"
-            [style.background]="getMarbleGradient(0)"
-          ></span>
-          <span>{{ votes() }} / {{ threshold() }} Bilye</span>
-        </span>
-        <span
-          class="font-semibold px-1.5 py-0.2 rounded-md"
-          [class.bg-emerald-500/10]="fillPercentage() >= 100"
-          [class.text-emerald-500]="fillPercentage() >= 100"
-          [class.text-[var(--color-text-muted)]]="fillPercentage() < 100"
+      <!-- Bilye Sayısı Yerine Aynı Renklerde Dinamik Proses Bar -->
+      <div class="mt-2 w-full space-y-1">
+        <div class="flex items-center justify-between text-[10px] font-mono px-0.5">
+          <span class="text-[9px] font-semibold text-[var(--color-text-muted)]"
+            >Hedef İlerlemesi</span
+          >
+          <span class="font-bold text-[10px]" [style.color]="color()">
+            @if (fillPercentage() >= 100) {
+              🎉 %100
+            } @else {
+              %{{ fillPercentage() }}
+            }
+          </span>
+        </div>
+        <div
+          class="w-full bg-[var(--color-bg-card)] h-2 rounded-full overflow-hidden border border-[var(--color-border-subtle)] p-[1px] shadow-inner"
         >
-          @if (fillPercentage() >= 100) {
-            🎉 %100 Dolu
-          } @else {
-            %{{ fillPercentage() }}
-          }
-        </span>
+          <div
+            class="h-full rounded-full transition-all duration-500 shadow-xs"
+            [style.width.%]="fillPercentage()"
+            [style.background]="progressBarGradient()"
+            [style.boxShadow]="'0 0 8px ' + color() + '50'"
+          ></div>
+        </div>
       </div>
     </div>
   `,
@@ -212,6 +215,14 @@ export class GlassMarbleJarComponent {
   readonly fillPercentage = computed(() => {
     const t = Math.max(1, this.threshold());
     return Math.min(100, Math.round((this.votes() / t) * 100));
+  });
+
+  readonly progressBarGradient = computed(() => {
+    const rawColor = this.color() || '#6366F1';
+    const hex = this.resolveColorToHex(rawColor);
+    const rgb = this.hexToRgb(hex);
+    const lightRgb = `rgb(${Math.min(255, rgb.r + 55)}, ${Math.min(255, rgb.g + 55)}, ${Math.min(255, rgb.b + 55)})`;
+    return `linear-gradient(90deg, ${hex} 0%, ${lightRgb} 100%)`;
   });
 
   readonly visibleMarbles = computed<MarbleCoord[]>(() => {
