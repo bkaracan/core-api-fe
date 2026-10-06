@@ -333,7 +333,7 @@ export interface CategoryTierItem {
                   </span>
                 </div>
                 <h4 class="text-xs font-bold text-[var(--color-text-main)]">
-                  2-Dakika Kuralını Dene
+                  2 Dakika Kuralını Dene
                 </h4>
                 <p class="text-[11px] text-[var(--color-text-muted)] leading-relaxed">
                   Büyük hedefler ertelemeyi doğurur. Sürtünmeyi sıfırla ve sadece ilk 2 dakikalık
@@ -416,7 +416,7 @@ export interface CategoryTierItem {
             <span class="text-[var(--color-text-muted)]">
               @if (completionRate() === 0) {
                 Günün henüz hiçbir alışkanlığını tamamlamadın. Aşağıdaki görevlerden birine tıkla
-                veya "2-Dakika Kuralı" butonunu kullanarak sürtünmesiz ilk adımını at!
+                veya "2 Dakika Kuralı" butonunu kullanarak sürtünmesiz ilk adımını at!
               } @else if (completionRate() < 100) {
                 Harika ilerliyorsun (%{{ completionRate() }} tamamlandı). Hedefin zinciri kırmamak!
                 Kalan alışkanlıkları tamamlayıp günün %1 gelişimini garantile.
@@ -955,7 +955,7 @@ export interface CategoryTierItem {
                     class="p-2.5 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] space-y-1"
                   >
                     <div class="font-bold text-purple-600 dark:text-purple-400">
-                      3. Kolaylaştır (2-Dakika Kuralı)
+                      3. Kolaylaştır (2 Dakika Kuralı)
                     </div>
                     <p class="text-[var(--color-text-muted)]">
                       Başlama sürtünmesini sıfırlayın. Devasa bir hedef yerine sadece ilk 2
@@ -1300,30 +1300,186 @@ export interface CategoryTierItem {
                     </select>
                   </div>
 
-                  <!-- 2. Adım: Ne Zaman? (İşaret / Tetikleyici) -->
-                  <div class="space-y-1.5">
-                    <label
-                      class="text-xs font-semibold text-[var(--color-text-main)] flex items-center gap-1"
+                  <!-- 2. Adım: Ne Zaman? (İşaret / Tetikleyici & Dijital Saat) -->
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                      <label
+                        class="text-xs font-semibold text-[var(--color-text-main)] flex items-center gap-1.5"
+                      >
+                        <span>2️⃣</span>
+                        <span>Ne Zaman? (1. Yasa: Zaman İşareti)</span>
+                        <span class="text-rose-500">*</span>
+                      </label>
+                      @if (newHabitSpecificTime) {
+                        <div class="flex items-center gap-1.5">
+                          <span
+                            class="text-[10px] font-semibold px-2 py-0.5 rounded-full border transition-all"
+                            [ngClass]="getTimePeriodBadgeClass()"
+                          >
+                            {{ getTimePeriodLabel() }}
+                          </span>
+                          <span
+                            class="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/20"
+                          >
+                            🕒 {{ newHabitSpecificTime }}
+                          </span>
+                        </div>
+                      } @else {
+                        <span class="text-[10px] text-[var(--color-text-muted)] font-medium">
+                          ⏰ Saat & Rutin İşareti
+                        </span>
+                      }
+                    </div>
+
+                    <!-- Modern Dijital Saat & Demetleme Kartı -->
+                    <div
+                      class="p-4 rounded-2xl bg-gradient-to-br from-indigo-500/5 via-[var(--color-bg-subtle)] to-purple-500/5 border border-indigo-500/20 space-y-3.5 shadow-2xs"
                     >
-                      <span>2️⃣</span>
-                      <span>Ne Zaman? (1. Yasa: Zaman İşareti)</span>
-                      <span class="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      [(ngModel)]="newHabitCue"
-                      placeholder="Örn: Sabah ilk kahvemi aldıktan hemen sonra..."
-                      class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] shadow-2xs"
-                    />
+                      <!-- Üst Kısım: Dijital Saat Göstergesi & Hızlı Butonlar -->
+                      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <!-- Şık Dijital Kadran (Saat & Dakika) -->
+                        <div class="flex items-center gap-2.5">
+                          <!-- Saat Bloğu -->
+                          <div class="flex flex-col items-center">
+                            <button
+                              type="button"
+                              (click)="adjustHour(1)"
+                              class="w-12 h-6 rounded-t-lg bg-[var(--color-bg-card)] hover:bg-indigo-500 hover:text-white border border-b-0 border-[var(--color-border-subtle)] text-[10px] font-bold text-[var(--color-text-muted)] flex items-center justify-center cursor-pointer transition-all active:scale-95 shadow-2xs"
+                              title="Saati 1 Artır"
+                            >
+                              ▲
+                            </button>
+                            <input
+                              type="text"
+                              [value]="newHabitHour || '--'"
+                              (change)="onHourInputChange($event)"
+                              maxlength="2"
+                              class="w-12 h-11 text-center text-xl font-mono font-black border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] shadow-inner focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                              title="Saat (00 - 23)"
+                            />
+                            <button
+                              type="button"
+                              (click)="adjustHour(-1)"
+                              class="w-12 h-6 rounded-b-lg bg-[var(--color-bg-card)] hover:bg-indigo-500 hover:text-white border border-t-0 border-[var(--color-border-subtle)] text-[10px] font-bold text-[var(--color-text-muted)] flex items-center justify-center cursor-pointer transition-all active:scale-95 shadow-2xs"
+                              title="Saati 1 Azalt"
+                            >
+                              ▼
+                            </button>
+                            <span
+                              class="text-[9px] uppercase tracking-wider font-bold text-[var(--color-text-muted)] mt-1"
+                            >
+                              Saat
+                            </span>
+                          </div>
+
+                          <!-- Ayraç (Yanıp Sönen İki Nokta) -->
+                          <div class="text-xl font-black font-mono text-indigo-500 animate-pulse pb-4">
+                            :
+                          </div>
+
+                          <!-- Dakika Bloğu -->
+                          <div class="flex flex-col items-center">
+                            <button
+                              type="button"
+                              (click)="adjustMinute(5)"
+                              class="w-12 h-6 rounded-t-lg bg-[var(--color-bg-card)] hover:bg-indigo-500 hover:text-white border border-b-0 border-[var(--color-border-subtle)] text-[10px] font-bold text-[var(--color-text-muted)] flex items-center justify-center cursor-pointer transition-all active:scale-95 shadow-2xs"
+                              title="Dakikayı 5 Artır"
+                            >
+                              ▲
+                            </button>
+                            <input
+                              type="text"
+                              [value]="newHabitMinute || '00'"
+                              (change)="onMinuteInputChange($event)"
+                              maxlength="2"
+                              class="w-12 h-11 text-center text-xl font-mono font-black border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] shadow-inner focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                              title="Dakika (00 - 59)"
+                            />
+                            <button
+                              type="button"
+                              (click)="adjustMinute(-5)"
+                              class="w-12 h-6 rounded-b-lg bg-[var(--color-bg-card)] hover:bg-indigo-500 hover:text-white border border-t-0 border-[var(--color-border-subtle)] text-[10px] font-bold text-[var(--color-text-muted)] flex items-center justify-center cursor-pointer transition-all active:scale-95 shadow-2xs"
+                              title="Dakikayı 5 Azalt"
+                            >
+                              ▼
+                            </button>
+                            <span
+                              class="text-[9px] uppercase tracking-wider font-bold text-[var(--color-text-muted)] mt-1"
+                            >
+                              Dakika
+                            </span>
+                          </div>
+                        </div>
+
+                        <!-- Sağ: Hızlı Eylemler (Şu Anki Saat & Sıfırla & Sistem Seçici) -->
+                        <div class="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            (click)="setCurrentTime()"
+                            class="px-3 py-1.5 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold transition-all cursor-pointer shadow-2xs flex items-center gap-1.5 active:scale-95"
+                            title="Şu anki gerçek saate ayarla"
+                          >
+                            <span>⏱️</span>
+                            <span>Şu Anki Saat</span>
+                          </button>
+
+                          <label
+                            class="px-2.5 py-1.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] hover:bg-[var(--color-bg-subtle)] text-xs font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] transition-all cursor-pointer shadow-2xs flex items-center gap-1"
+                            title="Sistem saat menüsünü aç"
+                          >
+                            <span>🕒</span>
+                            <span>Seçici</span>
+                            <input
+                              type="time"
+                              [ngModel]="newHabitSpecificTime"
+                              (ngModelChange)="onSpecificTimeChange($event)"
+                              class="sr-only"
+                            />
+                          </label>
+
+                          @if (newHabitSpecificTime || newHabitHour) {
+                            <button
+                              type="button"
+                              (click)="clearSpecificTime()"
+                              class="px-2.5 py-1.5 rounded-xl text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 text-xs font-medium cursor-pointer transition-colors"
+                              title="Seçilen saati kaldır"
+                            >
+                              ✕ Temizle
+                            </button>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- Alışkanlık Demetleme / Durumsal Tetikleyici Metni -->
+                      <div class="space-y-1 pt-2 border-t border-[var(--color-border-subtle)]">
+                        <label
+                          class="text-[11px] font-semibold text-[var(--color-text-main)] flex items-center justify-between"
+                        >
+                          <span class="flex items-center gap-1">
+                            <span>🔗</span>
+                            <span>Alışkanlık Demetleme / Rutin Tetikleyici (Opsiyonel):</span>
+                          </span>
+                          <span class="text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">
+                            Formüle Otomatik İşlenir
+                          </span>
+                        </label>
+                        <input
+                          type="text"
+                          [(ngModel)]="newHabitCue"
+                          placeholder="Örn: Sabah ilk kahvemi aldıktan sonra, toplantı bitiminde, akşam yemeğinden hemen önce..."
+                          class="w-full px-3.5 py-2 text-xs rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] shadow-2xs focus:ring-2 focus:ring-indigo-500/40"
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  <!-- 3. Adım: 2-Dakika Kuralı Mikro Adımı -->
+                  <!-- 3. Adım: 2 Dakika Kuralı Mikro Adımı -->
                   <div class="space-y-1.5">
                     <label
                       class="text-xs font-semibold text-[var(--color-text-main)] flex items-center gap-1"
                     >
                       <span>3️⃣</span>
-                      <span>İlk 2-Dakika Adımı (3. Yasa: Kolaylaştır)</span>
+                      <span>İlk 2 Dakika Adımı (3. Yasa: Kolaylaştır)</span>
                       <span class="text-rose-500">*</span>
                     </label>
                     <input
@@ -1438,28 +1594,46 @@ export interface CategoryTierItem {
 
                   <!-- Canlı James Clear Uygulama Niyeti Formülü -->
                   <div
-                    class="sm:col-span-2 p-3.5 rounded-2xl bg-[var(--color-bg-card)] border border-indigo-500/20 text-xs text-[var(--color-text-muted)] flex items-start gap-2.5 shadow-xs"
+                    class="sm:col-span-2 p-4 rounded-2xl bg-gradient-to-r from-indigo-500/10 via-[var(--color-bg-card)] to-purple-500/10 border border-indigo-500/30 text-xs text-[var(--color-text-muted)] flex items-start gap-3 shadow-xs"
                   >
-                    <span class="text-base shrink-0">📌</span>
-                    <div class="leading-relaxed">
-                      <strong class="text-indigo-600 dark:text-indigo-400"
-                        >James Clear Uygulama Niyeti Formülü:</strong
+                    <span class="text-xl shrink-0 mt-0.5">📜</span>
+                    <div class="leading-relaxed space-y-2 w-full">
+                      <div class="flex items-center justify-between">
+                        <strong
+                          class="text-indigo-600 dark:text-indigo-400 font-bold flex items-center gap-1.5"
+                        >
+                          <span>📌</span>
+                          <span>James Clear Uygulama Niyeti Formülü (Implementation Intentions):</span>
+                        </strong>
+                        <span
+                          class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-semibold border border-indigo-500/20"
+                        >
+                          1. Yasa: Görünür Kıl
+                        </span>
+                      </div>
+                      <div
+                        class="text-xs text-[var(--color-text-main)] leading-relaxed bg-[var(--color-bg-card)]/90 p-3 rounded-xl border border-[var(--color-border-subtle)] shadow-2xs"
                       >
-                      <div class="mt-0.5 italic text-[var(--color-text-main)]">
-                        "<strong class="text-indigo-600 dark:text-indigo-400">{{
+                        "<strong class="text-indigo-600 dark:text-indigo-400 font-bold">{{
                           newHabitScheduledDay() === 'BUGUN' ? 'Bugün' : 'Yarın'
                         }}</strong
                         >,
-                        <strong>{{ newHabitCue.trim() || '[ZAMAN / TETİKLEYİCİ]' }}</strong
-                        >,
-                        <strong class="text-indigo-600 dark:text-indigo-400"
-                          >📍 {{ newHabitLocation.trim() || '[MEKAN]' }}</strong
+                        <strong
+                          class="text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-500/25"
                         >
+                          {{ getImplementationIntentTime() }}
+                        </strong>,
+                        <strong class="text-emerald-600 dark:text-emerald-400 font-bold">
+                          📍 {{ newHabitLocation.trim() || '[MEKAN]' }}
+                        </strong>
                         konumunda
-                        <strong>{{ newHabitTitle.trim() || '[ALIŞKANLIK]' }}</strong> eylemini
-                        <strong class="text-emerald-600 dark:text-emerald-400"
-                          >⏱️ {{ newHabitTargetMinutes }} dakika</strong
-                        >
+                        <strong class="text-amber-600 dark:text-amber-400 font-bold">
+                          {{ newHabitTitle.trim() || '[ALIŞKANLIK BAŞLIĞI]' }}
+                        </strong>
+                        eylemini
+                        <strong class="text-purple-600 dark:text-purple-400 font-bold">
+                          ⏱️ {{ newHabitTargetMinutes }} dakika
+                        </strong>
                         boyunca odaklanarak gerçekleştireceğim."
                       </div>
                     </div>
@@ -1576,39 +1750,36 @@ export interface CategoryTierItem {
                               {{ habit.categoryLabel }}
                             </span>
 
-                            <!-- 1. Yasa Mekan Rozeti -->
-                            <span
-                              class="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-md bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] text-[var(--color-text-muted)]"
-                              title="1. Yasa: Gerçekleşeceği Mekan / Çevre"
-                            >
-                              <span>📍</span>
-                              <span>{{ habit.targetLocation }}</span>
-                            </span>
                           </div>
 
-                          <!-- 4 Yasa İpuçları -->
-                          <div class="mt-2 space-y-1 text-xs">
-                            <!-- 1. Yasa: Zaman ve Mekan -->
-                            <div
-                              class="flex items-center gap-1.5 text-[var(--color-text-muted)] flex-wrap"
+                          <!-- Alışkanlık Belirlenen Bilgileri: Zaman, Mekan & Kimlik Oyu -->
+                          <div class="mt-2.5 flex items-center gap-2 text-xs flex-wrap">
+                            <!-- Zaman -->
+                            <span
+                              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] text-[11px] text-[var(--color-text-muted)] shadow-2xs"
+                              title="Belirlenen Zaman ve Rutin İşareti"
                             >
-                              <span class="font-bold text-indigo-600 dark:text-indigo-400"
-                                >📍 1. Yasa:</span
-                              >
-                              <span>{{ habit.cue }}</span>
-                              <span class="text-indigo-500 font-semibold">• Mekan:</span>
-                              <span class="text-[var(--color-text-main)] font-medium">{{
-                                habit.targetLocation
-                              }}</span>
-                            </div>
+                              <span class="text-indigo-500">⏰</span>
+                              <span class="font-medium text-[var(--color-text-main)]">{{ habit.cue }}</span>
+                            </span>
 
-                            <!-- 2. Yasa: Çekici Kıl -->
-                            <div class="flex items-center gap-1.5 text-[var(--color-text-muted)]">
-                              <span class="font-bold text-amber-600 dark:text-amber-400"
-                                >🎯 2. Yasa (Neden):</span
-                              >
-                              <span>{{ habit.craving }}</span>
-                            </div>
+                            <!-- Mekan -->
+                            <span
+                              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] text-[11px] text-[var(--color-text-muted)] shadow-2xs"
+                              title="Alışkanlığın Gerçekleşeceği Mekan"
+                            >
+                              <span class="text-emerald-500">📍</span>
+                              <span class="font-medium text-[var(--color-text-main)]">{{ habit.targetLocation }}</span>
+                            </span>
+
+                            <!-- Kimlik Oyu -->
+                            <span
+                              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/25 text-[11px] text-indigo-600 dark:text-indigo-400 font-semibold shadow-2xs"
+                              title="Bu alışkanlığın oy kazandırdığı hedef kimlik"
+                            >
+                              <span>🎯</span>
+                              <span>+1 Oy: {{ getIdentityDisplayName(habit.identityId) }}</span>
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -1668,16 +1839,23 @@ export interface CategoryTierItem {
                           <button
                             type="button"
                             (click)="toggleTwoMinuteMode(habit.id)"
-                            class="px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer"
-                            [class.border-purple-500/40]="habit.twoMinuteModeActive"
-                            [class.bg-purple-500/10]="habit.twoMinuteModeActive"
+                            class="px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all duration-200 cursor-pointer flex items-center gap-1 hover:scale-105 active:scale-95 shadow-2xs hover:shadow-xs"
+                            [class.border-purple-500]="habit.twoMinuteModeActive"
+                            [class.bg-purple-500/20]="habit.twoMinuteModeActive"
                             [class.text-purple-600]="habit.twoMinuteModeActive"
+                            [class.dark:text-purple-300]="habit.twoMinuteModeActive"
+                            [class.hover:bg-purple-500/30]="habit.twoMinuteModeActive"
                             [class.border-[var(--color-border-subtle)]]="!habit.twoMinuteModeActive"
                             [class.bg-[var(--color-bg-card)]]="!habit.twoMinuteModeActive"
                             [class.text-[var(--color-text-muted)]]="!habit.twoMinuteModeActive"
+                            [class.hover:border-purple-500/60]="!habit.twoMinuteModeActive"
+                            [class.hover:text-purple-600]="!habit.twoMinuteModeActive"
+                            [class.dark:hover:text-purple-400]="!habit.twoMinuteModeActive"
+                            [class.hover:bg-purple-500/10]="!habit.twoMinuteModeActive"
                             title="Görevi 2 dakikalık mikro başlangıca indirge"
                           >
-                            ⚡ 2-Dakika Kuralı
+                            <span>⚡</span>
+                            <span>2 Dakika Kuralı</span>
                           </button>
                         }
                       </div>
@@ -2440,9 +2618,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   newHabitTitle = '';
   newHabitIdentityId = 'pro';
   newHabitCue = '';
+  newHabitHour = '';
+  newHabitMinute = '00';
+  newHabitSpecificTime = '';
   newHabitLocation = 'Çalışma Masası';
   newHabitMicroStep = '';
   newHabitTargetMinutes = 25;
+
+  readonly hoursList = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  readonly minutesList = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
 
   readonly durationPresets = [
     { minutes: 5, label: '5 Dk (Mikro)' },
@@ -2695,8 +2879,226 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }): void {
     this.newHabitTitle = insp.title;
     this.newHabitCue = insp.cue;
+    this.clearSpecificTime();
     this.newHabitLocation = insp.location;
     this.newHabitMicroStep = insp.microStep;
+  }
+
+  getTurkishTimeLocativeSuffix(time: string): string {
+    if (!time || !time.includes(':')) return "'da";
+    const parts = time.split(':');
+    const hour = parseInt(parts[0], 10);
+    const minute = parseInt(parts[1], 10);
+
+    if (isNaN(hour)) return "'da";
+
+    // TDK Kuralı: Dakika "00" (tam saat) ise ek saat değerine göre gelir.
+    // Dakika "00" değilse ek dakika değerine göre gelir.
+    if (isNaN(minute) || minute === 0) {
+      switch (hour) {
+        case 3:
+        case 4:
+        case 5:
+        case 13:
+        case 14:
+        case 15:
+        case 23:
+          return "'te";
+        case 1:
+        case 2:
+        case 7:
+        case 8:
+        case 11:
+        case 12:
+        case 17:
+        case 18:
+        case 20:
+        case 21:
+        case 22:
+          return "'de";
+        case 6:
+        case 9:
+        case 10:
+        case 16:
+        case 19:
+        case 0:
+        case 24:
+        default:
+          return "'da";
+      }
+    } else {
+      if (minute === 10 || minute === 30) {
+        return "'da"; // on'da, otuz'da
+      }
+      if (minute === 20 || minute === 50) {
+        return "'de"; // yirmi'de, elli'de
+      }
+      if (minute === 40) {
+        return "'ta"; // kırk'ta
+      }
+
+      const lastDigit = minute % 10;
+      switch (lastDigit) {
+        case 3:
+        case 4:
+        case 5:
+          return "'te"; // üç'te, dört'te, beş'te
+        case 1:
+        case 2:
+        case 7:
+        case 8:
+          return "'de"; // bir'de, iki'de, yedi'de, sekiz'de
+        case 6:
+        case 9:
+        default:
+          return "'da"; // altı'da, dokuz'da
+      }
+    }
+  }
+
+  formatTurkishTimeWithLocative(time: string): string {
+    if (!time) return '';
+    return `${time}${this.getTurkishTimeLocativeSuffix(time)}`;
+  }
+
+  getImplementationIntentTime(): string {
+    const time = this.newHabitSpecificTime;
+    const cue = this.newHabitCue.trim();
+    if (time && cue) {
+      if (cue.toLowerCase().includes(time)) {
+        return `⏰ ${cue}`;
+      }
+      const timeFormatted = this.formatTurkishTimeWithLocative(time);
+      return `⏰ Saat ${timeFormatted} (${cue})`;
+    } else if (time) {
+      const timeFormatted = this.formatTurkishTimeWithLocative(time);
+      return `⏰ Saat ${timeFormatted}`;
+    } else if (cue) {
+      return `⏰ ${cue}`;
+    }
+    return '⏰ [ZAMAN & TETİKLEYİCİ]';
+  }
+
+  getTimePeriodLabel(): string {
+    if (!this.newHabitSpecificTime) return '';
+    const hour = parseInt(this.newHabitSpecificTime.split(':')[0], 10);
+    if (isNaN(hour)) return '';
+    if (hour >= 5 && hour < 12) return '🌅 Sabah Rutini';
+    if (hour >= 12 && hour < 17) return '☀️ Öğle & Odak';
+    if (hour >= 17 && hour < 22) return '🌆 Akşamüstü';
+    return '🌙 Gece Dinlenmesi';
+  }
+
+  getTimePeriodBadgeClass(): string {
+    if (!this.newHabitSpecificTime) return '';
+    const hour = parseInt(this.newHabitSpecificTime.split(':')[0], 10);
+    if (isNaN(hour)) return '';
+    if (hour >= 5 && hour < 12) {
+      return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30';
+    }
+    if (hour >= 12 && hour < 17) {
+      return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30';
+    }
+    if (hour >= 17 && hour < 22) {
+      return 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30';
+    }
+    return 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30';
+  }
+
+  onSpecificTimeChange(val: string): void {
+    this.newHabitSpecificTime = val;
+    if (val && val.includes(':')) {
+      const [h, m] = val.split(':');
+      this.newHabitHour = h;
+      this.newHabitMinute = m;
+    } else if (!val) {
+      this.newHabitHour = '';
+      this.newHabitMinute = '00';
+    }
+  }
+
+  onHourOrMinuteChange(): void {
+    if (this.newHabitHour) {
+      const min = this.newHabitMinute || '00';
+      this.newHabitSpecificTime = `${this.newHabitHour}:${min}`;
+    } else {
+      this.newHabitSpecificTime = '';
+    }
+  }
+
+  onHourInputChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let val = input.value.replace(/[^0-9]/g, '');
+    if (val === '') {
+      this.newHabitHour = '';
+      this.onHourOrMinuteChange();
+      return;
+    }
+    let num = parseInt(val, 10);
+    if (num > 23) num = 23;
+    if (num < 0) num = 0;
+    this.newHabitHour = String(num).padStart(2, '0');
+    input.value = this.newHabitHour;
+    if (!this.newHabitMinute) this.newHabitMinute = '00';
+    this.onHourOrMinuteChange();
+  }
+
+  onMinuteInputChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let val = input.value.replace(/[^0-9]/g, '');
+    if (val === '') {
+      this.newHabitMinute = '00';
+      this.onHourOrMinuteChange();
+      return;
+    }
+    let num = parseInt(val, 10);
+    if (num > 59) num = 59;
+    if (num < 0) num = 0;
+    this.newHabitMinute = String(num).padStart(2, '0');
+    input.value = this.newHabitMinute;
+    if (this.newHabitHour === '') {
+      this.newHabitHour = String(new Date().getHours()).padStart(2, '0');
+    }
+    this.onHourOrMinuteChange();
+  }
+
+  adjustHour(delta: number): void {
+    let currentH = this.newHabitHour ? parseInt(this.newHabitHour, 10) : new Date().getHours();
+    currentH = (currentH + delta + 24) % 24;
+    this.newHabitHour = String(currentH).padStart(2, '0');
+    if (!this.newHabitMinute) this.newHabitMinute = '00';
+    this.onHourOrMinuteChange();
+  }
+
+  adjustMinute(delta: number): void {
+    if (!this.newHabitHour) {
+      this.newHabitHour = String(new Date().getHours()).padStart(2, '0');
+    }
+    let currentM = this.newHabitMinute ? parseInt(this.newHabitMinute, 10) : 0;
+    currentM = (currentM + delta + 60) % 60;
+    this.newHabitMinute = String(currentM).padStart(2, '0');
+    this.onHourOrMinuteChange();
+  }
+
+  setCurrentTime(): void {
+    const now = new Date();
+    this.newHabitHour = String(now.getHours()).padStart(2, '0');
+    const rawMin = now.getMinutes();
+    const roundedMin = Math.round(rawMin / 5) * 5;
+    if (roundedMin >= 60) {
+      this.newHabitHour = String((now.getHours() + 1) % 24).padStart(2, '0');
+      this.newHabitMinute = '00';
+    } else {
+      this.newHabitHour = String(now.getHours()).padStart(2, '0');
+      this.newHabitMinute = String(roundedMin).padStart(2, '0');
+    }
+    this.onHourOrMinuteChange();
+  }
+
+  clearSpecificTime(): void {
+    this.newHabitHour = '';
+    this.newHabitMinute = '00';
+    this.newHabitSpecificTime = '';
   }
 
   setLocation(loc: string): void {
@@ -3595,7 +3997,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (nextDone) {
       this.masteryStep3Done.set(true);
       this.toastService.success(
-        '2-Dakika kuralı mikro adımı yapıldı! Sürtünme sıfırlandı, artık odaklanmaya hazırsınız. ⚡',
+        '2 Dakika kuralı mikro adımı yapıldı! Sürtünme sıfırlandı, artık odaklanmaya hazırsınız. ⚡',
         'Mikro Adım Tamamlandı ✓',
       );
     } else {
@@ -3608,6 +4010,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const nextVal = !v;
       if (nextVal) {
         this.newHabitScheduledDay.set(this.activeScheduleTab());
+        this.clearSpecificTime();
         const catIdent = this.findIdentityForCategory(this.newHabitCategory);
         if (catIdent) {
           this.newHabitIdentityId = catIdent.id;
@@ -3629,6 +4032,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   openAddHabitForCurrentTab(): void {
     this.newHabitScheduledDay.set(this.activeScheduleTab());
+    this.clearSpecificTime();
     this.showAddHabitForm.set(true);
   }
 
@@ -3756,11 +4160,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.identities()[0];
     const targetMins = Math.max(1, this.newHabitTargetMinutes || 25);
 
+    let rawCue = this.newHabitCue.trim();
+    let effectiveCue = rawCue;
+    if (this.newHabitSpecificTime) {
+      const timeWithSuffix = this.formatTurkishTimeWithLocative(this.newHabitSpecificTime);
+      if (rawCue) {
+        effectiveCue = rawCue.toLowerCase().includes(this.newHabitSpecificTime)
+          ? rawCue
+          : `Saat ${timeWithSuffix} - ${rawCue}`;
+      } else {
+        effectiveCue = `Saat ${timeWithSuffix}`;
+      }
+    } else if (!effectiveCue) {
+      effectiveCue = 'Belirlenen saatte';
+    }
+
     const request = {
       identityPublicId: selectedIdentity?.id,
       title,
       category: categoryKey,
-      cueTrigger: this.newHabitCue.trim() || 'Belirlenen saatte',
+      cueTrigger: effectiveCue,
       targetLocation: this.newHabitLocation.trim() || 'Çalışma Masası',
       responseMicroStep: this.newHabitMicroStep.trim() || 'İlk 2 dakikayı tamamla',
       rewardXp: 20,
@@ -3822,6 +4241,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.newHabitTitle = '';
     this.newHabitCue = '';
+    this.clearSpecificTime();
     this.newHabitMicroStep = '';
     this.newHabitTargetMinutes = 25;
     this.newHabitScheduledDay.set(this.activeScheduleTab());
@@ -3938,9 +4358,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     this.masteryStep3Done.set(true);
     this.toastService.info(
-      '2-Dakika Kuralı devrede! Görev sürtünmesiz mikro adıma indirgendi. Sadece ilk 2 dakikalık adımı atın!',
+      '2 Dakika Kuralı devrede! Görev sürtünmesiz mikro adıma indirgendi. Sadece ilk 2 dakikalık adımı atın!',
       'Sürtünme Sıfırlandı ⚡',
     );
+  }
+
+  getIdentityDisplayName(identityId?: string): string {
+    if (!identityId) return 'Üretken Kimlik';
+    const match = this.identities().find((i) => i.id === identityId);
+    if (match) return match.name;
+    const catMatch = this.findIdentityForCategory(identityId);
+    if (catMatch) return catMatch.name;
+    return 'Üretken Kimlik';
   }
 
   getCategoryLabel(category?: string): string {
