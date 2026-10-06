@@ -18,6 +18,8 @@ export interface CreateIdentityRequest {
   votesThreshold?: number;
 }
 
+export type ScheduledDay = 'BUGUN' | 'YARIN';
+
 export interface HabitResponse {
   publicId: string;
   identityPublicId?: string;
@@ -38,6 +40,8 @@ export interface HabitResponse {
   bestStreak: number;
   active: boolean;
   completedToday: boolean;
+  scheduledDay?: ScheduledDay;
+  scheduledDate?: string;
 }
 
 export interface CreateHabitRequest {
@@ -52,6 +56,8 @@ export interface CreateHabitRequest {
   responseMicroStep: string;
   rewardXp?: number;
   targetMinutes?: number;
+  scheduledDay?: ScheduledDay;
+  scheduledDate?: string;
 }
 
 export interface KaizenReflectionResponse {

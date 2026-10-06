@@ -9,6 +9,7 @@ import { HabitService } from '@core/services/habit.service';
 import { GlassMarbleJarComponent } from '@shared/components/glass-marble-jar/glass-marble-jar.component';
 
 export type HabitTimerStatus = 'HAZIR' | 'DEVAM_EDIYOR' | 'DURAKLATILDI' | 'TAMAMLANDI';
+export type ScheduledDay = 'BUGUN' | 'YARIN';
 
 export interface UserHabit {
   id: string;
@@ -33,6 +34,10 @@ export interface UserHabit {
   remainingSeconds: number;
   initialSeconds: number;
   timerIntervalId?: any;
+  // Atomik Alışkanlıklar Planlama: Yalnızca Bugün veya Yarın
+  scheduledDay: ScheduledDay;
+  scheduledDate: string; // YYYY-MM-DD
+  environmentPrepared?: boolean; // James Clear 1. Yasa: Yarın için çevre akşamdan hazırlandı mı?
 }
 
 export interface UserIdentity {
@@ -972,8 +977,110 @@ export interface CategoryTierItem {
               </div>
             }
 
-            <!-- Yeni Alışkanlık Ekleme Formu (Alışkanlık yoksa doğrudan hazır, varsa butonla açılır) -->
-            @if (habits().length === 0 || showAddHabitForm()) {
+            <!-- 1. ATOMİK ALIŞKANLIKLAR FELSEFESİ BANNER: UZUN VADELİ PLANLARA YER YOK -->
+            <div
+              class="p-4 rounded-2xl bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-amber-500/5 border border-indigo-500/20 text-xs space-y-1.5"
+            >
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-2 font-bold text-indigo-700 dark:text-indigo-300">
+                  <span class="text-base">⚡</span>
+                  <span>Atomik Alışkanlıklar Prensibi: Uzun Vadeli Planlara Yer Yok!</span>
+                </div>
+                <span
+                  class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/20"
+                >
+                  Sistem > Hedefler
+                </span>
+              </div>
+              <p class="text-[11px] text-[var(--color-text-muted)] leading-relaxed">
+                James Clear'ın belirttiği gibi: <em>"Hedeflerinizin seviyesine yükselmezsiniz, sistemlerinizin seviyesine gerilersiniz."</em>
+                Aylar veya haftalar sonrasına yapılan soyut planlar ertelemeyi doğurur. Sistemimizde zihni dağıtmadan yalnızca <strong>Bugün</strong>'ün eylemine ve <strong>Yarın</strong>'ın hazırlığına odaklanabilirsiniz.
+              </p>
+            </div>
+
+            <!-- 2. GÜNLÜK PROGRAM SEKMELERİ: BUGÜN vs YARIN -->
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-1.5 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)]"
+            >
+              <div class="grid grid-cols-2 gap-1.5 w-full sm:w-auto">
+                <!-- Bugün Sekmesi -->
+                <button
+                  type="button"
+                  (click)="switchScheduleTab('BUGUN')"
+                  class="px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
+                  [class.bg-[var(--color-bg-card)]]="activeScheduleTab() === 'BUGUN'"
+                  [class.text-indigo-600]="activeScheduleTab() === 'BUGUN'"
+                  [class.dark:text-indigo-400]="activeScheduleTab() === 'BUGUN'"
+                  [class.shadow-2xs]="activeScheduleTab() === 'BUGUN'"
+                  [class.border]="activeScheduleTab() === 'BUGUN'"
+                  [class.border-[var(--color-border-subtle)]]="activeScheduleTab() === 'BUGUN'"
+                  [class.text-[var(--color-text-muted)]]="activeScheduleTab() !== 'BUGUN'"
+                  [class.hover:text-[var(--color-text-main)]]="activeScheduleTab() !== 'BUGUN'"
+                >
+                  <span class="text-base">☀️</span>
+                  <span>Bugünün Programı</span>
+                  <span
+                    class="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
+                    [class.bg-indigo-500/15]="activeScheduleTab() === 'BUGUN'"
+                    [class.text-indigo-600]="activeScheduleTab() === 'BUGUN'"
+                    [class.dark:text-indigo-400]="activeScheduleTab() === 'BUGUN'"
+                    [class.bg-[var(--color-bg-card)]]="activeScheduleTab() !== 'BUGUN'"
+                    [class.text-[var(--color-text-muted)]]="activeScheduleTab() !== 'BUGUN'"
+                  >
+                    {{ todayHabits().length }}
+                  </span>
+                </button>
+
+                <!-- Yarın Sekmesi -->
+                <button
+                  type="button"
+                  (click)="switchScheduleTab('YARIN')"
+                  class="px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
+                  [class.bg-[var(--color-bg-card)]]="activeScheduleTab() === 'YARIN'"
+                  [class.text-purple-600]="activeScheduleTab() === 'YARIN'"
+                  [class.dark:text-purple-400]="activeScheduleTab() === 'YARIN'"
+                  [class.shadow-2xs]="activeScheduleTab() === 'YARIN'"
+                  [class.border]="activeScheduleTab() === 'YARIN'"
+                  [class.border-[var(--color-border-subtle)]]="activeScheduleTab() === 'YARIN'"
+                  [class.text-[var(--color-text-muted)]]="activeScheduleTab() !== 'YARIN'"
+                  [class.hover:text-[var(--color-text-main)]]="activeScheduleTab() !== 'YARIN'"
+                >
+                  <span class="text-base">🌙</span>
+                  <span>Yarının Programı</span>
+                  <span
+                    class="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold"
+                    [class.bg-purple-500/15]="activeScheduleTab() === 'YARIN'"
+                    [class.text-purple-600]="activeScheduleTab() === 'YARIN'"
+                    [class.dark:text-purple-400]="activeScheduleTab() === 'YARIN'"
+                    [class.bg-[var(--color-bg-card)]]="activeScheduleTab() !== 'YARIN'"
+                    [class.text-[var(--color-text-muted)]]="activeScheduleTab() !== 'YARIN'"
+                  >
+                    {{ tomorrowHabits().length }}
+                  </span>
+                </button>
+              </div>
+
+              <!-- Aktif Gün Rozeti & Bilgisi -->
+              <div class="px-3 py-1 flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+                @if (activeScheduleTab() === 'BUGUN') {
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span class="font-medium"
+                    >Aktif Çevrim:
+                    <strong class="text-[var(--color-text-main)]">{{ todayDateFormatted }}</strong></span
+                  >
+                } @else {
+                  <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                  <span class="font-medium"
+                    >Ön Hazırlık:
+                    <strong class="text-[var(--color-text-main)]">{{ tomorrowDateFormatted }}</strong>
+                    (Akşamdan Tasarla)</span
+                  >
+                }
+              </div>
+            </div>
+
+            <!-- Yeni Alışkanlık Ekleme Formu -->
+            @if (showAddHabitForm() || (habits().length === 0 && activeScheduleTab() === 'BUGUN')) {
               <div
                 class="p-6 rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/5 via-[var(--color-bg-card)] to-purple-500/5 shadow-xs space-y-5"
               >
@@ -997,7 +1104,7 @@ export interface CategoryTierItem {
                       }}
                     </h3>
                   </div>
-                  @if (habits().length > 0) {
+                  @if (habits().length > 0 || showAddHabitForm()) {
                     <button
                       type="button"
                       (click)="toggleAddHabitForm()"
@@ -1009,6 +1116,94 @@ export interface CategoryTierItem {
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <!-- HEDEF PROGRAM GÜNÜ SEÇİMİ (Yalnızca Bugün veya Yarın) -->
+                  <div
+                    class="sm:col-span-2 space-y-2 p-3.5 rounded-2xl bg-[var(--color-bg-subtle)] border border-indigo-500/20"
+                  >
+                    <div class="flex items-center justify-between">
+                      <label
+                        class="text-xs font-semibold text-[var(--color-text-main)] flex items-center gap-1.5"
+                      >
+                        <span>📅</span>
+                        <span>Programlanacak Gün (Hedef Gün)</span>
+                        <span class="text-rose-500">*</span>
+                      </label>
+                      <span
+                        class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1"
+                      >
+                        <span>🔒</span>
+                        <span>Uzun Vadeli Planlara Kapalı</span>
+                      </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <!-- Bugün Butonu -->
+                      <button
+                        type="button"
+                        (click)="setScheduledDay('BUGUN')"
+                        class="p-3 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-2.5 text-left"
+                        [class.border-indigo-500]="newHabitScheduledDay() === 'BUGUN'"
+                        [class.bg-indigo-500/10]="newHabitScheduledDay() === 'BUGUN'"
+                        [class.text-indigo-600]="newHabitScheduledDay() === 'BUGUN'"
+                        [class.dark:text-indigo-400]="newHabitScheduledDay() === 'BUGUN'"
+                        [class.shadow-2xs]="newHabitScheduledDay() === 'BUGUN'"
+                        [class.border-[var(--color-border-subtle)]]="
+                          newHabitScheduledDay() !== 'BUGUN'
+                        "
+                        [class.bg-[var(--color-bg-card)]]="newHabitScheduledDay() !== 'BUGUN'"
+                        [class.text-[var(--color-text-muted)]]="newHabitScheduledDay() !== 'BUGUN'"
+                      >
+                        <span class="text-xl">☀️</span>
+                        <div>
+                          <div class="font-extrabold text-[var(--color-text-main)]">
+                            Bugün İçin Programla
+                          </div>
+                          <div class="text-[10px] font-normal opacity-80">
+                            {{ todayDateShort }} (Şimdi Eyleme Geç & Zinciri Başlat)
+                          </div>
+                        </div>
+                      </button>
+
+                      <!-- Yarın Butonu -->
+                      <button
+                        type="button"
+                        (click)="setScheduledDay('YARIN')"
+                        class="p-3 rounded-xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-2.5 text-left"
+                        [class.border-purple-500]="newHabitScheduledDay() === 'YARIN'"
+                        [class.bg-purple-500/10]="newHabitScheduledDay() === 'YARIN'"
+                        [class.text-purple-600]="newHabitScheduledDay() === 'YARIN'"
+                        [class.dark:text-purple-400]="newHabitScheduledDay() === 'YARIN'"
+                        [class.shadow-2xs]="newHabitScheduledDay() === 'YARIN'"
+                        [class.border-[var(--color-border-subtle)]]="
+                          newHabitScheduledDay() !== 'YARIN'
+                        "
+                        [class.bg-[var(--color-bg-card)]]="newHabitScheduledDay() !== 'YARIN'"
+                        [class.text-[var(--color-text-muted)]]="newHabitScheduledDay() !== 'YARIN'"
+                      >
+                        <span class="text-xl">🌙</span>
+                        <div>
+                          <div class="font-extrabold text-[var(--color-text-main)]">
+                            Yarın İçin Programla
+                          </div>
+                          <div class="text-[10px] font-normal opacity-80">
+                            {{ tomorrowDateShort }} (Akşamdan Ortamı & İşareti Tasarla)
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+
+                    <div
+                      class="flex items-center gap-1.5 text-[10px] text-[var(--color-text-muted)] pt-0.5"
+                    >
+                      <span class="text-indigo-500 font-bold">ℹ️ Atomik Alışkanlıklar Kuralı:</span>
+                      <span>
+                        Beynimiz devasa hedefleri ve uzak tarihli planları soyut algılar ve erteler.
+                        Bu sebeple sistemimiz yalnızca <strong>Bugün</strong> ve
+                        <strong>Yarın</strong> için somut mikro planlar yapmanıza izin verir.
+                      </span>
+                    </div>
+                  </div>
+
                   <!-- Görev / Aktivite Türü (Kategori Seçimi) -->
                   <div class="sm:col-span-2 space-y-2">
                     <div class="flex items-center justify-between">
@@ -1251,7 +1446,11 @@ export interface CategoryTierItem {
                         >James Clear Uygulama Niyeti Formülü:</strong
                       >
                       <div class="mt-0.5 italic text-[var(--color-text-main)]">
-                        "<strong>{{ newHabitCue.trim() || '[ZAMAN / TETİKLEYİCİ]' }}</strong
+                        "<strong class="text-indigo-600 dark:text-indigo-400">{{
+                          newHabitScheduledDay() === 'BUGUN' ? 'Bugün' : 'Yarın'
+                        }}</strong
+                        >,
+                        <strong>{{ newHabitCue.trim() || '[ZAMAN / TETİKLEYİCİ]' }}</strong
                         >,
                         <strong class="text-indigo-600 dark:text-indigo-400"
                           >📍 {{ newHabitLocation.trim() || '[MEKAN]' }}</strong
@@ -1277,16 +1476,20 @@ export interface CategoryTierItem {
                     class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-all cursor-pointer disabled:opacity-50 shadow-xs flex items-center gap-2"
                   >
                     <span>✨</span>
-                    <span>Alışkanlığı Kaydet (+20 XP)</span>
+                    <span>{{
+                      newHabitScheduledDay() === 'BUGUN'
+                        ? 'Alışkanlığı Bugüne Kaydet (+20 XP)'
+                        : 'Alışkanlığı Yarına Planla (+20 XP)'
+                    }}</span>
                   </button>
                 </div>
               </div>
             }
 
-            <!-- Alışkanlıklar Listesi (Varsa) -->
-            @if (habits().length > 0) {
+            <!-- Alışkanlıklar Listesi (Seçili Günün Programı) -->
+            @if (displayedHabits().length > 0) {
               <div class="space-y-4">
-                @for (habit of habits(); track habit.id) {
+                @for (habit of displayedHabits(); track habit.id) {
                   <div
                     class="group p-5 rounded-2xl border transition-all duration-300 space-y-4 shadow-xs"
                     [ngClass]="getHabitCardStatusClass(habit)"
@@ -1350,6 +1553,21 @@ export interface CategoryTierItem {
                               }
                             </span>
 
+                            <!-- Gün Programı Rozeti (Bugün / Yarın) -->
+                            <span
+                              class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border transition-all"
+                              [class.bg-emerald-500/10]="habit.scheduledDay === 'BUGUN'"
+                              [class.text-emerald-600]="habit.scheduledDay === 'BUGUN'"
+                              [class.dark:text-emerald-400]="habit.scheduledDay === 'BUGUN'"
+                              [class.border-emerald-500/30]="habit.scheduledDay === 'BUGUN'"
+                              [class.bg-purple-500/10]="habit.scheduledDay === 'YARIN'"
+                              [class.text-purple-600]="habit.scheduledDay === 'YARIN'"
+                              [class.dark:text-purple-400]="habit.scheduledDay === 'YARIN'"
+                              [class.border-purple-500/30]="habit.scheduledDay === 'YARIN'"
+                            >
+                              <span>{{ habit.scheduledDay === 'BUGUN' ? '☀️ Bugün' : '🌙 Yarın' }}</span>
+                            </span>
+
                             <!-- Kategori Rozeti -->
                             <span
                               class="text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider"
@@ -1395,9 +1613,29 @@ export interface CategoryTierItem {
                         </div>
                       </div>
 
-                      <!-- XP Puanı, Sil Butonu & 2 Dakika Kuralı -->
+                      <!-- XP Puanı, Gün Değiştirme, Sil Butonu & 2 Dakika Kuralı -->
                       <div class="flex flex-col items-end gap-2 shrink-0">
-                        <div class="flex items-center gap-1.5">
+                        <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                          @if (habit.scheduledDay === 'BUGUN') {
+                            <button
+                              type="button"
+                              (click)="moveHabitToDay(habit.id, 'YARIN')"
+                              class="text-[10px] font-medium px-2 py-1 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] hover:border-purple-500/40 hover:text-purple-600 dark:hover:text-purple-400 text-[var(--color-text-muted)] transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                              title="Bu alışkanlığı yarının programına aktar"
+                            >
+                              <span>🌙 Yarına Aktar</span>
+                            </button>
+                          } @else {
+                            <button
+                              type="button"
+                              (click)="moveHabitToDay(habit.id, 'BUGUN')"
+                              class="text-[10px] font-medium px-2 py-1 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] hover:border-indigo-500/40 hover:text-indigo-600 dark:hover:text-indigo-400 text-[var(--color-text-muted)] transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                              title="Bu alışkanlığı hemen bugünün programına taşı"
+                            >
+                              <span>☀️ Bugüne Al</span>
+                            </button>
+                          }
+
                           <span
                             class="text-xs font-bold font-mono px-2 py-1 rounded-md bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] text-indigo-600 dark:text-indigo-400"
                           >
@@ -1507,6 +1745,54 @@ export interface CategoryTierItem {
                           } @else {
                             <span>Mikro Adımı Yaptım ✓</span>
                           }
+                        </button>
+                      </div>
+                    }
+
+                    <!-- Yarın İçin Çevre Tasarımı Kontrol Listesi (James Clear 1. Yasa) -->
+                    @if (habit.scheduledDay === 'YARIN') {
+                      <div
+                        class="p-3 rounded-xl border border-dashed transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                        [class.border-emerald-500/40]="habit.environmentPrepared"
+                        [class.bg-emerald-500/5]="habit.environmentPrepared"
+                        [class.border-purple-500/40]="!habit.environmentPrepared"
+                        [class.bg-purple-500/5]="!habit.environmentPrepared"
+                      >
+                        <div class="flex items-center gap-2">
+                          <span class="text-base">📦</span>
+                          <div>
+                            <strong
+                              [class.text-emerald-600]="habit.environmentPrepared"
+                              [class.dark:text-emerald-400]="habit.environmentPrepared"
+                              [class.text-purple-600]="!habit.environmentPrepared"
+                              [class.dark:text-purple-400]="!habit.environmentPrepared"
+                            >
+                              1. Yasa (Çevre Tasarımı):
+                            </strong>
+                            <span class="text-[var(--color-text-muted)] ml-1">
+                              Yarın için işaret mekanını akşamdan hazırla:
+                              <strong class="text-[var(--color-text-main)]">{{
+                                habit.targetLocation
+                              }}</strong>
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          (click)="toggleEnvironmentPrepared(habit.id)"
+                          class="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all cursor-pointer shrink-0 flex items-center gap-1"
+                          [class.bg-emerald-600]="habit.environmentPrepared"
+                          [class.hover:bg-emerald-700]="habit.environmentPrepared"
+                          [class.text-white]="habit.environmentPrepared"
+                          [class.bg-purple-600]="!habit.environmentPrepared"
+                          [class.hover:bg-purple-700]="!habit.environmentPrepared"
+                          [class.text-white]="!habit.environmentPrepared"
+                        >
+                          <span>{{
+                            habit.environmentPrepared
+                              ? '✓ Ortam Hazırlandı'
+                              : 'Ortamı Akşamdan Hazırla ✓'
+                          }}</span>
                         </button>
                       </div>
                     }
@@ -1665,8 +1951,45 @@ export interface CategoryTierItem {
               </div>
             }
 
-            <!-- Günün Başarı Kutlaması (100% Tamamlandığında) -->
-            @if (completionRate() === 100 && totalHabitsCount() > 0) {
+            <!-- Boş Durum (Seçili Günün Programı Henüz Boşsa) -->
+            @if (displayedHabits().length === 0 && !showAddHabitForm()) {
+              <div
+                class="p-8 rounded-2xl border border-dashed border-[var(--color-border-subtle)] text-center space-y-3 bg-[var(--color-bg-subtle)]/50"
+              >
+                <div class="text-3xl">{{ activeScheduleTab() === 'BUGUN' ? '☀️' : '🌙' }}</div>
+                <div class="space-y-1">
+                  <h4 class="text-sm font-bold text-[var(--color-text-main)]">
+                    {{
+                      activeScheduleTab() === 'BUGUN'
+                        ? 'Bugün için henüz bir alışkanlık programlanmadı'
+                        : 'Yarın için henüz bir alışkanlık programlanmadı'
+                    }}
+                  </h4>
+                  <p class="text-xs text-[var(--color-text-muted)] max-w-md mx-auto leading-relaxed">
+                    @if (activeScheduleTab() === 'BUGUN') {
+                      Atomik Alışkanlıklar felsefesiyle hemen şimdi küçük bir 2 dakikalık adım atın ve bugünün zincirini başlatın.
+                    } @else {
+                      James Clear'ın dediği gibi: <em>"En iyi sabah rutini, bir önceki akşam yapılan hazırlıkla başlar."</em> Yarının ortamını ve ritüelini bugünden tasarlayın.
+                    }
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  (click)="openAddHabitForCurrentTab()"
+                  class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
+                >
+                  <span>➕</span>
+                  <span>{{
+                    activeScheduleTab() === 'BUGUN'
+                      ? 'Bugün İçin Alışkanlık Ekle'
+                      : 'Yarın İçin Alışkanlık Planla'
+                  }}</span>
+                </button>
+              </div>
+            }
+
+            <!-- Günün Başarı Kutlaması (Bugün 100% Tamamlandığında) -->
+            @if (activeScheduleTab() === 'BUGUN' && completionRate() === 100 && totalHabitsCount() > 0) {
               <div
                 class="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-indigo-500/10 border border-emerald-500/30 flex items-center gap-3 text-emerald-800 dark:text-emerald-200 text-xs"
               >
@@ -2109,6 +2432,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   readonly activeExplainer = signal<string | null>(null);
   readonly masteryStep3Done = signal<boolean>(false);
 
+  // Günlük Planlama & Atomik Alışkanlıklar (Yalnızca Bugün veya Yarın)
+  readonly activeScheduleTab = signal<ScheduledDay>('BUGUN');
+  readonly newHabitScheduledDay = signal<ScheduledDay>('BUGUN');
+
   newHabitCategory = 'KARIYER';
   newHabitTitle = '';
   newHabitIdentityId = 'pro';
@@ -2379,12 +2706,46 @@ export class DashboardComponent implements OnInit, OnDestroy {
   kaizenReflectionInput = '';
   mudaInput = '';
 
+  readonly todayDate = new Date();
+  readonly tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+  readonly todayIso = this.formatIsoDate(this.todayDate);
+  readonly tomorrowIso = this.formatIsoDate(this.tomorrowDate);
+
   readonly formattedDate = new Intl.DateTimeFormat('tr-TR', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
     weekday: 'long',
-  }).format(new Date());
+  }).format(this.todayDate);
+
+  readonly todayDateFormatted = this.formattedDate;
+
+  readonly tomorrowDateFormatted = new Intl.DateTimeFormat('tr-TR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    weekday: 'long',
+  }).format(this.tomorrowDate);
+
+  readonly todayDateShort = new Intl.DateTimeFormat('tr-TR', {
+    day: 'numeric',
+    month: 'short',
+    weekday: 'short',
+  }).format(this.todayDate);
+
+  readonly tomorrowDateShort = new Intl.DateTimeFormat('tr-TR', {
+    day: 'numeric',
+    month: 'short',
+    weekday: 'short',
+  }).format(this.tomorrowDate);
+
+  private formatIsoDate(d: Date): string {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   // 7 Günlük Haftalık Zincir Göstergesi
   readonly weekStreak = signal<DayStreakItem[]>(this.generateInitialWeekStreak());
@@ -2412,7 +2773,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   updateTodayStreakCompletion(): void {
     const todayIndex = (new Date().getDay() + 6) % 7;
-    const hasCompletedHabit = this.habits().some((h) => h.completed);
+    const hasCompletedHabit = this.todayHabits().some((h) => h.completed);
     this.weekStreak.update((days) =>
       days.map((d, idx) => (idx === todayIndex ? { ...d, completed: hasCompletedHabit } : d)),
     );
@@ -2625,7 +2986,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.categoryTiers().reduce((acc, t) => acc + t.totalBadgesEarned, 0);
   });
 
-  // Alıntılar
+  // Alıntılar (Günün İlhamı)
   readonly quotes = [
     {
       text: 'Her gün %1 daha iyiye giderseniz, bir yılın sonunda 37 kat daha iyi olursunuz.',
@@ -2647,27 +3008,88 @@ export class DashboardComponent implements OnInit, OnDestroy {
       author: 'Seneca',
       source: 'Stoacı Mektuplar',
     },
+    {
+      text: 'Biz sürekli yaptığımız şeylerin toplamıyız. O halde mükemmellik bir eylem değil, bir alışkanlıktır.',
+      author: 'Aristoteles',
+      source: 'Nikomakhos\'a Etik',
+    },
+    {
+      text: 'Sabahları uyanmakta zorlandığında kendine şunu hatırlat: Bir insanın görevini yapmak için uyanıyorum.',
+      author: 'Marcus Aurelius',
+      source: 'Kendime Düşünceler',
+    },
+    {
+      text: 'Binlerce kilometrelik bir yolculuk bile tek bir atomik adımla başlar.',
+      author: 'Lao Tzu',
+      source: 'Tao Te Ching',
+    },
+    {
+      text: 'Bir şeyi alışkanlık haline getirmek istiyorsan onu her gün tekrar et. İstemiyorsan başka bir şeye odaklan.',
+      author: 'Epiktetos',
+      source: 'Söylevler',
+    },
+    {
+      text: 'Durmadığın ve her gün devam ettiğin sürece, ne kadar yavaş ilerlediğinin hiçbir önemi yoktur.',
+      author: 'Konfüçyüs',
+      source: 'Konuşmalar',
+    },
+    {
+      text: 'Dün akıllıydım, dünyayı değiştirmek istedim. Bugün bilgeyim, kendimi ve alışkanlıklarımı değiştiriyorum.',
+      author: 'Mevlana Celaleddin Rumi',
+      source: 'Mesnevi',
+    },
+    {
+      text: 'Bugünün bir saati, yarının iki saatine bedeldir. Sistemi bugün kur, işareti görünür kıl.',
+      author: 'Benjamin Franklin',
+      source: 'Zavallı Richard\'ın Almanak\'ı',
+    },
+    {
+      text: 'Bir eylem ekersin, bir alışkanlık biçersin. Bir alışkanlık ekersin, bir karakter biçersin.',
+      author: 'Ralph Waldo Emerson',
+      source: 'Denemeler',
+    },
+    {
+      text: 'Tek bir vuruşta usta olmak için bin günü çalışmaya feda et. Yolu anlamak her gün atılan küçük adımda saklıdır.',
+      author: 'Miyamoto Musashi',
+      source: 'Beş Çember Kitabı',
+    },
+    {
+      text: 'Alışkanlıklar bilgi, beceri ve arzunun kesişim noktasıdır. Karakterimiz, alışkanlıklarımızın bileşkesidir.',
+      author: 'Stephen Covey',
+      source: 'Etkili İnsanların 7 Alışkanlığı',
+    },
   ];
   readonly activeQuoteIndex = signal<number>(0);
   readonly activeQuote = computed(() => this.quotes[this.activeQuoteIndex()]);
 
   // Hesaplanmış Değerler
-  readonly totalHabitsCount = computed(() => this.habits().length);
-  readonly completedHabitsCount = computed(() => this.habits().filter((h) => h.completed).length);
+  readonly todayHabits = computed(() =>
+    this.habits().filter((h) => (h.scheduledDay ?? 'BUGUN') === 'BUGUN'),
+  );
+  readonly tomorrowHabits = computed(() =>
+    this.habits().filter((h) => h.scheduledDay === 'YARIN'),
+  );
+  readonly displayedHabits = computed(() =>
+    this.activeScheduleTab() === 'BUGUN' ? this.todayHabits() : this.tomorrowHabits(),
+  );
+
+  readonly totalHabitsCount = computed(() => this.todayHabits().length);
+  readonly completedHabitsCount = computed(() => this.todayHabits().filter((h) => h.completed).length);
   readonly completionRate = computed(() => {
     const total = this.totalHabitsCount();
     if (total === 0) return 0;
     return Math.round((this.completedHabitsCount() / total) * 100);
   });
   readonly totalEarnedPoints = computed(() => {
-    return this.habits().reduce((acc, h) => (h.completed ? acc + h.rewardXp : acc), 0);
+    return this.todayHabits().reduce((acc, h) => (h.completed ? acc + h.rewardXp : acc), 0);
   });
+  readonly tomorrowHabitsCount = computed(() => this.tomorrowHabits().length);
   readonly totalIdentityVotes = computed(() => {
     return this.identities().reduce((acc, i) => acc + i.totalVotes, 0);
   });
 
   readonly totalFocusMinutes = computed(() => {
-    return this.habits()
+    return this.todayHabits()
       .filter((h) => h.completed)
       .reduce((acc, h) => acc + (h.targetMinutes || parseInt(h.timeEstimate, 10) || 15), 0);
   });
@@ -2721,10 +3143,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 SINEMA_KULTUR: 'Dizi / Film / Kültür',
                 EGLENCE_OYUN: 'Oyun & Eğlence',
               };
+              const scheduleMap = this.getStoredScheduleMap();
               this.habits.set(
                 summary.habits.map((h) => {
                   const mins = h.targetMinutes || 15;
                   const isCompleted = h.completedToday;
+                  const sDay: ScheduledDay = scheduleMap[h.publicId] || (h.scheduledDay ?? 'BUGUN');
                   return {
                     id: h.publicId,
                     title: h.title,
@@ -2744,6 +3168,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     timerStatus: isCompleted ? 'TAMAMLANDI' : 'HAZIR',
                     remainingSeconds: isCompleted ? 0 : mins * 60,
                     initialSeconds: mins * 60,
+                    scheduledDay: sDay,
+                    scheduledDate: sDay === 'BUGUN' ? this.todayIso : this.tomorrowIso,
+                    environmentPrepared: false,
                   };
                 }),
               );
@@ -2809,6 +3236,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getHabitCardStatusClass(habit: UserHabit): string {
+    if (habit.scheduledDay === 'YARIN') {
+      return 'border-purple-500/40 bg-purple-500/5 hover:border-purple-500/70 shadow-purple-500/5';
+    }
     switch (habit.timerStatus) {
       case 'DEVAM_EDIYOR':
         return 'border-emerald-500/80 bg-emerald-500/5 ring-1 ring-emerald-500/30 shadow-emerald-500/10';
@@ -3177,6 +3607,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.showAddHabitForm.update((v) => {
       const nextVal = !v;
       if (nextVal) {
+        this.newHabitScheduledDay.set(this.activeScheduleTab());
         const catIdent = this.findIdentityForCategory(this.newHabitCategory);
         if (catIdent) {
           this.newHabitIdentityId = catIdent.id;
@@ -3186,6 +3617,78 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
       return nextVal;
     });
+  }
+
+  switchScheduleTab(tab: ScheduledDay): void {
+    this.activeScheduleTab.set(tab);
+  }
+
+  setScheduledDay(day: ScheduledDay): void {
+    this.newHabitScheduledDay.set(day);
+  }
+
+  openAddHabitForCurrentTab(): void {
+    this.newHabitScheduledDay.set(this.activeScheduleTab());
+    this.showAddHabitForm.set(true);
+  }
+
+  moveHabitToDay(habitId: string, targetDay: ScheduledDay): void {
+    this.habits.update((list) =>
+      list.map((h) => {
+        if (h.id === habitId) {
+          return {
+            ...h,
+            scheduledDay: targetDay,
+            scheduledDate: targetDay === 'BUGUN' ? this.todayIso : this.tomorrowIso,
+          };
+        }
+        return h;
+      }),
+    );
+    this.saveStoredSchedule(habitId, targetDay);
+    this.updateTodayStreakCompletion();
+    const dayLabel = targetDay === 'BUGUN' ? 'Bugün' : 'Yarın';
+    this.toastService.info(
+      `Alışkanlık ${dayLabel} programına taşındı.`,
+      `Program Güncellendi 📅`,
+    );
+  }
+
+  toggleEnvironmentPrepared(habitId: string): void {
+    this.habits.update((list) =>
+      list.map((h) => {
+        if (h.id === habitId) {
+          const nextState = !h.environmentPrepared;
+          if (nextState) {
+            this.toastService.success(
+              'Yarının ortamı hazırlandı! (1. Yasa: İşareti Görünür Kıl)',
+              'Çevre Tasarlandı 🌿',
+            );
+          }
+          return { ...h, environmentPrepared: nextState };
+        }
+        return h;
+      }),
+    );
+  }
+
+  private getStoredScheduleMap(): Record<string, ScheduledDay> {
+    try {
+      const raw = localStorage.getItem('atomic_habit_schedules');
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  private saveStoredSchedule(habitId: string, day: ScheduledDay): void {
+    try {
+      const map = this.getStoredScheduleMap();
+      map[habitId] = day;
+      localStorage.setItem('atomic_habit_schedules', JSON.stringify(map));
+    } catch {
+      // Ignore localStorage errors
+    }
   }
 
   deleteHabit(id: string, event?: Event): void {
@@ -3243,6 +3746,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const title = this.newHabitTitle.trim();
     if (!title) return;
 
+    const scheduledDay = this.newHabitScheduledDay();
+    const scheduledDate = scheduledDay === 'BUGUN' ? this.todayIso : this.tomorrowIso;
+
     const categoryKey = this.newHabitCategory || 'KARIYER';
     const selectedIdentity =
       this.identities().find((i) => i.id === this.newHabitIdentityId) ||
@@ -3259,6 +3765,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       responseMicroStep: this.newHabitMicroStep.trim() || 'İlk 2 dakikayı tamamla',
       rewardXp: 20,
       targetMinutes: targetMins,
+      scheduledDay,
+      scheduledDate,
     };
 
     this.habitService.createHabit(request).subscribe({
@@ -3285,10 +3793,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
             timerStatus: 'HAZIR',
             remainingSeconds: mins * 60,
             initialSeconds: mins * 60,
+            scheduledDay,
+            scheduledDate,
+            environmentPrepared: false,
           };
+          this.saveStoredSchedule(userHabit.id, scheduledDay);
           this.habits.update((list) => [...list, userHabit]);
+          this.activeScheduleTab.set(scheduledDay);
+          const dayLabel = scheduledDay === 'BUGUN' ? 'Bugün' : 'Yarın';
           this.toastService.success(
-            `"${userHabit.title}" başarıyla gününe eklendi!`,
+            `"${userHabit.title}" ${dayLabel} programına başarıyla eklendi!`,
             'Alışkanlık Eklendi 🎯',
           );
           // Backend ile verilerin %100 senkron kalması için dashboard özetini arka planda tazele
@@ -3310,6 +3824,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.newHabitCue = '';
     this.newHabitMicroStep = '';
     this.newHabitTargetMinutes = 25;
+    this.newHabitScheduledDay.set(this.activeScheduleTab());
     this.showAddHabitForm.set(false);
   }
 
