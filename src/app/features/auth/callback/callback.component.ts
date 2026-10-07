@@ -31,7 +31,7 @@ import { TokenStorageService } from '@core/auth/token-storage.service';
           </div>
           <h3 class="text-base font-semibold text-emerald-600">Giriş Başarılı</h3>
           <p class="text-xs text-[var(--color-text-muted)]">
-            Gelişim paneline yönlendiriliyorsunuz...
+            Programınıza yönlendiriliyorsunuz...
           </p>
         } @else {
           <div

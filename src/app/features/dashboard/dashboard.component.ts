@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
 import { UserService } from '@core/services/user.service';
 import { ToastService } from '@core/services/toast.service';
@@ -80,8 +80,86 @@ export interface CategoryTierItem {
   imports: [CommonModule, FormsModule, RouterModule, GlassMarbleJarComponent],
   template: `
     <div class="space-y-8 max-w-7xl mx-auto pb-12">
-      <!-- 1. HERO COMPOUND HORIZON & GÜNLÜK KAIZEN KARŞILAMA -->
-      <section
+      <!-- 0. PROGRAMIM ANA BAŞLIK VE SEKME YÖNETİMİ -->
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[var(--color-border-subtle)]"
+      >
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📅</span>
+            <h1 class="text-xl md:text-2xl font-black tracking-tight text-[var(--color-text-main)]">
+              Programım
+            </h1>
+            <span
+              class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
+            >
+              Atomik Kaizen Çerçevesi
+            </span>
+          </div>
+          <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
+            Günlük alışkanlık döngülerinizi yönetin, kimliğinizi inşa edin ve küme rozetlerinizi takip edin.
+          </p>
+        </div>
+
+        <!-- Sekmeler (Tabs) -->
+        <div
+          class="flex items-center gap-1.5 p-1 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] self-start sm:self-auto shadow-2xs"
+        >
+          <button
+            type="button"
+            (click)="setProgramTab('PROGRAM')"
+            [class]="
+              activeProgramTab() === 'PROGRAM'
+                ? 'bg-[var(--color-bg-card)] text-indigo-600 dark:text-indigo-400 shadow-xs font-bold border border-indigo-500/20'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] font-medium'
+            "
+            class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs transition-all cursor-pointer"
+          >
+            <span>📋</span>
+            <span>Günün Alışkanlıkları</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="setProgramTab('IDENTITIES')"
+            [class]="
+              activeProgramTab() === 'IDENTITIES'
+                ? 'bg-[var(--color-bg-card)] text-indigo-600 dark:text-indigo-400 shadow-xs font-bold border border-indigo-500/20'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] font-medium'
+            "
+            class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs transition-all cursor-pointer"
+          >
+            <span>🧬</span>
+            <span>Kimlik Matrisi</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="setProgramTab('TIERS')"
+            [class]="
+              activeProgramTab() === 'TIERS'
+                ? 'bg-[var(--color-bg-card)] text-indigo-600 dark:text-indigo-400 shadow-xs font-bold border border-indigo-500/20'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] font-medium'
+            "
+            class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs transition-all cursor-pointer"
+          >
+            <span>🏆</span>
+            <span>Kategori Rozetleri & Kümeler</span>
+            @if (totalBadgesEarnedAllCategories() > 0) {
+              <span
+                class="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-bold"
+              >
+                {{ totalBadgesEarnedAllCategories() }}
+              </span>
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- 1. GÜNÜN ALIŞKANLIKLARI / PROGRAM AKIŞI -->
+      @if (activeProgramTab() === 'PROGRAM') {
+        <!-- 1. HERO COMPOUND HORIZON & GÜNLÜK KAIZEN KARŞILAMA -->
+        <section
         class="p-6 md:p-8 rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs relative overflow-hidden"
       >
         <!-- Arka Plan Ambient Glow -->
@@ -520,357 +598,6 @@ export interface CategoryTierItem {
                 : 'Kimlik Seviyesi: Lv. 1 (Başlangıç)'
             }}
           </div>
-        </div>
-      </section>
-
-      <!-- 3. KİMLİK MATRİSİ: "KİME DÖNÜŞMEK İSTİYORSUN?" (James Clear) -->
-      <section
-        id="identity-matrix-section"
-        class="p-6 md:p-8 rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs space-y-5"
-      >
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-base">🧬</span>
-              <h2 class="text-lg font-bold text-[var(--color-text-main)]">
-                Kimlik Matrisi (Identity Matrix)
-              </h2>
-              <span
-                class="text-xs px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold"
-              >
-                James Clear İlkesi
-              </span>
-              <button
-                type="button"
-                (click)="toggleExplainer('identity')"
-                class="text-xs px-2 py-0.5 rounded-full border border-indigo-500/30 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 transition-colors cursor-pointer"
-                title="Kimlik matrisi nasıl çalışır?"
-              >
-                ⓘ Bu Nedir?
-              </button>
-            </div>
-            <p class="text-xs text-[var(--color-text-muted)] mt-1">
-              "Her eylem, olmak istediğin insana verilmiş bir oydur." Alışkanlıklarını tamamladıkça
-              ilgili kimliğin oy sayısı ve seviyesi yükselir.
-            </p>
-          </div>
-          <div class="text-xs text-[var(--color-text-muted)] font-mono">
-            Toplam Verilen Oy:
-            <strong class="text-indigo-600 dark:text-indigo-400">{{ totalIdentityVotes() }}</strong>
-          </div>
-        </div>
-
-        @if (activeExplainer() === 'identity') {
-          <div
-            class="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-xs space-y-2 text-[var(--color-text-main)] animate-fade-in"
-          >
-            <div
-              class="font-bold text-indigo-600 dark:text-indigo-400 flex items-center justify-between"
-            >
-              <span>💡 Kimlik Odaklı Alışkanlık Felsefesi (James Clear)</span>
-              <button
-                (click)="toggleExplainer('identity')"
-                class="text-[var(--color-text-muted)] hover:text-rose-500 cursor-pointer"
-              >
-                ✕ Kapat
-              </button>
-            </div>
-            <p class="leading-relaxed">
-              Çoğu insan hedeflere odaklanır: <em>"50 kitap bitireceğim"</em> ya da
-              <em>"10 kilo vereceğim"</em>. Ancak kalıcı değişim kimlikten başlar:
-              <em>"Ben her gün okuyan biriyim"</em> veya <em>"Ben sağlıklı yaşayan biriyim"</em>.
-              Burada yaptığınız her küçük eylem, o kimliğe verilen somut bir
-              <strong>oy</strong> niteliğindedir. Oylar biriktikçe kimlik seviyeniz artar.
-            </p>
-          </div>
-        }
-
-        <!-- Kimlik Kartları Grid (8 Dengeli Yaşam Kimliği) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          @for (identity of identities(); track identity.id) {
-            <div
-              class="p-4 rounded-2xl border transition-all space-y-3"
-              [class.border-indigo-500/30]="selectedIdentityFilter() === identity.id"
-              [class.bg-indigo-500/5]="selectedIdentityFilter() === identity.id"
-              [class.border-[var(--color-border-subtle)]]="selectedIdentityFilter() !== identity.id"
-              [class.bg-[var(--color-bg-subtle)]]="selectedIdentityFilter() !== identity.id"
-            >
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                  <span
-                    class="text-2xl p-2 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)]"
-                  >
-                    {{ identity.icon }}
-                  </span>
-                  <div>
-                    <h3 class="text-xs font-bold text-[var(--color-text-main)]">
-                      {{ identity.name }}
-                    </h3>
-                    <span class="text-[10px] text-[var(--color-text-muted)]"
-                      >Seviye {{ identity.level }}</span
-                    >
-                  </div>
-                </div>
-                <div class="text-right">
-                  <div
-                    class="text-sm font-extrabold font-mono text-indigo-600 dark:text-indigo-400"
-                  >
-                    {{ identity.totalVotes }} Oy
-                  </div>
-                  <div class="text-[9px] text-[var(--color-text-muted)]">
-                    Hedef: {{ identity.votesThreshold }}
-                  </div>
-                </div>
-              </div>
-
-              <p
-                class="text-[11px] text-[var(--color-text-muted)] italic text-center px-1 min-h-[32px] flex items-center justify-center"
-              >
-                "{{ identity.tagline }}"
-              </p>
-
-              <!-- Cam Fanus ve 3D Bilye (Misket) Oy Sandığı -->
-              <app-glass-marble-jar
-                [votes]="identity.totalVotes"
-                [threshold]="identity.votesThreshold"
-                [color]="identity.color"
-                [identityName]="identity.name"
-              />
-            </div>
-          }
-        </div>
-      </section>
-
-      <!-- 4. YASA DOYURUCU KIL: KATEGORİ ROZETLERİ VE KÜME TERFİ SİSTEMİ -->
-      <section
-        id="category-tiers-section"
-        class="p-6 md:p-8 rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs space-y-6"
-      >
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-base">🏆</span>
-              <h2 class="text-lg font-bold text-[var(--color-text-main)]">
-                4. Yasa Doyurucu Kıl: Kategori Rozetleri & Küme Terfi Sistemi
-              </h2>
-              <span
-                class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20"
-              >
-                Sürdürülebilir Ödül Motoru
-              </span>
-              <button
-                type="button"
-                (click)="toggleExplainer('tiers')"
-                class="text-xs px-2 py-0.5 rounded-full border border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 transition-colors cursor-pointer"
-                title="Küme terfi sistemi nasıl çalışır?"
-              >
-                ⓘ Küme Sistemi Nedir?
-              </button>
-            </div>
-            <p class="text-xs text-[var(--color-text-muted)] mt-1">
-              Görevlerinizi tamamladıkça ilgili kategoride rozet kazanırsınız. Rozetler biriktikçe
-              küme atlarsınız:
-              <strong class="text-amber-600 dark:text-amber-400">10 Bronz</strong> ➔
-              <strong class="text-slate-500 dark:text-slate-300">25 Gümüş</strong> ➔
-              <strong class="text-amber-500 dark:text-amber-300">50 Altın</strong> ➔
-              <strong class="text-teal-600 dark:text-teal-400">100 Platin</strong> ➔
-              <strong class="text-cyan-600 dark:text-cyan-400">💎 Elmas</strong>!
-            </p>
-          </div>
-
-          <!-- Toplam Rozet Sayacı Rozeti -->
-          <div
-            class="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] text-xs font-mono shrink-0 shadow-2xs"
-          >
-            <span class="text-base">🎖️</span>
-            <span class="text-[var(--color-text-muted)]">Toplam Rozet:</span>
-            <strong class="text-emerald-600 dark:text-emerald-400 text-sm font-black">{{
-              totalBadgesEarnedAllCategories()
-            }}</strong>
-          </div>
-        </div>
-
-        @if (activeExplainer() === 'tiers') {
-          <div
-            class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs space-y-2 text-[var(--color-text-main)]"
-          >
-            <div
-              class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-between"
-            >
-              <span>💡 4. Yasa (Doyurucu Kıl) Rozet & Küme Kademeleri</span>
-              <button
-                (click)="toggleExplainer('tiers')"
-                class="text-[var(--color-text-muted)] hover:text-rose-500 cursor-pointer"
-              >
-                ✕ Kapat
-              </button>
-            </div>
-            <p class="leading-relaxed">
-              Bir alışkanlığı sürdürmenin en kesin yolu, her eylemin ardından anında tatmin edici
-              bir zafer hissi yaşamaktır. Her tamamlanan görev, o kategoride 1 rozet kazandırır ve
-              küme ilerleme çubuğunuzu doldurur:
-            </p>
-            <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 pt-1 text-[11px]">
-              <div
-                class="p-2.5 rounded-xl bg-[var(--color-bg-card)] border border-amber-600/30 space-y-1"
-              >
-                <div class="font-bold text-amber-600 flex items-center gap-1">
-                  <span>🥉</span> Bronz Küme
-                </div>
-                <div class="text-[var(--color-text-muted)]">
-                  Başlangıç kademesi. <strong>10 bronz rozet</strong> toplayınca Gümüş'e terfi
-                  edersiniz.
-                </div>
-              </div>
-              <div
-                class="p-2.5 rounded-xl bg-[var(--color-bg-card)] border border-slate-400/30 space-y-1"
-              >
-                <div class="font-bold text-slate-400 flex items-center gap-1">
-                  <span>🥈</span> Gümüş Küme
-                </div>
-                <div class="text-[var(--color-text-muted)]">
-                  Gelişim kademesi. Bu kümede <strong>25 gümüş rozet</strong> toplayınca Altın'a
-                  terfi edersiniz.
-                </div>
-              </div>
-              <div
-                class="p-2.5 rounded-xl bg-[var(--color-bg-card)] border border-amber-400/30 space-y-1"
-              >
-                <div class="font-bold text-amber-400 flex items-center gap-1">
-                  <span>🥇</span> Altın Küme
-                </div>
-                <div class="text-[var(--color-text-muted)]">
-                  Ustalık kademesi. Bu kümede <strong>50 altın rozet</strong> toplayınca Platin'e
-                  terfi edersiniz.
-                </div>
-              </div>
-              <div
-                class="p-2.5 rounded-xl bg-[var(--color-bg-card)] border border-teal-400/30 space-y-1"
-              >
-                <div class="font-bold text-teal-400 flex items-center gap-1">
-                  <span>💠</span> Platin Küme
-                </div>
-                <div class="text-[var(--color-text-muted)]">
-                  İleri ustalık. Bu kümede <strong>100 platin rozet</strong> toplayınca Elmas'a
-                  terfi edersiniz.
-                </div>
-              </div>
-              <div
-                class="p-2.5 rounded-xl bg-[var(--color-bg-card)] border border-cyan-400/30 space-y-1"
-              >
-                <div class="font-bold text-cyan-400 flex items-center gap-1">
-                  <span>💎</span> Elmas Küme
-                </div>
-                <div class="text-[var(--color-text-muted)]">
-                  Zirve Grandmaster. Kategorinin tartışmasız efsane seviyesi.
-                </div>
-              </div>
-            </div>
-          </div>
-        }
-
-        <!-- 8 Kategori Kartı Grid (Üstten Ataçla Tutturulan Küme Tag Tasarımı) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-3">
-          @for (tier of categoryTiers(); track tier.category) {
-            <div
-              class="relative pt-6 pb-4 px-4 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] hover:bg-[var(--color-bg-card)] transition-all space-y-3 group shadow-2xs hover:shadow-xs"
-            >
-              <!-- Üstten Tutturulan Ataç ve Küme Rozet Tag'i (Paperclip Attached Tier Tag) -->
-              <div
-                class="absolute -top-3.5 right-4 z-20 flex flex-col items-center pointer-events-none"
-              >
-                <!-- Gerçekçi Ataç (Paperclip) Teli -->
-                <div
-                  class="relative -mb-2.5 z-30 transition-transform group-hover:-translate-y-0.5"
-                  [ngClass]="getTierPaperclipStyle(tier.currentTier)"
-                >
-                  <svg
-                    class="w-4 h-6 drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)]"
-                    viewBox="0 0 16 26"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M5 2C2.79 2 1 3.79 1 6V18C1 21.31 3.69 24 7 24C10.31 24 13 21.31 13 18V4C13 2.34 11.66 1 10 1C8.34 1 7 2.34 7 4V17C7 17.55 7.45 18 8 18C8.55 18 9 17.55 9 17V7"
-                      stroke="currentColor"
-                      stroke-width="2.2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </div>
-
-                <!-- Ataçla Tutturulan Küme Tag'i -->
-                <div
-                  class="px-2.5 py-1 pt-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md border backdrop-blur-md transition-all group-hover:scale-105"
-                  [ngClass]="getTierBadgeStyle(tier.currentTier)"
-                >
-                  <span class="text-xs">{{ tier.currentTierIcon }}</span>
-                  <span class="text-[11px] tracking-tight font-black">{{
-                    tier.currentTierName
-                  }}</span>
-                </div>
-              </div>
-
-              <!-- Kart Gövdesi: İkon, Kategori Adı ve Toplam Rozet -->
-              <div class="flex items-center justify-between pr-2">
-                <div class="flex items-center gap-2.5">
-                  <span
-                    class="text-2xl p-2 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] group-hover:scale-110 transition-transform"
-                  >
-                    {{ tier.icon }}
-                  </span>
-                  <div>
-                    <h3
-                      class="text-xs font-bold text-[var(--color-text-main)] truncate max-w-[130px]"
-                    >
-                      {{ tier.categoryDisplayName }}
-                    </h3>
-                    <div class="text-[10px] text-[var(--color-text-muted)] flex items-center gap-1">
-                      <span>Toplam:</span>
-                      <strong class="font-mono text-emerald-600 dark:text-emerald-400"
-                        >{{ tier.totalBadgesEarned }} Rozet</strong
-                      >
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- İlerleme Çubuğu ve Sonraki Küme Eşiği -->
-              <div class="space-y-1.5 pt-1">
-                <div
-                  class="flex items-center justify-between text-[10px] text-[var(--color-text-muted)]"
-                >
-                  <span>
-                    Küme İçi:
-                    <strong class="text-[var(--color-text-main)]">{{
-                      tier.currentTierBadgeCount
-                    }}</strong>
-                    / {{ tier.nextTierRequiredCount > 0 ? tier.nextTierRequiredCount : '∞' }}
-                  </span>
-                  @if (tier.nextTierRequiredCount > 0) {
-                    <span class="text-emerald-600 dark:text-emerald-400 font-semibold font-mono">
-                      Hedef: {{ tier.nextTierName }} ({{
-                        tier.nextTierRequiredCount - tier.currentTierBadgeCount
-                      }}
-                      kaldı)
-                    </span>
-                  } @else {
-                    <span class="text-cyan-500 font-bold font-mono">💎 Zirve Seviye</span>
-                  }
-                </div>
-
-                <div
-                  class="w-full bg-[var(--color-bg-card)] h-2 rounded-full overflow-hidden border border-[var(--color-border-subtle)]"
-                >
-                  <div
-                    class="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500 transition-all duration-500 rounded-full"
-                    [style.width.%]="tier.progressPercentage"
-                  ></div>
-                </div>
-              </div>
-            </div>
-          }
         </div>
       </section>
 
@@ -2338,6 +2065,435 @@ export interface CategoryTierItem {
           </div>
         </div>
       </section>
+      }
+
+      <!-- 2. KİMLİK MATRİSİ SEKMESİ İÇERİĞİ -->
+      @if (activeProgramTab() === 'IDENTITIES') {
+        <div class="space-y-6 animate-fade-in">
+          <div class="flex items-center justify-between">
+            <button
+              type="button"
+              (click)="setProgramTab('PROGRAM')"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] hover:bg-[var(--color-bg-subtle)] text-xs font-semibold text-[var(--color-text-muted)] hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
+            >
+              <span>←</span>
+              <span>Günün Alışkanlıklarına Dön</span>
+            </button>
+            <span class="text-xs text-[var(--color-text-muted)] font-mono">
+              Toplam Verilen Oy:
+              <strong class="text-indigo-600 dark:text-indigo-400">{{ totalIdentityVotes() }}</strong>
+            </span>
+          </div>
+
+          <!-- 3. KİMLİK MATRİSİ: "KİME DÖNÜŞMEK İSTİYORSUN?" (James Clear) -->
+          <section
+            id="identity-matrix-section"
+            class="p-6 md:p-8 rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs space-y-5"
+          >
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🧬</span>
+                  <h2 class="text-lg font-bold text-[var(--color-text-main)]">
+                    Kimlik Matrisi (Identity Matrix)
+                  </h2>
+                  <span
+                    class="text-xs px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold"
+                  >
+                    James Clear İlkesi
+                  </span>
+                  <button
+                    type="button"
+                    (click)="toggleExplainer('identity')"
+                    class="text-xs px-2 py-0.5 rounded-full border border-indigo-500/30 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 transition-colors cursor-pointer"
+                    title="Kimlik matrisi nasıl çalışır?"
+                  >
+                    ⓘ Bu Nedir?
+                  </button>
+                </div>
+                <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                  "Her eylem, olmak istediğin insana verilmiş bir oydur." Alışkanlıklarını tamamladıkça
+                  ilgili kimliğin oy sayısı ve seviyesi yükselir.
+                </p>
+              </div>
+              <div class="text-xs text-[var(--color-text-muted)] font-mono">
+                Toplam Verilen Oy:
+                <strong class="text-indigo-600 dark:text-indigo-400">{{ totalIdentityVotes() }}</strong>
+              </div>
+            </div>
+
+            @if (activeExplainer() === 'identity') {
+              <div
+                class="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-xs space-y-2 text-[var(--color-text-main)] animate-fade-in"
+              >
+                <div
+                  class="font-bold text-indigo-600 dark:text-indigo-400 flex items-center justify-between"
+                >
+                  <span>💡 Kimlik Odaklı Alışkanlık Felsefesi (James Clear)</span>
+                  <button
+                    (click)="toggleExplainer('identity')"
+                    class="text-[var(--color-text-muted)] hover:text-rose-500 cursor-pointer"
+                  >
+                    ✕ Kapat
+                  </button>
+                </div>
+                <p class="leading-relaxed">
+                  Çoğu insan hedeflere odaklanır: <em>"50 kitap bitireceğim"</em> ya da
+                  <em>"10 kilo vereceğim"</em>. Ancak kalıcı değişim kimlikten başlar:
+                  <em>"Ben her gün okuyan biriyim"</em> veya <em>"Ben sağlıklı yaşayan biriyim"</em>.
+                  Burada yaptığınız her küçük eylem, o kimliğe verilen somut bir
+                  <strong>oy</strong> niteliğindedir. Oylar biriktikçe kimlik seviyeniz artar.
+                </p>
+              </div>
+            }
+
+            <!-- Kimlik Kartları Grid (8 Dengeli Yaşam Kimliği) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              @for (identity of identities(); track identity.id) {
+                <div
+                  class="p-4 rounded-2xl border transition-all space-y-3"
+                  [class.border-indigo-500/30]="selectedIdentityFilter() === identity.id"
+                  [class.bg-indigo-500/5]="selectedIdentityFilter() === identity.id"
+                  [class.border-[var(--color-border-subtle)]]="selectedIdentityFilter() !== identity.id"
+                  [class.bg-[var(--color-bg-subtle)]]="selectedIdentityFilter() !== identity.id"
+                >
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                      <span
+                        class="text-2xl p-2 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)]"
+                      >
+                        {{ identity.icon }}
+                      </span>
+                      <div>
+                        <h3 class="text-xs font-bold text-[var(--color-text-main)]">
+                          {{ identity.name }}
+                        </h3>
+                        <span class="text-[10px] text-[var(--color-text-muted)]"
+                          >Seviye {{ identity.level }}</span
+                        >
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <div
+                        class="text-sm font-extrabold font-mono text-indigo-600 dark:text-indigo-400"
+                      >
+                        {{ identity.totalVotes }} Oy
+                      </div>
+                      <div class="text-[9px] text-[var(--color-text-muted)]">
+                        Hedef: {{ identity.votesThreshold }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <p
+                    class="text-[11px] text-[var(--color-text-muted)] italic text-center px-1 min-h-[32px] flex items-center justify-center"
+                  >
+                    "{{ identity.tagline }}"
+                  </p>
+
+                  <!-- Cam Fanus ve 3D Bilye (Misket) Oy Sandığı -->
+                  <app-glass-marble-jar
+                    [votes]="identity.totalVotes"
+                    [threshold]="identity.votesThreshold"
+                    [color]="identity.color"
+                    [identityName]="identity.name"
+                  />
+                </div>
+              }
+            </div>
+          </section>
+        </div>
+      }
+
+      <!-- 3. KATEGORİ ROZETLERİ & KÜME TERFİ SİSTEMİ SEKMESİ İÇERİĞİ -->
+      @if (activeProgramTab() === 'TIERS') {
+        <div class="space-y-6 animate-fade-in">
+          <div class="flex items-center justify-between">
+            <button
+              type="button"
+              (click)="setProgramTab('PROGRAM')"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] hover:bg-[var(--color-bg-subtle)] text-xs font-semibold text-[var(--color-text-muted)] hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
+            >
+              <span>←</span>
+              <span>Günün Alışkanlıklarına Dön</span>
+            </button>
+            <div
+              class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] text-xs font-mono"
+            >
+              <span class="text-base">🎖️</span>
+              <span class="text-[var(--color-text-muted)]">Toplam Rozet:</span>
+              <strong class="text-emerald-600 dark:text-emerald-400 font-black">{{
+                totalBadgesEarnedAllCategories()
+              }}</strong>
+            </div>
+          </div>
+
+          <!-- 4. YASA DOYURUCU KIL: KATEGORİ ROZETLERİ VE KÜME TERFİ SİSTEMİ -->
+          <section
+            id="category-tiers-section"
+            class="p-6 md:p-8 rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xs space-y-6"
+          >
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-base">🏆</span>
+                  <h2 class="text-lg font-bold text-[var(--color-text-main)]">
+                    4. Yasa Doyurucu Kıl: Kategori Rozetleri & Küme Terfi Sistemi
+                  </h2>
+                  <span
+                    class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20"
+                  >
+                    Sürdürülebilir Ödül Motoru
+                  </span>
+                  <button
+                    type="button"
+                    (click)="toggleExplainer('tiers')"
+                    class="text-xs px-2 py-0.5 rounded-full border border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 transition-colors cursor-pointer"
+                    title="Küme terfi sistemi nasıl çalışır?"
+                  >
+                    ⓘ Küme Sistemi Nedir?
+                  </button>
+                </div>
+                <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                  Görevlerinizi tamamladıkça ilgili kategoride rozet kazanırsınız. Rozetler biriktikçe
+                  küme atlarsınız:
+                  <strong class="text-amber-600 dark:text-amber-400">10 Bronz</strong> ➔
+                  <strong class="text-slate-500 dark:text-slate-300">25 Gümüş</strong> ➔
+                  <strong class="text-amber-500 dark:text-amber-300">50 Altın</strong> ➔
+                  <strong class="text-teal-600 dark:text-teal-400">100 Platin</strong> ➔
+                  <strong class="text-cyan-600 dark:text-cyan-400">💎 Elmas</strong>!
+                </p>
+              </div>
+
+              <!-- Toplam Rozet Sayacı Rozeti -->
+              <div
+                class="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] text-xs font-mono shrink-0 shadow-2xs"
+              >
+                <span class="text-base">🎖️</span>
+                <span class="text-[var(--color-text-muted)]">Toplam Rozet:</span>
+                <strong class="text-emerald-600 dark:text-emerald-400 text-sm font-black">{{
+                  totalBadgesEarnedAllCategories()
+                }}</strong>
+              </div>
+            </div>
+
+            @if (activeExplainer() === 'tiers') {
+              <div
+                class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs space-y-2 text-[var(--color-text-main)]"
+              >
+                <div
+                  class="font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-between"
+                >
+                  <span>💡 4. Yasa (Doyurucu Kıl) Rozet & Küme Kademeleri</span>
+                  <button
+                    (click)="toggleExplainer('tiers')"
+                    class="text-[var(--color-text-muted)] hover:text-rose-500 cursor-pointer"
+                  >
+                    ✕ Kapat
+                  </button>
+                </div>
+                <p class="leading-relaxed">
+                  Bir alışkanlığı sürdürmenin en kesin yolu, her eylemin ardından anında tatmin edici
+                  bir zafer hissi yaşamaktır. Her tamamlanan görev, o kategoride 1 rozet kazandırır ve
+                  küme ilerleme çubuğunuzu doldurur:
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-2 pt-1 text-[11px]">
+                  <div
+                    class="p-2.5 rounded-xl bg-[var(--color-bg-card)] border border-amber-600/30 space-y-1"
+                  >
+                    <div class="font-bold text-amber-600 flex items-center gap-1">
+                      <span>🥉</span> Bronz Küme
+                    </div>
+                    <div class="text-[var(--color-text-muted)]">
+                      Başlangıç kademesi. <strong>10 bronz rozet</strong> toplayınca Gümüş'e terfi
+                      edersiniz.
+                    </div>
+                  </div>
+                  <div
+                    class="p-2.5 rounded-xl bg-[var(--color-bg-card)] border border-slate-400/30 space-y-1"
+                  >
+                    <div class="font-bold text-slate-400 flex items-center gap-1">
+                      <span>🥈</span> Gümüş Küme
+                    </div>
+                    <div class="text-[var(--color-text-muted)]">
+                      Gelişim kademesi. Bu kümede <strong>25 gümüş rozet</strong> toplayınca Altın'a
+                      terfi edersiniz.
+                    </div>
+                  </div>
+                  <div
+                    class="p-2.5 rounded-xl bg-[var(--color-bg-card)] border border-amber-400/30 space-y-1"
+                  >
+                    <div class="font-bold text-amber-400 flex items-center gap-1">
+                      <span>🥇</span> Altın Küme
+                    </div>
+                    <div class="text-[var(--color-text-muted)]">
+                      Ustalık kademesi. Bu kümede <strong>50 altın rozet</strong> toplayınca Platin'e
+                      terfi edersiniz.
+                    </div>
+                  </div>
+                  <div
+                    class="p-2.5 rounded-xl bg-[var(--color-bg-card)] border border-teal-400/30 space-y-1"
+                  >
+                    <div class="font-bold text-teal-400 flex items-center gap-1">
+                      <span>💠</span> Platin Küme
+                    </div>
+                    <div class="text-[var(--color-text-muted)]">
+                      İleri ustalık. Bu kümede <strong>100 platin rozet</strong> toplayınca Elmas'a
+                      terfi edersiniz.
+                    </div>
+                  </div>
+                  <div
+                    class="p-2.5 rounded-xl bg-[var(--color-bg-card)] border border-cyan-400/30 space-y-1"
+                  >
+                    <div class="font-bold text-cyan-400 flex items-center gap-1">
+                      <span>💎</span> Elmas Küme
+                    </div>
+                    <div class="text-[var(--color-text-muted)]">
+                      Zirve Grandmaster. Kategorinin tartışmasız efsane seviyesi.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- 8 Kategori Kartı Grid (Modern Glassmorphism & League Trophy Tasarımı) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-2">
+              @for (tier of categoryTiers(); track tier.category) {
+                <div
+                  class="relative p-5 rounded-3xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] hover:bg-[var(--color-bg-subtle)]/70 transition-all duration-300 space-y-4 group shadow-xs hover:shadow-md overflow-hidden"
+                  [ngClass]="getTierCardStyle(tier.currentTier)"
+                >
+                  <!-- Kart Köşesi Ambient Glow Efekti -->
+                  <div
+                    class="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br pointer-events-none blur-2xl opacity-60 group-hover:opacity-100 transition-opacity"
+                    [ngClass]="getTierGlowStyle(tier.currentTier)"
+                  ></div>
+
+                  <!-- Üst Satır: Kategori İkonu & Küme Rozeti -->
+                  <div class="flex items-center justify-between gap-2 relative z-10">
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-11 h-11 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] flex items-center justify-center text-2xl shadow-2xs group-hover:scale-105 group-hover:border-indigo-500/30 transition-all shrink-0"
+                      >
+                        {{ tier.icon }}
+                      </div>
+                      <span
+                        class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 whitespace-nowrap"
+                      >
+                        {{ tier.totalBadgesEarned }} Rozet
+                      </span>
+                    </div>
+
+                    <!-- Şık Küme Terfi Rozeti (Tier Badge Pill) -->
+                    <div
+                      class="px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border backdrop-blur-md transition-all shrink-0 shadow-2xs group-hover:scale-105"
+                      [ngClass]="getTierBadgeStyle(tier.currentTier)"
+                    >
+                      <span class="text-sm leading-none">{{ tier.currentTierIcon }}</span>
+                      <span class="text-[11px] font-extrabold tracking-tight whitespace-nowrap">{{
+                        tier.currentTierName
+                      }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Kategori Adı (Tam Genişlikte, Kesilmez ve Tam Görünür) -->
+                  <div class="relative z-10 pt-0.5">
+                    <h3
+                      class="text-sm font-bold text-[var(--color-text-main)] tracking-tight leading-snug break-words"
+                    >
+                      {{ tier.categoryDisplayName }}
+                    </h3>
+                  </div>
+
+                  <!-- Orta Kısım: Küme İlerleme Çubuğu ve Sayaç -->
+                  <div class="space-y-2 relative z-10 pt-1">
+                    <div
+                      class="flex items-center justify-between text-xs text-[var(--color-text-muted)]"
+                    >
+                      <span class="font-medium text-[11px]">Küme İçi İlerleme</span>
+                      <div class="font-mono text-xs">
+                        <strong class="text-[var(--color-text-main)] font-bold">{{
+                          tier.currentTierBadgeCount
+                        }}</strong>
+                        <span class="text-[var(--color-text-muted)]">
+                          / {{ tier.nextTierRequiredCount > 0 ? tier.nextTierRequiredCount : '∞' }}</span
+                        >
+                        <span class="ml-1 text-[10px] font-semibold text-indigo-600 dark:text-indigo-400"
+                          >(%{{ tier.progressPercentage | number: '1.0-0' }})</span
+                        >
+                      </div>
+                    </div>
+
+                    <!-- Gradient Progress Bar -->
+                    <div
+                      class="w-full bg-[var(--color-bg-subtle)] h-2 rounded-full overflow-hidden border border-[var(--color-border-subtle)] p-0.5"
+                    >
+                      <div
+                        class="h-full bg-gradient-to-r rounded-full transition-all duration-500"
+                        [ngClass]="getTierProgressGradient(tier.currentTier)"
+                        [style.width.%]="tier.progressPercentage"
+                      ></div>
+                    </div>
+
+                    <!-- Alt Durum Mesajı -->
+                    <div class="flex items-center justify-between pt-0.5 text-[11px]">
+                      @if (tier.nextTierRequiredCount > 0) {
+                        <span class="text-[var(--color-text-muted)]">
+                          Hedef: <strong class="text-[var(--color-text-main)]">{{ tier.nextTierName }}</strong>
+                        </span>
+                        <span class="font-mono font-semibold text-emerald-600 dark:text-emerald-400">
+                          {{ tier.nextTierRequiredCount - tier.currentTierBadgeCount }} kaldı
+                        </span>
+                      } @else {
+                        <span class="text-cyan-500 font-bold font-mono flex items-center gap-1">
+                          <span>💎</span>
+                          <span>Zirve Seviye: Grandmaster</span>
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Alt Kısım: 5 Küme Kademesi Yolculuk Göstergesi (Mini Milestone Stepper) -->
+                  <div
+                    class="pt-2 border-t border-[var(--color-border-subtle)] flex items-center justify-between text-[10px] text-[var(--color-text-muted)] relative z-10"
+                  >
+                    <div class="flex items-center gap-1.5 w-full">
+                      @for (step of [
+                        { icon: '🥉', name: 'Bronz', idx: 0 },
+                        { icon: '🥈', name: 'Gümüş', idx: 1 },
+                        { icon: '🥇', name: 'Altın', idx: 2 },
+                        { icon: '💠', name: 'Platin', idx: 3 },
+                        { icon: '💎', name: 'Elmas', idx: 4 }
+                      ]; track step.idx) {
+                        <div
+                          class="flex-1 flex flex-col items-center gap-1 group/step cursor-default"
+                          [title]="step.name + ' Küme'"
+                        >
+                          <div
+                            class="w-full h-1 rounded-full transition-all"
+                            [class.bg-gradient-to-r]="getTierLevelIndex(tier.currentTier) >= step.idx"
+                            [class.from-indigo-500]="getTierLevelIndex(tier.currentTier) >= step.idx"
+                            [class.to-emerald-400]="getTierLevelIndex(tier.currentTier) >= step.idx"
+                            [class.bg-[var(--color-border-subtle)]]="getTierLevelIndex(tier.currentTier) < step.idx"
+                          ></div>
+                          <span
+                            class="text-[10px] transition-opacity"
+                            [class.opacity-100]="getTierLevelIndex(tier.currentTier) >= step.idx"
+                            [class.opacity-30]="getTierLevelIndex(tier.currentTier) < step.idx"
+                            [class.scale-110]="getTierLevelIndex(tier.currentTier) === step.idx"
+                          >
+                            {{ step.icon }}
+                          </span>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+        </div>
+      }
 
       <!-- 6. SÜRE DOLDU UYARI POPUP'I (POMODORO NOTIFICATION MODAL) -->
       @if (timeExpiredModalHabit(); as expiredHabit) {
@@ -2602,6 +2758,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly toastService = inject(ToastService);
   private readonly habitService = inject(HabitService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+
+  // Programım Ana Sekmeleri (Günün Alışkanlıkları | Kimlik Matrisi | Kategori Rozetleri)
+  readonly activeProgramTab = signal<'PROGRAM' | 'IDENTITIES' | 'TIERS'>('PROGRAM');
 
   readonly currentStreak = signal<number>(0);
   readonly selectedIdentityFilter = signal<string | null>(null);
@@ -3517,6 +3678,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    // URL sekme senkronizasyonu (?tab=program | identities | tiers)
+    this.route.queryParamMap.subscribe((params) => {
+      const tab = params.get('tab');
+      if (tab === 'identities') {
+        this.activeProgramTab.set('IDENTITIES');
+      } else if (tab === 'tiers') {
+        this.activeProgramTab.set('TIERS');
+      } else {
+        this.activeProgramTab.set('PROGRAM');
+      }
+    });
+
     if (!this.authService.currentUser() && this.authService.isAuthenticated()) {
       this.userService.getCurrentUser().subscribe({
         next: (res) => {
@@ -4336,12 +4509,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.activeExplainer.update((cur) => (cur === key ? null : key));
   }
 
+  setProgramTab(tab: 'PROGRAM' | 'IDENTITIES' | 'TIERS'): void {
+    this.activeProgramTab.set(tab);
+    const queryParamValue = tab === 'IDENTITIES' ? 'identities' : tab === 'TIERS' ? 'tiers' : 'program';
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: queryParamValue },
+      queryParamsHandling: 'merge',
+    });
+  }
+
   scrollToIdentities(): void {
-    document.getElementById('identity-matrix-section')?.scrollIntoView({ behavior: 'smooth' });
+    this.setProgramTab('IDENTITIES');
+    setTimeout(() => {
+      document.getElementById('identity-matrix-section')?.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
   }
 
   scrollToHabits(): void {
-    document.getElementById('habits-section')?.scrollIntoView({ behavior: 'smooth' });
+    this.setProgramTab('PROGRAM');
+    setTimeout(() => {
+      document.getElementById('habits-section')?.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
   }
 
   scrollToPdca(): void {
@@ -4410,37 +4599,88 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  getTierLevelIndex(tier: string): number {
+    switch (tier) {
+      case 'BRONZE':
+        return 0;
+      case 'SILVER':
+        return 1;
+      case 'GOLD':
+        return 2;
+      case 'PLATINUM':
+        return 3;
+      case 'DIAMOND':
+        return 4;
+      default:
+        return 0;
+    }
+  }
+
   getTierBadgeStyle(tier: string): string {
     switch (tier) {
       case 'BRONZE':
-        return 'bg-gradient-to-b from-amber-800/25 to-amber-950/20 text-amber-700 dark:text-amber-300 border-amber-600/40 shadow-amber-950/10';
+        return 'bg-gradient-to-r from-amber-950/20 via-amber-900/15 to-amber-800/20 text-amber-700 dark:text-amber-300 border-amber-600/30 shadow-xs';
       case 'SILVER':
-        return 'bg-gradient-to-b from-slate-200/50 to-slate-400/20 text-slate-700 dark:text-slate-200 border-slate-400/50 shadow-slate-900/10';
+        return 'bg-gradient-to-r from-slate-200/70 via-slate-300/40 to-slate-200/60 dark:from-slate-800/60 dark:via-slate-700/40 dark:to-slate-800/50 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-600/50 shadow-xs';
       case 'GOLD':
-        return 'bg-gradient-to-b from-amber-300/35 to-yellow-500/20 text-amber-800 dark:text-amber-200 border-amber-400/60 shadow-amber-500/20';
+        return 'bg-gradient-to-r from-amber-500/20 via-yellow-400/25 to-amber-500/15 text-amber-600 dark:text-yellow-300 border-amber-400/50 shadow-xs shadow-amber-500/10';
       case 'PLATINUM':
-        return 'bg-gradient-to-b from-teal-300/35 to-cyan-500/20 text-teal-800 dark:text-teal-200 border-teal-400/60 shadow-teal-500/20';
+        return 'bg-gradient-to-r from-teal-500/20 via-emerald-400/20 to-cyan-500/20 text-teal-600 dark:text-teal-300 border-teal-400/50 shadow-xs shadow-teal-500/10';
       case 'DIAMOND':
-        return 'bg-gradient-to-b from-cyan-300/45 to-blue-500/25 text-cyan-800 dark:text-cyan-100 border-cyan-400/70 shadow-cyan-500/30 shadow-md ring-1 ring-cyan-400/40 animate-pulse';
+        return 'bg-gradient-to-r from-cyan-500/25 via-blue-500/20 to-indigo-500/25 text-cyan-600 dark:text-cyan-200 border-cyan-400/60 shadow-sm shadow-cyan-500/25 ring-1 ring-cyan-400/30';
       default:
         return 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20';
     }
   }
 
-  getTierPaperclipStyle(tier: string): string {
+  getTierCardStyle(tier: string): string {
     switch (tier) {
       case 'BRONZE':
-        return 'text-amber-600 dark:text-amber-400';
+        return 'hover:border-amber-600/40 hover:shadow-amber-900/5';
       case 'SILVER':
-        return 'text-slate-400 dark:text-slate-300';
+        return 'hover:border-slate-400/50 hover:shadow-slate-900/5';
       case 'GOLD':
-        return 'text-amber-500 dark:text-yellow-400';
+        return 'hover:border-amber-400/50 hover:shadow-amber-500/10';
       case 'PLATINUM':
-        return 'text-teal-500 dark:text-cyan-400';
+        return 'hover:border-teal-400/50 hover:shadow-teal-500/10';
       case 'DIAMOND':
-        return 'text-cyan-400 dark:text-cyan-200 filter drop-shadow-[0_0_5px_rgba(34,211,238,0.7)]';
+        return 'hover:border-cyan-400/60 hover:shadow-cyan-500/15 border-cyan-500/20';
       default:
-        return 'text-slate-400 dark:text-slate-400';
+        return 'hover:border-indigo-500/30';
+    }
+  }
+
+  getTierProgressGradient(tier: string): string {
+    switch (tier) {
+      case 'BRONZE':
+        return 'from-amber-600 to-amber-500';
+      case 'SILVER':
+        return 'from-slate-400 to-slate-200';
+      case 'GOLD':
+        return 'from-amber-500 via-yellow-400 to-amber-300';
+      case 'PLATINUM':
+        return 'from-teal-500 via-emerald-400 to-cyan-400';
+      case 'DIAMOND':
+        return 'from-cyan-400 via-sky-300 to-indigo-400';
+      default:
+        return 'from-emerald-500 to-teal-400';
+    }
+  }
+
+  getTierGlowStyle(tier: string): string {
+    switch (tier) {
+      case 'BRONZE':
+        return 'from-amber-600/10 to-transparent';
+      case 'SILVER':
+        return 'from-slate-400/10 to-transparent';
+      case 'GOLD':
+        return 'from-amber-400/15 via-yellow-500/10 to-transparent';
+      case 'PLATINUM':
+        return 'from-teal-400/15 via-emerald-500/10 to-transparent';
+      case 'DIAMOND':
+        return 'from-cyan-400/20 via-blue-500/15 to-transparent';
+      default:
+        return 'from-indigo-500/10 to-transparent';
     }
   }
 

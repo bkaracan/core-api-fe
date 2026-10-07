@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '@core/auth/auth.service';
 import { ThemeService } from '@core/services/theme.service';
 
@@ -88,15 +88,79 @@ import { ThemeService } from '@core/services/theme.service';
                 Kişisel Alan
               </div>
               <nav class="space-y-1" aria-label="Kullanıcı Menüsü">
-                <a
-                  routerLink="/dashboard"
-                  routerLinkActive="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-main)] transition-colors"
-                >
-                  <span class="text-base">🎯</span>
-                  <span>Gelişim Paneli</span>
-                </a>
+                <!-- Programım Menüsü ve Alt Sekmeleri -->
+                <div class="space-y-0.5">
+                  <a
+                    routerLink="/dashboard"
+                    [queryParams]="{ tab: 'program' }"
+                    class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer"
+                    [class.bg-indigo-50]="isDashboardActive()"
+                    [class.dark:bg-indigo-950/50]="isDashboardActive()"
+                    [class.text-indigo-600]="isDashboardActive()"
+                    [class.dark:text-indigo-400]="isDashboardActive()"
+                    [class.font-semibold]="isDashboardActive()"
+                    [class.text-[var(--color-text-muted)]]="!isDashboardActive()"
+                    [class.hover:bg-[var(--color-bg-subtle)]]="!isDashboardActive()"
+                    [class.hover:text-[var(--color-text-main)]]="!isDashboardActive()"
+                  >
+                    <span class="text-base">📅</span>
+                    <span>Programım</span>
+                  </a>
+
+                  <!-- Programım Alt Sekmeleri -->
+                  <div class="pl-4 ml-3 border-l-2 border-indigo-500/20 space-y-0.5 pt-0.5">
+                    <a
+                      routerLink="/dashboard"
+                      [queryParams]="{ tab: 'program' }"
+                      class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+                      [class.bg-indigo-50]="isCurrentTab('program')"
+                      [class.dark:bg-indigo-950/50]="isCurrentTab('program')"
+                      [class.text-indigo-600]="isCurrentTab('program')"
+                      [class.dark:text-indigo-400]="isCurrentTab('program')"
+                      [class.font-semibold]="isCurrentTab('program')"
+                      [class.text-[var(--color-text-muted)]]="!isCurrentTab('program')"
+                      [class.hover:bg-[var(--color-bg-subtle)]]="!isCurrentTab('program')"
+                      [class.hover:text-[var(--color-text-main)]]="!isCurrentTab('program')"
+                    >
+                      <span class="text-xs">📋</span>
+                      <span>Günün Alışkanlıkları</span>
+                    </a>
+
+                    <a
+                      routerLink="/dashboard"
+                      [queryParams]="{ tab: 'identities' }"
+                      class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+                      [class.bg-indigo-50]="isCurrentTab('identities')"
+                      [class.dark:bg-indigo-950/50]="isCurrentTab('identities')"
+                      [class.text-indigo-600]="isCurrentTab('identities')"
+                      [class.dark:text-indigo-400]="isCurrentTab('identities')"
+                      [class.font-semibold]="isCurrentTab('identities')"
+                      [class.text-[var(--color-text-muted)]]="!isCurrentTab('identities')"
+                      [class.hover:bg-[var(--color-bg-subtle)]]="!isCurrentTab('identities')"
+                      [class.hover:text-[var(--color-text-main)]]="!isCurrentTab('identities')"
+                    >
+                      <span class="text-xs">🧬</span>
+                      <span>Kimlik Matrisi</span>
+                    </a>
+
+                    <a
+                      routerLink="/dashboard"
+                      [queryParams]="{ tab: 'tiers' }"
+                      class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-colors cursor-pointer"
+                      [class.bg-indigo-50]="isCurrentTab('tiers')"
+                      [class.dark:bg-indigo-950/50]="isCurrentTab('tiers')"
+                      [class.text-indigo-600]="isCurrentTab('tiers')"
+                      [class.dark:text-indigo-400]="isCurrentTab('tiers')"
+                      [class.font-semibold]="isCurrentTab('tiers')"
+                      [class.text-[var(--color-text-muted)]]="!isCurrentTab('tiers')"
+                      [class.hover:bg-[var(--color-bg-subtle)]]="!isCurrentTab('tiers')"
+                      [class.hover:text-[var(--color-text-main)]]="!isCurrentTab('tiers')"
+                    >
+                      <span class="text-xs">🏆</span>
+                      <span>Kategori Rozetleri</span>
+                    </a>
+                  </div>
+                </div>
 
                 <a
                   routerLink="/users/profile"
@@ -172,6 +236,19 @@ import { ThemeService } from '@core/services/theme.service';
 export class ShellComponent implements OnInit {
   readonly authService = inject(AuthService);
   readonly themeService = inject(ThemeService);
+  readonly router = inject(Router);
+
+  isDashboardActive(): boolean {
+    return this.router.url.startsWith('/dashboard');
+  }
+
+  isCurrentTab(tab: string): boolean {
+    const url = this.router.url;
+    if (!url.startsWith('/dashboard')) return false;
+    const urlTree = this.router.parseUrl(url);
+    const currentTab = urlTree.queryParams['tab'] || 'program';
+    return currentTab === tab;
+  }
 
   ngOnInit(): void {
     if (!this.authService.currentUser() && this.authService.isAuthenticated()) {
