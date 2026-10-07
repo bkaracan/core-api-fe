@@ -1824,7 +1824,7 @@ export interface CategoryTierItem {
                           </button>
                           <button
                             type="button"
-                            (click)="deleteHabit(habit.id, $event)"
+                            (click)="openDeleteConfirmModal(habit, $event)"
                             class="p-1 rounded-md text-[var(--color-text-muted)] hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
                             title="Alışkanlığı Sil"
                             aria-label="Alışkanlığı Sil"
@@ -2986,6 +2986,94 @@ export interface CategoryTierItem {
           </div>
         </div>
       }
+
+      <!-- 8. ALIŞKANLIK SİLME ONAY POPUP'I (DELETE CONFIRMATION MODAL) -->
+      @if (deleteConfirmModalHabit(); as habitToDelete) {
+        <div
+          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+          (click)="closeDeleteConfirmModal()"
+        >
+          <div
+            class="max-w-md w-full rounded-3xl border border-rose-500/30 bg-[var(--color-bg-card)] p-6 space-y-5 shadow-2xl text-[var(--color-text-main)] animate-scale-up"
+            (click)="$event.stopPropagation()"
+          >
+            <!-- Modal Başlık Satırı -->
+            <div
+              class="flex items-center justify-between pb-3 border-b border-[var(--color-border-subtle)]"
+            >
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl p-2 rounded-2xl bg-rose-500/10 text-rose-500">🗑️</span>
+                <div>
+                  <h3 class="text-base font-bold text-[var(--color-text-main)]">
+                    Alışkanlığı Silmek İstediğinize Emin Misiniz?
+                  </h3>
+                  <span class="text-[11px] text-[var(--color-text-muted)]">
+                    Bu işlem geri alınamaz
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                (click)="closeDeleteConfirmModal()"
+                class="p-1.5 rounded-xl text-[var(--color-text-muted)] hover:text-rose-500 hover:bg-rose-500/10 cursor-pointer transition-all"
+                title="Kapat"
+              >
+                ✕
+              </button>
+            </div>
+
+            <!-- Modal Gövdesi: Bilgi & Detaylar -->
+            <div class="space-y-4 text-xs leading-relaxed">
+              <div
+                class="p-3.5 rounded-2xl bg-rose-500/5 border border-rose-500/20 text-[var(--color-text-main)] space-y-2"
+              >
+                <div class="text-[11px] font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+                  <span>⚠️</span>
+                  <span>Silinecek Alışkanlık:</span>
+                </div>
+                <div class="text-sm font-bold text-[var(--color-text-main)]">
+                  {{ habitToDelete.title }}
+                </div>
+                <div class="flex items-center gap-2 text-[10px] text-[var(--color-text-muted)] flex-wrap pt-0.5">
+                  <span class="px-2 py-0.5 rounded-md bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] font-medium">
+                    🏷️ {{ habitToDelete.categoryLabel }}
+                  </span>
+                  <span>•</span>
+                  <span>📍 {{ habitToDelete.targetLocation }}</span>
+                  <span>•</span>
+                  <span>⏱️ {{ habitToDelete.targetMinutes }} dk</span>
+                </div>
+              </div>
+
+              <p class="text-[11.5px] text-[var(--color-text-muted)] leading-relaxed">
+                Bu alışkanlığı sildiğinizde; ilgili <strong>hedef kimlik oyları</strong>, <strong>kazanılan kategori rozeti</strong> ve <strong>günlük program kaydı</strong> sistemden kaldırılacaktır.
+              </p>
+
+              <!-- Aksiyon Butonları -->
+              <div class="grid grid-cols-2 gap-2.5 pt-1">
+                <!-- Vazgeç -->
+                <button
+                  type="button"
+                  (click)="closeDeleteConfirmModal()"
+                  class="py-2.5 px-4 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] hover:bg-[var(--color-bg-card)] text-[var(--color-text-main)] font-semibold text-xs transition-all cursor-pointer text-center"
+                >
+                  Vazgeç
+                </button>
+
+                <!-- Evet, Alışkanlığı Sil -->
+                <button
+                  type="button"
+                  (click)="confirmDeleteHabit()"
+                  class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md hover:shadow-rose-500/25 active:scale-95"
+                >
+                  <span>🗑️</span>
+                  <span>Evet, Sil</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   `,
 })
@@ -3039,6 +3127,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     attemptedHabit: UserHabit;
   } | null>(null);
   customExtensionMinutes = 10;
+  // Alışkanlık Silme Onay Modal Durumu
+  readonly deleteConfirmModalHabit = signal<UserHabit | null>(null);
 
   // Alışkanlık Kartı Düzenleme Durumu
   readonly editingHabitId = signal<string | null>(null);
@@ -4517,6 +4607,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  openDeleteConfirmModal(habit: UserHabit, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.deleteConfirmModalHabit.set(habit);
+  }
+
+  closeDeleteConfirmModal(): void {
+    this.deleteConfirmModalHabit.set(null);
+  }
+
+  confirmDeleteHabit(): void {
+    const habit = this.deleteConfirmModalHabit();
+    if (!habit) return;
+    this.deleteConfirmModalHabit.set(null);
+    this.deleteHabit(habit.id);
+  }
+
   deleteHabit(id: string, event?: Event): void {
     if (event) {
       event.stopPropagation();
@@ -4700,6 +4808,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   cancelEditHabit(): void {
     this.editingHabitId.set(null);
+    this.clearEditSpecificTime();
   }
 
   onEditTimeChange(): void {
@@ -4846,6 +4955,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         return h;
       }),
     );
+
+    this.editingHabitId.set(null);
+    this.clearEditSpecificTime();
 
     const isValidUuid = (val?: string | null) =>
       !!val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
