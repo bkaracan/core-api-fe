@@ -163,6 +163,29 @@ export class HabitService {
       );
   }
 
+  updateHabit(
+    publicId: string,
+    request: Partial<CreateHabitRequest>,
+  ): Observable<ApiResponse<HabitResponse>> {
+    return this.http.put<ApiResponse<HabitResponse>>(`/api/v1/habits/${publicId}`, request).pipe(
+      tap((res) => {
+        if (res.success && res.data) {
+          const updatedHabit = res.data;
+          this.summary.update((current) => {
+            if (!current) return current;
+            const updated = current.habits.map((h) =>
+              h.publicId === updatedHabit.publicId ? updatedHabit : h,
+            );
+            return {
+              ...current,
+              habits: updated,
+            };
+          });
+        }
+      }),
+    );
+  }
+
   deleteHabit(publicId: string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`/api/v1/habits/${publicId}`).pipe(
       tap((res) => {

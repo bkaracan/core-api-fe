@@ -1395,7 +1395,269 @@ export interface CategoryTierItem {
                     class="group p-5 rounded-2xl border transition-all duration-300 space-y-4 shadow-xs"
                     [ngClass]="getHabitCardStatusClass(habit)"
                   >
-                    <!-- Üst Başlık & Checkbox & Statü Satırı -->
+                    @if (editingHabitId() === habit.id) {
+                      <!-- Alışkanlık Kartı Düzenleme Modu -->
+                      <div class="space-y-4">
+                        <!-- Düzenleme Başlığı & Vazgeç -->
+                        <div class="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
+                          <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-sm font-bold shadow-2xs">
+                              ✏️
+                            </div>
+                            <div>
+                              <h3 class="text-sm font-bold text-[var(--color-text-main)]">
+                                Alışkanlığı Düzenle
+                              </h3>
+                              <p class="text-[11px] text-[var(--color-text-muted)]">
+                                Parametreleri güncelleyip anında kaydedin
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            (click)="cancelEditHabit()"
+                            class="text-xs px-2.5 py-1.5 rounded-lg border border-[var(--color-border-subtle)] text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] cursor-pointer transition-all"
+                          >
+                            ✕ Vazgeç
+                          </button>
+                        </div>
+
+                        <!-- 1. Alışkanlık Adı -->
+                        <div class="space-y-1.5">
+                          <label class="block text-xs font-semibold text-[var(--color-text-main)]">
+                            Alışkanlık Adı <span class="text-rose-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            [(ngModel)]="editHabitTitle"
+                            placeholder="Örn: 25 Dk Derin Odaklı Kodlama"
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all font-medium"
+                          />
+                        </div>
+
+                        <!-- 2. Kategori & Hedef Kimlik -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-[var(--color-text-main)]">
+                              Kategori
+                            </label>
+                            <select
+                              [(ngModel)]="editHabitCategory"
+                              class="w-full px-3 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                            >
+                              @for (cat of habitCategories; track cat.key) {
+                                <option [value]="cat.key.toLowerCase()">{{ cat.icon }} {{ cat.label }}</option>
+                              }
+                            </select>
+                          </div>
+                          <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-[var(--color-text-main)]">
+                              Hedef Kimlik
+                            </label>
+                            <select
+                              [(ngModel)]="editHabitIdentityId"
+                              class="w-full px-3 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                            >
+                              @for (identity of identities(); track identity.id) {
+                                <option [value]="identity.id">{{ identity.icon }} {{ identity.name }}</option>
+                              }
+                            </select>
+                          </div>
+                        </div>
+
+                        <!-- 3. Saat & Zaman İşareti (James Clear Uygulama Niyeti Formülü) -->
+                        <div class="p-3.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)]/40 space-y-3">
+                          <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-[var(--color-text-main)] flex items-center gap-1.5">
+                              <span>⏰</span>
+                              <span>Saat & Zaman İşareti</span>
+                            </label>
+                            @if (editHabitSpecificTime) {
+                              <button
+                                type="button"
+                                (click)="clearEditSpecificTime()"
+                                class="text-[10px] text-rose-500 hover:text-rose-600 dark:hover:text-rose-400 font-semibold cursor-pointer transition-colors"
+                              >
+                                ✕ Saati Temizle
+                              </button>
+                            }
+                          </div>
+
+                          <div class="flex flex-wrap items-center gap-4 bg-[var(--color-bg-card)] p-3 rounded-xl border border-[var(--color-border-subtle)]">
+                            <!-- Saat / Dakika Stepper -->
+                            <div class="flex items-center gap-2">
+                              <!-- Saat Bloğu -->
+                              <div class="flex flex-col items-center">
+                                <button
+                                  type="button"
+                                  (click)="adjustEditHour(1)"
+                                  class="w-10 h-5 rounded-t-lg bg-[var(--color-bg-subtle)] hover:bg-indigo-500 hover:text-white border border-b-0 border-[var(--color-border-subtle)] text-[9px] font-bold text-[var(--color-text-muted)] flex items-center justify-center cursor-pointer transition-all active:scale-95"
+                                  title="Saati 1 Artır"
+                                >
+                                  ▲
+                                </button>
+                                <input
+                                  type="text"
+                                  [value]="editHabitHour || '--'"
+                                  (change)="onEditHourInputChange($event)"
+                                  maxlength="2"
+                                  class="w-10 h-9 text-center text-lg font-mono font-bold border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] shadow-inner focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                  title="Saat (00 - 23)"
+                                />
+                                <button
+                                  type="button"
+                                  (click)="adjustEditHour(-1)"
+                                  class="w-10 h-5 rounded-b-lg bg-[var(--color-bg-subtle)] hover:bg-indigo-500 hover:text-white border border-t-0 border-[var(--color-border-subtle)] text-[9px] font-bold text-[var(--color-text-muted)] flex items-center justify-center cursor-pointer transition-all active:scale-95"
+                                  title="Saati 1 Azalt"
+                                >
+                                  ▼
+                                </button>
+                                <span class="text-[8px] uppercase tracking-wider font-bold text-[var(--color-text-muted)] mt-0.5">Saat</span>
+                              </div>
+
+                              <div class="text-lg font-bold font-mono text-indigo-500 animate-pulse pb-3">:</div>
+
+                              <!-- Dakika Bloğu -->
+                              <div class="flex flex-col items-center">
+                                <button
+                                  type="button"
+                                  (click)="adjustEditMinute(5)"
+                                  class="w-10 h-5 rounded-t-lg bg-[var(--color-bg-subtle)] hover:bg-indigo-500 hover:text-white border border-b-0 border-[var(--color-border-subtle)] text-[9px] font-bold text-[var(--color-text-muted)] flex items-center justify-center cursor-pointer transition-all active:scale-95"
+                                  title="Dakikayı 5 Artır"
+                                >
+                                  ▲
+                                </button>
+                                <input
+                                  type="text"
+                                  [value]="editHabitMinute || '00'"
+                                  (change)="onEditMinuteInputChange($event)"
+                                  maxlength="2"
+                                  class="w-10 h-9 text-center text-lg font-mono font-bold border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] shadow-inner focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                  title="Dakika (00 - 59)"
+                                />
+                                <button
+                                  type="button"
+                                  (click)="adjustEditMinute(-5)"
+                                  class="w-10 h-5 rounded-b-lg bg-[var(--color-bg-subtle)] hover:bg-indigo-500 hover:text-white border border-t-0 border-[var(--color-border-subtle)] text-[9px] font-bold text-[var(--color-text-muted)] flex items-center justify-center cursor-pointer transition-all active:scale-95"
+                                  title="Dakikayı 5 Azalt"
+                                >
+                                  ▼
+                                </button>
+                                <span class="text-[8px] uppercase tracking-wider font-bold text-[var(--color-text-muted)] mt-0.5">Dakika</span>
+                              </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-1.5">
+                              <button
+                                type="button"
+                                (click)="setEditCurrentTime()"
+                                class="px-2.5 py-1 rounded-lg border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-[11px] font-bold transition-all cursor-pointer shadow-2xs flex items-center gap-1"
+                              >
+                                <span>⏱️</span>
+                                <span>Şu Anki Saat</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          <div class="space-y-1">
+                            <label class="block text-[11px] font-medium text-[var(--color-text-muted)]">
+                              Zaman İşareti / Uygulama Niyeti Formülü
+                            </label>
+                            <input
+                              type="text"
+                              [(ngModel)]="editHabitCue"
+                              placeholder="Örn: Saat 09:00'da ilk kahveyi aldıktan hemen sonra"
+                              class="w-full px-3 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all font-mono"
+                            />
+                          </div>
+                        </div>
+
+                        <!-- 4. Mekan / Nerede? -->
+                        <div class="space-y-1.5">
+                          <label class="block text-xs font-semibold text-[var(--color-text-main)]">
+                            📍 Nerede? (Mekan / Çevre)
+                          </label>
+                          <input
+                            type="text"
+                            [(ngModel)]="editHabitLocation"
+                            list="editHabitLocationOptions"
+                            placeholder="Örn: Çalışma Masası, Sessiz Oda..."
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all"
+                          />
+                          <datalist id="editHabitLocationOptions">
+                            @for (loc of suggestedLocations; track loc.label) {
+                              <option [value]="loc.label">{{ loc.icon }} {{ loc.label }}</option>
+                            }
+                          </datalist>
+                        </div>
+
+                        <!-- 5. 2 Dakika Kuralı (Mikro Başlangıç Adımı) -->
+                        <div class="p-3 rounded-xl border border-purple-500/20 bg-purple-500/5 space-y-1.5">
+                          <label class="block text-xs font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+                            <span>⚡</span>
+                            <span>3. Yasa: 2 Dakika Kuralı (Mikro Başlangıç Adımı)</span>
+                          </label>
+                          <input
+                            type="text"
+                            [(ngModel)]="editHabitMicroStep"
+                            placeholder="Örn: Masaya otur ve defteri aç (Direnci sıfıra indir)"
+                            class="w-full px-3 py-2 rounded-xl border border-purple-500/30 bg-[var(--color-bg-card)] text-[var(--color-text-main)] text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all"
+                          />
+                        </div>
+
+                        <!-- 6. Hedef Odaklanma Süresi -->
+                        <div class="space-y-1.5">
+                          <label class="block text-xs font-semibold text-[var(--color-text-main)]">
+                            ⏱️ Hedef Odaklanma Süresi (Dakika)
+                          </label>
+                          <div class="flex flex-wrap items-center gap-1.5">
+                            @for (mins of [2, 5, 15, 25, 45, 60]; track mins) {
+                              <button
+                                type="button"
+                                (click)="setEditTargetMinutes(mins)"
+                                class="px-2.5 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer"
+                                [class.bg-indigo-600]="editHabitTargetMinutes === mins"
+                                [class.text-white]="editHabitTargetMinutes === mins"
+                                [class.border-indigo-600]="editHabitTargetMinutes === mins"
+                                [class.border-[var(--color-border-subtle)]]="editHabitTargetMinutes !== mins"
+                                [class.bg-[var(--color-bg-card)]]="editHabitTargetMinutes !== mins"
+                                [class.text-[var(--color-text-muted)]]="editHabitTargetMinutes !== mins"
+                              >
+                                {{ mins }} dk
+                              </button>
+                            }
+                            <input
+                              type="number"
+                              min="1"
+                              max="240"
+                              [(ngModel)]="editHabitTargetMinutes"
+                              class="w-16 px-2 py-1 text-xs rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] text-[var(--color-text-main)] text-center font-bold"
+                            />
+                            <span class="text-xs text-[var(--color-text-muted)] font-medium">dk</span>
+                          </div>
+                        </div>
+
+                        <!-- Alt Aksiyon Butonları -->
+                        <div class="flex items-center justify-end gap-2 pt-2 border-t border-[var(--color-border-subtle)]">
+                          <button
+                            type="button"
+                            (click)="cancelEditHabit()"
+                            class="px-4 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] hover:bg-[var(--color-bg-subtle)] text-[var(--color-text-muted)] text-xs font-semibold transition-all cursor-pointer"
+                          >
+                            Vazgeç
+                          </button>
+                          <button
+                            type="button"
+                            (click)="saveEditHabit(habit.id)"
+                            class="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md hover:shadow-indigo-500/25 transition-all cursor-pointer active:scale-95"
+                          >
+                            <span>💾</span>
+                            <span>Değişiklikleri Kaydet</span>
+                          </button>
+                        </div>
+                      </div>
+                    } @else {
+                      <!-- Üst Başlık & Checkbox & Statü Satırı -->
                     <div class="flex items-start justify-between gap-4">
                       <div class="flex items-start gap-3.5 flex-1 min-w-0">
                         <!-- Tıklanabilir Checkbox -->
@@ -1541,13 +1803,34 @@ export interface CategoryTierItem {
                           </span>
                           <button
                             type="button"
+                            (click)="startEditHabit(habit, $event)"
+                            class="p-1 rounded-md text-[var(--color-text-muted)] hover:text-indigo-500 hover:bg-indigo-500/10 transition-colors cursor-pointer"
+                            title="Alışkanlığı Düzenle"
+                            aria-label="Alışkanlığı Düzenle"
+                          >
+                            <svg
+                              class="w-3.5 h-3.5 pointer-events-none"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
                             (click)="deleteHabit(habit.id, $event)"
                             class="p-1 rounded-md text-[var(--color-text-muted)] hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
                             title="Alışkanlığı Sil"
                             aria-label="Alışkanlığı Sil"
                           >
                             <svg
-                              class="w-3.5 h-3.5"
+                              class="w-3.5 h-3.5 pointer-events-none"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -1650,54 +1933,6 @@ export interface CategoryTierItem {
                           } @else {
                             <span>Mikro Adımı Yaptım ✓</span>
                           }
-                        </button>
-                      </div>
-                    }
-
-                    <!-- Yarın İçin Çevre Tasarımı Kontrol Listesi (James Clear 1. Yasa) -->
-                    @if (habit.scheduledDay === 'YARIN') {
-                      <div
-                        class="p-3 rounded-xl border border-dashed transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-                        [class.border-emerald-500/40]="habit.environmentPrepared"
-                        [class.bg-emerald-500/5]="habit.environmentPrepared"
-                        [class.border-purple-500/40]="!habit.environmentPrepared"
-                        [class.bg-purple-500/5]="!habit.environmentPrepared"
-                      >
-                        <div class="flex items-center gap-2">
-                          <span class="text-base">📦</span>
-                          <div>
-                            <strong
-                              [class.text-emerald-600]="habit.environmentPrepared"
-                              [class.dark:text-emerald-400]="habit.environmentPrepared"
-                              [class.text-purple-600]="!habit.environmentPrepared"
-                              [class.dark:text-purple-400]="!habit.environmentPrepared"
-                            >
-                              1. Yasa (Çevre Tasarımı):
-                            </strong>
-                            <span class="text-[var(--color-text-muted)] ml-1">
-                              Yarın için işaret mekanını akşamdan hazırla:
-                              <strong class="text-[var(--color-text-main)]">{{
-                                habit.targetLocation
-                              }}</strong>
-                            </span>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          (click)="toggleEnvironmentPrepared(habit.id)"
-                          class="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all cursor-pointer shrink-0 flex items-center gap-1"
-                          [class.bg-emerald-600]="habit.environmentPrepared"
-                          [class.hover:bg-emerald-700]="habit.environmentPrepared"
-                          [class.text-white]="habit.environmentPrepared"
-                          [class.bg-purple-600]="!habit.environmentPrepared"
-                          [class.hover:bg-purple-700]="!habit.environmentPrepared"
-                          [class.text-white]="!habit.environmentPrepared"
-                        >
-                          <span>{{
-                            habit.environmentPrepared
-                              ? '✓ Ortam Hazırlandı'
-                              : 'Ortamı Akşamdan Hazırla ✓'
-                          }}</span>
                         </button>
                       </div>
                     }
@@ -1851,8 +2086,9 @@ export interface CategoryTierItem {
                         }
                       </div>
                     </div>
-                  </div>
-                }
+                  }
+                </div>
+              }
               </div>
             }
 
@@ -2803,6 +3039,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
     attemptedHabit: UserHabit;
   } | null>(null);
   customExtensionMinutes = 10;
+
+  // Alışkanlık Kartı Düzenleme Durumu
+  readonly editingHabitId = signal<string | null>(null);
+  editHabitTitle = '';
+  editHabitCategory: UserHabit['category'] = 'kariyer';
+  editHabitIdentityId = 'pro';
+  editHabitCue = '';
+  editHabitHour = '';
+  editHabitMinute = '00';
+  editHabitSpecificTime = '';
+  editHabitLocation = '';
+  editHabitMicroStep = '';
+  editHabitTargetMinutes = 25;
 
   readonly habitCategories = [
     { key: 'KARIYER', label: 'Mesleki / Çalışma', icon: '💼', defaultIdentity: 'pro' },
@@ -4348,8 +4597,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       effectiveCue = 'Belirlenen saatte';
     }
 
+    const isValidUuid = (val?: string | null) =>
+      !!val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+
     const request = {
-      identityPublicId: selectedIdentity?.id,
+      identityPublicId: isValidUuid(selectedIdentity?.id) ? selectedIdentity?.id : undefined,
       title,
       category: categoryKey,
       cueTrigger: effectiveCue,
@@ -4419,6 +4671,221 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.newHabitTargetMinutes = 25;
     this.newHabitScheduledDay.set(this.activeScheduleTab());
     this.showAddHabitForm.set(false);
+  }
+
+  startEditHabit(habit: UserHabit, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.editingHabitId.set(habit.id);
+    this.editHabitTitle = habit.title;
+    this.editHabitCategory = habit.category;
+    this.editHabitIdentityId = habit.identityId;
+    this.editHabitLocation = habit.targetLocation || 'Çalışma Masası';
+    this.editHabitMicroStep = habit.twoMinuteMicroStep || 'İlk 2 dakikayı tamamla';
+    this.editHabitTargetMinutes = habit.targetMinutes || 25;
+
+    this.editHabitCue = habit.cue || '';
+    const timeMatch = habit.cue?.match(/(?:Saat\s+)?(\d{1,2})[:.](\d{2})/i);
+    if (timeMatch) {
+      this.editHabitHour = timeMatch[1].padStart(2, '0');
+      this.editHabitMinute = timeMatch[2];
+      this.editHabitSpecificTime = `${this.editHabitHour}:${this.editHabitMinute}`;
+    } else {
+      this.editHabitHour = '';
+      this.editHabitMinute = '00';
+      this.editHabitSpecificTime = '';
+    }
+  }
+
+  cancelEditHabit(): void {
+    this.editingHabitId.set(null);
+  }
+
+  onEditTimeChange(): void {
+    if (this.editHabitHour) {
+      const min = this.editHabitMinute || '00';
+      this.editHabitSpecificTime = `${this.editHabitHour}:${min}`;
+      const timeWithSuffix = this.formatTurkishTimeWithLocative(this.editHabitSpecificTime);
+      this.editHabitCue = `Saat ${timeWithSuffix}`;
+    } else {
+      this.editHabitSpecificTime = '';
+    }
+  }
+
+  clearEditSpecificTime(): void {
+    this.editHabitHour = '';
+    this.editHabitMinute = '00';
+    this.editHabitSpecificTime = '';
+    this.editHabitCue = '';
+  }
+
+  adjustEditHour(delta: number): void {
+    let currentH = this.editHabitHour ? parseInt(this.editHabitHour, 10) : new Date().getHours();
+    currentH = (currentH + delta + 24) % 24;
+    this.editHabitHour = String(currentH).padStart(2, '0');
+    if (!this.editHabitMinute) this.editHabitMinute = '00';
+    this.onEditTimeChange();
+  }
+
+  adjustEditMinute(delta: number): void {
+    if (!this.editHabitHour) {
+      this.editHabitHour = String(new Date().getHours()).padStart(2, '0');
+    }
+    let currentM = this.editHabitMinute ? parseInt(this.editHabitMinute, 10) : 0;
+    currentM = (currentM + delta + 60) % 60;
+    this.editHabitMinute = String(currentM).padStart(2, '0');
+    this.onEditTimeChange();
+  }
+
+  setEditCurrentTime(): void {
+    const now = new Date();
+    this.editHabitHour = String(now.getHours()).padStart(2, '0');
+    const rawMin = now.getMinutes();
+    const roundedMin = Math.round(rawMin / 5) * 5;
+    if (roundedMin >= 60) {
+      this.editHabitHour = String((now.getHours() + 1) % 24).padStart(2, '0');
+      this.editHabitMinute = '00';
+    } else {
+      this.editHabitHour = String(now.getHours()).padStart(2, '0');
+      this.editHabitMinute = String(roundedMin).padStart(2, '0');
+    }
+    this.onEditTimeChange();
+  }
+
+  onEditHourInputChange(event: Event): void {
+    const val = (event.target as HTMLInputElement).value;
+    const num = parseInt(val, 10);
+    if (!isNaN(num) && num >= 0 && num <= 23) {
+      this.editHabitHour = String(num).padStart(2, '0');
+      if (!this.editHabitMinute) this.editHabitMinute = '00';
+      this.onEditTimeChange();
+    }
+  }
+
+  onEditMinuteInputChange(event: Event): void {
+    const val = (event.target as HTMLInputElement).value;
+    const num = parseInt(val, 10);
+    if (!isNaN(num) && num >= 0 && num <= 59) {
+      this.editHabitMinute = String(num).padStart(2, '0');
+      if (!this.editHabitHour) {
+        this.editHabitHour = String(new Date().getHours()).padStart(2, '0');
+      }
+      this.onEditTimeChange();
+    }
+  }
+
+  setEditLocation(loc: string): void {
+    this.editHabitLocation = loc;
+  }
+
+  setEditTargetMinutes(mins: number): void {
+    this.editHabitTargetMinutes = mins;
+  }
+
+  saveEditHabit(habitId: string): void {
+    const title = this.editHabitTitle.trim();
+    if (!title) {
+      this.toastService.warning('Lütfen alışkanlık adı giriniz.', 'Eksik Bilgi');
+      return;
+    }
+
+    const habit = this.habits().find((h) => h.id === habitId);
+    if (!habit) return;
+
+    const categoryKey = (this.editHabitCategory || 'kariyer').toUpperCase();
+    const categoryKeyLower = categoryKey.toLowerCase() as UserHabit['category'];
+    const selectedIdentity =
+      this.identities().find((i) => i.id === this.editHabitIdentityId) ||
+      this.findIdentityForCategory(categoryKey) ||
+      this.identities()[0];
+    const targetMins = Math.max(1, this.editHabitTargetMinutes || 25);
+
+    let effectiveCue = this.editHabitCue.trim();
+    if (this.editHabitSpecificTime) {
+      const timeWithSuffix = this.formatTurkishTimeWithLocative(this.editHabitSpecificTime);
+      if (effectiveCue) {
+        if (!effectiveCue.toLowerCase().includes(this.editHabitSpecificTime)) {
+          effectiveCue = `Saat ${timeWithSuffix} - ${effectiveCue}`;
+        }
+      } else {
+        effectiveCue = `Saat ${timeWithSuffix}`;
+      }
+    } else if (!effectiveCue) {
+      effectiveCue = 'Belirlenen saatte';
+    }
+
+    const newLocation = this.editHabitLocation.trim() || 'Çalışma Masası';
+    const newMicroStep = this.editHabitMicroStep.trim() || 'İlk 2 dakikayı tamamla';
+
+    // Update local habit state immediately
+    this.habits.update((list) =>
+      list.map((h) => {
+        if (h.id === habitId) {
+          const newInitialSeconds = targetMins * 60;
+          const newRemainingSeconds =
+            h.timerStatus === 'DEVAM_EDIYOR' || h.timerStatus === 'DURAKLATILDI'
+              ? h.remainingSeconds
+              : newInitialSeconds;
+
+          return {
+            ...h,
+            title,
+            category: categoryKeyLower,
+            categoryLabel: this.getCategoryLabel(categoryKey),
+            identityId: selectedIdentity?.id || h.identityId,
+            cue: effectiveCue,
+            targetLocation: newLocation,
+            twoMinuteMicroStep: newMicroStep,
+            targetMinutes: targetMins,
+            timeEstimate: `${targetMins} dk`,
+            initialSeconds: newInitialSeconds,
+            remainingSeconds: newRemainingSeconds,
+          };
+        }
+        return h;
+      }),
+    );
+
+    const isValidUuid = (val?: string | null) =>
+      !!val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+
+    const effectiveIdentityId = isValidUuid(selectedIdentity?.id)
+      ? selectedIdentity?.id
+      : isValidUuid(habit.identityId)
+        ? habit.identityId
+        : undefined;
+
+    // Backend update request
+    const request = {
+      identityPublicId: effectiveIdentityId,
+      title,
+      category: categoryKey,
+      cueTrigger: effectiveCue,
+      targetLocation: newLocation,
+      responseMicroStep: newMicroStep,
+      targetMinutes: targetMins,
+      rewardXp: habit.rewardXp || 20,
+    };
+
+    this.habitService.updateHabit(habitId, request).subscribe({
+      next: () => {
+        this.toastService.success(
+          `"${title}" alışkanlığı başarıyla güncellendi!`,
+          'Alışkanlık Güncellendi 🎯',
+        );
+        this.habitService.loadDashboardSummary().subscribe({
+          next: (res) => {
+            if (res.success && res.data) {
+              this.applyDashboardSummary(res.data);
+            }
+          },
+        });
+      },
+      error: () => {
+        // Local state preserved
+      },
+    });
   }
 
   saveDailyReflection(): void {
