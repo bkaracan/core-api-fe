@@ -1392,9 +1392,15 @@ export interface CategoryTierItem {
               <div class="space-y-4">
                 @for (habit of displayedHabits(); track habit.id) {
                   <div
-                    class="group p-5 rounded-2xl border transition-all duration-300 space-y-4 shadow-xs"
+                    class="group relative p-5 rounded-2xl border transition-all duration-500 space-y-4 shadow-xs overflow-hidden bg-[var(--color-bg-card)]"
                     [ngClass]="getHabitCardStatusClass(habit)"
                   >
+                    <!-- Durum Renk Geçişi Üst Çizgisi (Status Gradient Accent Bar) -->
+                    <div
+                      class="absolute top-0 left-0 right-0 h-1.5 transition-all duration-500"
+                      [ngClass]="getHabitCardTopBarClass(habit)"
+                    ></div>
+
                     @if (editingHabitId() === habit.id) {
                       <!-- Alışkanlık Kartı Düzenleme Modu -->
                       <div class="space-y-4">
@@ -1694,25 +1700,26 @@ export interface CategoryTierItem {
                               {{ habit.title }}
                             </h3>
 
-                            <!-- Statü Rozeti (HAZIR / DEVAM EDİYOR / DURAKLATILDI / TAMAMLANDI) -->
+                            <!-- Statü Rozeti (1- BAŞLAMAYA HAZIR / 2- DEVAM EDİYOR / 3- DURAKLATILDI / 4- TAMAMLANDI) -->
                             <span
-                              class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full border transition-all"
-                              [ngClass]="getHabitStatusBadgeClass(habit.timerStatus)"
+                              class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full border transition-all duration-300"
+                              [ngClass]="getHabitStatusBadgeClass(habit.completed ? 'TAMAMLANDI' : habit.timerStatus)"
                             >
-                              @if (habit.timerStatus === 'HAZIR') {
-                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                                <span>HAZIR</span>
+                              @if (habit.completed || habit.timerStatus === 'TAMAMLANDI') {
+                                <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-xs shadow-cyan-500/50"></span>
+                                <span>✓ TAMAMLANDI</span>
                               } @else if (habit.timerStatus === 'DEVAM_EDIYOR') {
-                                <span
-                                  class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"
-                                ></span>
+                                <span class="relative flex h-2 w-2">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-xs shadow-emerald-500/50"></span>
+                                </span>
                                 <span>DEVAM EDİYOR</span>
                               } @else if (habit.timerStatus === 'DURAKLATILDI') {
-                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-xs shadow-amber-500/50"></span>
                                 <span>DURAKLATILDI</span>
-                              } @else if (habit.timerStatus === 'TAMAMLANDI') {
-                                <span class="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>
-                                <span>✓ TAMAMLANDI</span>
+                              } @else {
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-xs shadow-blue-500/50"></span>
+                                <span>BAŞLAMAYA HAZIR</span>
                               }
                             </span>
 
@@ -3130,6 +3137,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Alışkanlık Silme Onay Modal Durumu
   readonly deleteConfirmModalHabit = signal<UserHabit | null>(null);
 
+  // Gün Dönümü (00:00 Midnight Rollover) Zamanlayıcıları
+  private midnightTimerId?: ReturnType<typeof setTimeout>;
+  private midnightCheckIntervalId?: ReturnType<typeof setInterval>;
+
   // Alışkanlık Kartı Düzenleme Durumu
   readonly editingHabitId = signal<string | null>(null);
   editHabitTitle = '';
@@ -3608,45 +3619,52 @@ export class DashboardComponent implements OnInit, OnDestroy {
   kaizenReflectionInput = '';
   mudaInput = '';
 
-  readonly todayDate = new Date();
-  readonly tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  todayDate = new Date();
+  tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  readonly todayIso = this.formatIsoDate(this.todayDate);
-  readonly tomorrowIso = this.formatIsoDate(this.tomorrowDate);
+  todayIso = this.formatIsoDate(this.todayDate);
+  tomorrowIso = this.formatIsoDate(this.tomorrowDate);
 
-  readonly formattedDate = new Intl.DateTimeFormat('tr-TR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    weekday: 'long',
-  }).format(this.todayDate);
+  formattedDate = this.computeFormattedDate(this.todayDate);
+  todayDateFormatted = this.formattedDate;
+  tomorrowDateFormatted = this.computeFormattedDate(this.tomorrowDate);
+  todayDateShort = this.computeShortDate(this.todayDate);
+  tomorrowDateShort = this.computeShortDate(this.tomorrowDate);
 
-  readonly todayDateFormatted = this.formattedDate;
+  private computeFormattedDate(d: Date): string {
+    return new Intl.DateTimeFormat('tr-TR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      weekday: 'long',
+    }).format(d);
+  }
 
-  readonly tomorrowDateFormatted = new Intl.DateTimeFormat('tr-TR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    weekday: 'long',
-  }).format(this.tomorrowDate);
-
-  readonly todayDateShort = new Intl.DateTimeFormat('tr-TR', {
-    day: 'numeric',
-    month: 'short',
-    weekday: 'short',
-  }).format(this.todayDate);
-
-  readonly tomorrowDateShort = new Intl.DateTimeFormat('tr-TR', {
-    day: 'numeric',
-    month: 'short',
-    weekday: 'short',
-  }).format(this.tomorrowDate);
+  private computeShortDate(d: Date): string {
+    return new Intl.DateTimeFormat('tr-TR', {
+      day: 'numeric',
+      month: 'short',
+      weekday: 'short',
+    }).format(d);
+  }
 
   private formatIsoDate(d: Date): string {
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  updateDateState(): void {
+    this.todayDate = new Date();
+    this.tomorrowDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    this.todayIso = this.formatIsoDate(this.todayDate);
+    this.tomorrowIso = this.formatIsoDate(this.tomorrowDate);
+    this.formattedDate = this.computeFormattedDate(this.todayDate);
+    this.todayDateFormatted = this.formattedDate;
+    this.tomorrowDateFormatted = this.computeFormattedDate(this.tomorrowDate);
+    this.todayDateShort = this.computeShortDate(this.todayDate);
+    this.tomorrowDateShort = this.computeShortDate(this.tomorrowDate);
   }
 
   // 7 Günlük Haftalık Zincir Göstergesi
@@ -4017,6 +4035,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    // 00:00 Gün dönümü (Midnight Rollover) kontrolü ve canlı gözlemcisi
+    this.checkAndApplyStoredMidnightRollover();
+    this.startMidnightWatcher();
+
     // URL sekme senkronizasyonu (?tab=program | identities | tiers)
     this.route.queryParamMap.subscribe((params) => {
       const tab = params.get('tab');
@@ -4150,33 +4172,50 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getHabitCardStatusClass(habit: UserHabit): string {
-    if (habit.scheduledDay === 'YARIN') {
-      return 'border-purple-500/40 bg-purple-500/5 hover:border-purple-500/70 shadow-purple-500/5';
-    }
-    switch (habit.timerStatus) {
+    const isCompleted = habit.completed || habit.timerStatus === 'TAMAMLANDI';
+    const effectiveStatus: HabitTimerStatus = isCompleted ? 'TAMAMLANDI' : habit.timerStatus;
+
+    switch (effectiveStatus) {
       case 'DEVAM_EDIYOR':
-        return 'border-emerald-500/80 bg-emerald-500/5 ring-1 ring-emerald-500/30 shadow-emerald-500/10';
+        return 'border-emerald-500/70 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-transparent ring-2 ring-emerald-500/35 shadow-lg shadow-emerald-500/15';
       case 'DURAKLATILDI':
-        return 'border-amber-500/80 bg-amber-500/5 ring-1 ring-amber-500/30 shadow-amber-500/10';
+        return 'border-amber-500/70 bg-gradient-to-br from-amber-500/15 via-orange-500/10 to-transparent ring-2 ring-amber-500/35 shadow-md shadow-amber-500/15';
       case 'TAMAMLANDI':
-        return 'border-cyan-500/80 bg-cyan-500/5 ring-1 ring-cyan-500/30 shadow-cyan-500/10';
+        return 'border-cyan-500/70 bg-gradient-to-br from-cyan-500/15 via-teal-500/10 to-emerald-500/5 ring-2 ring-cyan-500/35 shadow-md shadow-cyan-500/15';
       case 'HAZIR':
       default:
-        return 'border-blue-500/60 bg-blue-500/5 hover:border-blue-500/80 shadow-blue-500/5';
+        return 'border-blue-500/40 hover:border-blue-500/70 bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent ring-1 ring-blue-500/20 shadow-sm shadow-blue-500/5';
+    }
+  }
+
+  getHabitCardTopBarClass(habit: UserHabit): string {
+    const isCompleted = habit.completed || habit.timerStatus === 'TAMAMLANDI';
+    const effectiveStatus: HabitTimerStatus = isCompleted ? 'TAMAMLANDI' : habit.timerStatus;
+
+    switch (effectiveStatus) {
+      case 'DEVAM_EDIYOR':
+        return 'bg-gradient-to-r from-emerald-500 via-teal-400 to-green-500 shadow-xs shadow-emerald-500/50 animate-pulse';
+      case 'DURAKLATILDI':
+        return 'bg-gradient-to-r from-amber-500 via-orange-400 to-yellow-500 shadow-xs shadow-amber-500/50';
+      case 'TAMAMLANDI':
+        return 'bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-400 shadow-xs shadow-cyan-500/50';
+      case 'HAZIR':
+      default:
+        return 'bg-gradient-to-r from-blue-500 via-indigo-500 to-sky-400 shadow-xs shadow-blue-500/50';
     }
   }
 
   getHabitStatusBadgeClass(status: HabitTimerStatus): string {
     switch (status) {
       case 'DEVAM_EDIYOR':
-        return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/40';
+        return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 shadow-xs shadow-emerald-500/20';
       case 'DURAKLATILDI':
-        return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/40';
+        return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/40 shadow-xs shadow-amber-500/20';
       case 'TAMAMLANDI':
-        return 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/40';
+        return 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/40 shadow-xs shadow-cyan-500/20';
       case 'HAZIR':
       default:
-        return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30';
+        return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 shadow-xs shadow-blue-500/10';
     }
   }
 
@@ -4285,6 +4324,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               ...h,
               remainingSeconds: h.initialSeconds,
               timerStatus: 'HAZIR',
+              completed: false,
               timerIntervalId: undefined,
             }
           : h,
@@ -4442,6 +4482,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.midnightTimerId) {
+      clearTimeout(this.midnightTimerId);
+    }
+    if (this.midnightCheckIntervalId) {
+      clearInterval(this.midnightCheckIntervalId);
+    }
     for (const habit of this.habits()) {
       if (habit.timerIntervalId) {
         clearInterval(habit.timerIntervalId);
@@ -4602,9 +4648,151 @@ export class DashboardComponent implements OnInit, OnDestroy {
       const map = this.getStoredScheduleMap();
       map[habitId] = day;
       localStorage.setItem('atomic_habit_schedules', JSON.stringify(map));
+      localStorage.setItem('atomic_habit_schedule_last_date', this.todayIso);
     } catch {
       // Ignore localStorage errors
     }
+  }
+
+  private removeStoredSchedule(habitId: string): void {
+    try {
+      const map = this.getStoredScheduleMap();
+      delete map[habitId];
+      localStorage.setItem('atomic_habit_schedules', JSON.stringify(map));
+    } catch {
+      // Ignore localStorage errors
+    }
+  }
+
+  private checkAndApplyStoredMidnightRollover(): void {
+    const today = this.formatIsoDate(new Date());
+    const lastDate = localStorage.getItem('atomic_habit_schedule_last_date');
+
+    if (!lastDate) {
+      localStorage.setItem('atomic_habit_schedule_last_date', today);
+      return;
+    }
+
+    if (lastDate !== today) {
+      // Önceki bir günden bugüne geçiş yapılmış (00:00 gün dönümü geçmiş)
+      const scheduleMap = this.getStoredScheduleMap();
+      let hasChanges = false;
+
+      for (const habitId of Object.keys(scheduleMap)) {
+        if (scheduleMap[habitId] === 'YARIN') {
+          scheduleMap[habitId] = 'BUGUN';
+          hasChanges = true;
+        }
+      }
+
+      if (hasChanges) {
+        localStorage.setItem('atomic_habit_schedules', JSON.stringify(scheduleMap));
+      }
+
+      localStorage.setItem('atomic_habit_schedule_last_date', today);
+    }
+  }
+
+  private startMidnightWatcher(): void {
+    this.scheduleNextMidnightTimer();
+
+    // Bilgisayarın uyku/askı modundan uyanması ya da sekmenin arka planda kalması durumunda
+    // tarihi anında yakalamak için periyodik kontrol (her 30 saniyede bir)
+    this.midnightCheckIntervalId = setInterval(() => {
+      const currentIso = this.formatIsoDate(new Date());
+      if (currentIso !== this.todayIso) {
+        this.handleMidnightRollover();
+      }
+    }, 30000);
+  }
+
+  private scheduleNextMidnightTimer(): void {
+    if (this.midnightTimerId) {
+      clearTimeout(this.midnightTimerId);
+    }
+
+    const now = new Date();
+    // Gece yarısı 00:00:01'e hedef kur (1 saniye tolerans ile)
+    const nextMidnight = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1,
+      0,
+      0,
+      1,
+      0,
+    );
+    const msUntilMidnight = Math.max(1000, nextMidnight.getTime() - now.getTime());
+
+    this.midnightTimerId = setTimeout(() => {
+      this.handleMidnightRollover();
+    }, msUntilMidnight);
+  }
+
+  private handleMidnightRollover(): void {
+    // 1. Tarih durumunu bugüne göre güncelle
+    this.updateDateState();
+
+    // 2. localStorage haritasında YARIN olan alışkanlıkları BUGUN yap
+    const scheduleMap = this.getStoredScheduleMap();
+    let movedCount = 0;
+    for (const habitId of Object.keys(scheduleMap)) {
+      if (scheduleMap[habitId] === 'YARIN') {
+        scheduleMap[habitId] = 'BUGUN';
+        movedCount++;
+      }
+    }
+    localStorage.setItem('atomic_habit_schedules', JSON.stringify(scheduleMap));
+    localStorage.setItem('atomic_habit_schedule_last_date', this.todayIso);
+
+    // 3. Çalışan sayaçlar varsa temizle
+    for (const h of this.habits()) {
+      if (h.timerIntervalId) {
+        clearInterval(h.timerIntervalId);
+      }
+    }
+
+    // 4. habits sinyalini güncelle: YARIN olanlar BUGUN'e aktarılır, tüm sayaçlar ve tamamlanmalar sıfırlanıp HAZIR olur
+    this.habits.update((list) =>
+      list.map((h) => ({
+        ...h,
+        scheduledDay: 'BUGUN',
+        scheduledDate: this.todayIso,
+        completed: false,
+        microStepDone: false,
+        timerStatus: 'HAZIR',
+        remainingSeconds: h.initialSeconds,
+        timerIntervalId: undefined,
+      })),
+    );
+
+    // 5. Aktif sekme görünümünü BUGUN'e al
+    this.activeScheduleTab.set('BUGUN');
+
+    // 6. Backend özetini yeni gün verileri için tazele
+    this.habitService.loadDashboardSummary().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.applyDashboardSummary(res.data);
+        }
+      },
+    });
+
+    // 7. Kullanıcıyı bilgilendir
+    if (movedCount > 0) {
+      this.toastService.success(
+        `00:00 Gün dönümü gerçekleşti! Dün hazırladığınız ${movedCount} adet yarının programı bugünün programına aktarıldı. 🌅`,
+        'Yeni Gün Başladı 🗓️',
+      );
+    } else {
+      this.toastService.info(
+        '00:00 Gün dönümü gerçekleşti! Yeni günün hedeflerine hazır mısınız? 🌅',
+        'Yeni Gün Başladı 🗓️',
+      );
+    }
+
+    // 8. Bir sonraki gün dönümü için zamanlayıcıyı yeniden kur
+    this.scheduleNextMidnightTimer();
   }
 
   openDeleteConfirmModal(habit: UserHabit, event?: Event): void {
@@ -4648,6 +4836,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     this.revokeCategoryBadge(habit.category);
 
+    this.removeStoredSchedule(id);
     const prevHabits = this.habits();
     this.habits.update((list) => list.filter((h) => h.id !== id));
     this.toastService.info(`"${habit.title}" alışkanlığı kaldırıldı.`, 'Alışkanlık Silindi');
