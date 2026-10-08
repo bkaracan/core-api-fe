@@ -16,16 +16,18 @@ import { ThemeService } from '@core/services/theme.service';
       <header
         class="h-16 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs backdrop-blur-md"
       >
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <div
-            class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-500/20"
+            class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-emerald-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-500/20"
           >
-            C
+            B
           </div>
           <div>
-            <h1 class="text-base font-bold tracking-tight">Core Enterprise</h1>
-            <p class="text-xs text-[var(--color-text-muted)] hidden sm:block">
-              Microservices Governance Portal
+            <h1 class="text-base font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-500 dark:from-indigo-400 dark:via-purple-400 dark:to-emerald-400 bg-clip-text text-transparent">
+              Becomer
+            </h1>
+            <p class="text-[11px] text-[var(--color-text-muted)] hidden sm:block font-medium">
+              Kimlik & Davranışsal Dönüşüm
             </p>
           </div>
         </div>
