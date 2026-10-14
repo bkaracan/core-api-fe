@@ -166,6 +166,24 @@ import { ThemeService } from '@core/services/theme.service';
                   </div>
                 </div>
 
+                <!-- Ajandam Sekmesi -->
+                <a
+                  routerLink="/dashboard"
+                  [queryParams]="{ tab: 'agenda' }"
+                  class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors cursor-pointer"
+                  [class.bg-indigo-50]="isCurrentTab('agenda')"
+                  [class.dark:bg-indigo-950/50]="isCurrentTab('agenda')"
+                  [class.text-indigo-600]="isCurrentTab('agenda')"
+                  [class.dark:text-indigo-400]="isCurrentTab('agenda')"
+                  [class.font-semibold]="isCurrentTab('agenda')"
+                  [class.text-[var(--color-text-muted)]]="!isCurrentTab('agenda')"
+                  [class.hover:bg-[var(--color-bg-subtle)]]="!isCurrentTab('agenda')"
+                  [class.hover:text-[var(--color-text-main)]]="!isCurrentTab('agenda')"
+                >
+                  <span class="text-base">🗓️</span>
+                  <span>Ajandam</span>
+                </a>
+
                 <a
                   routerLink="/users/profile"
                   routerLinkActive="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-semibold"
@@ -243,7 +261,7 @@ export class ShellComponent implements OnInit {
   readonly router = inject(Router);
 
   isDashboardActive(): boolean {
-    return this.router.url.startsWith('/dashboard');
+    return this.router.url.startsWith('/dashboard') && !this.isCurrentTab('agenda');
   }
 
   isCurrentTab(tab: string): boolean {

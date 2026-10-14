@@ -37,7 +37,22 @@ export interface UserHabit {
   // Atomik Alışkanlıklar Planlama: Yalnızca Bugün veya Yarın
   scheduledDay: ScheduledDay;
   scheduledDate: string; // YYYY-MM-DD
+  createdDate?: string; // YYYY-MM-DD (Alışkanlığın oluşturulduğu gün — Ajandam Post-it eşleşmesi için)
   environmentPrepared?: boolean; // James Clear 1. Yasa: Yarın için çevre akşamdan hazırlandı mı?
+}
+
+export interface DeskCalendarDay {
+  isoDate: string;
+  dayNumber: number;
+  dayName: string;
+  dayShort: string;
+  monthLong: string;
+  monthShort: string;
+  year: number;
+  isToday: boolean;
+  isTomorrow: boolean;
+  isWeekend: boolean;
+  habits: UserHabit[];
 }
 
 export interface UserIdentity {
@@ -80,30 +95,34 @@ export interface CategoryTierItem {
   imports: [CommonModule, FormsModule, RouterModule, GlassMarbleJarComponent],
   template: `
     <div class="space-y-8 max-w-7xl mx-auto pb-12">
-      <!-- 0. PROGRAMIM ANA BAŞLIK VE SEKME YÖNETİMİ -->
+      <!-- 0. PROGRAMIM / AJANDAM ANA BAŞLIK VE SEKME YÖNETİMİ -->
       <div
         class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[var(--color-border-subtle)]"
       >
         <div>
           <div class="flex items-center gap-2">
-            <span class="text-xl">📅</span>
+            <span class="text-xl">{{ activeProgramTab() === 'AGENDA' ? '🗓️' : '📅' }}</span>
             <h1 class="text-xl md:text-2xl font-black tracking-tight text-[var(--color-text-main)]">
-              Programım
+              {{ activeProgramTab() === 'AGENDA' ? 'Ajandam' : 'Programım' }}
             </h1>
             <span
               class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
             >
-              Atomik Kaizen Çerçevesi
+              {{ activeProgramTab() === 'AGENDA' ? 'Masa Takvimi & Post-it Notları' : 'Atomik Kaizen Çerçevesi' }}
             </span>
           </div>
           <p class="text-xs text-[var(--color-text-muted)] mt-0.5">
-            Günlük alışkanlık döngülerinizi yönetin, kimliğinizi inşa edin ve küme rozetlerinizi takip edin.
+            {{
+              activeProgramTab() === 'AGENDA'
+                ? 'Bulunduğunuz gün ve ayın kalan günlerini eş kareli masa takviminde görüntüleyin; alışkanlıklarınızı el yazısı post-it notlarıyla takip edin.'
+                : 'Günlük alışkanlık döngülerinizi yönetin, kimliğinizi inşa edin ve küme rozetlerinizi takip edin.'
+            }}
           </p>
         </div>
 
         <!-- Sekmeler (Tabs) -->
         <div
-          class="flex items-center gap-1.5 p-1 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] self-start sm:self-auto shadow-2xs"
+          class="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-[var(--color-bg-subtle)] border border-[var(--color-border-subtle)] self-start sm:self-auto shadow-2xs"
         >
           <button
             type="button"
@@ -150,6 +169,27 @@ export interface CategoryTierItem {
                 class="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-bold"
               >
                 {{ totalBadgesEarnedAllCategories() }}
+              </span>
+            }
+          </button>
+
+          <button
+            type="button"
+            (click)="setProgramTab('AGENDA')"
+            [class]="
+              activeProgramTab() === 'AGENDA'
+                ? 'bg-[var(--color-bg-card)] text-indigo-600 dark:text-indigo-400 shadow-xs font-bold border border-indigo-500/20'
+                : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] font-medium'
+            "
+            class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs transition-all cursor-pointer"
+          >
+            <span>🗓️</span>
+            <span>Ajandam</span>
+            @if (habits().length > 0) {
+              <span
+                class="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500/15 text-amber-600 dark:text-amber-400 font-mono font-bold border border-amber-500/20"
+              >
+                {{ habits().length }}
               </span>
             }
           </button>
@@ -2738,6 +2778,469 @@ export interface CategoryTierItem {
         </div>
       }
 
+      <!-- 4. AJANDAM: EŞ KARELİ MASA TAKVİMİ & EL YAZISI POST-İT NOTLARI -->
+      @if (activeProgramTab() === 'AGENDA') {
+        <div class="space-y-6 animate-fade-in">
+          <!-- Üst Navigasyon ve Özet Çubuğu -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                (click)="setProgramTab('PROGRAM')"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] hover:bg-[var(--color-bg-subtle)] text-xs font-semibold text-[var(--color-text-muted)] hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
+              >
+                <span>←</span>
+                <span>Günün Alışkanlıklarına Dön</span>
+              </button>
+
+              <div
+                class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] text-xs"
+              >
+                <span>🗓️</span>
+                <span class="font-bold text-[var(--color-text-main)]">{{
+                  currentMonthYearTitle()
+                }}</span>
+                <span class="text-[var(--color-text-muted)]">•</span>
+                <span class="text-indigo-600 dark:text-indigo-400 font-semibold">
+                  Bugün + Ayın Kalan {{ agendaRemainingDays().length - 1 }} Günü ({{
+                    agendaRemainingDays().length
+                  }}
+                  Eş Kare)
+                </span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <div
+                class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-subtle)] text-xs font-mono"
+              >
+                <span>📌</span>
+                <span class="text-[var(--color-text-muted)]">Post-it:</span>
+                <strong class="text-amber-600 dark:text-amber-400 font-black">{{
+                  habits().length
+                }}</strong>
+                <span class="text-[var(--color-text-muted)]">|</span>
+                <span class="text-emerald-600 dark:text-emerald-400 font-bold">
+                  ✓ {{ completedHabitsCount() }} Tamamlandı
+                </span>
+              </div>
+
+              <button
+                type="button"
+                (click)="openQuickHabitFromAgenda()"
+                class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold shadow-md shadow-indigo-500/20 transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <span>➕</span>
+                <span>Yeni Alışkanlık (Post-it) Ekle</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Ajandam Üzerinden Hızlı Alışkanlık (Post-it) Oluşturma Çekmecesi -->
+          @if (showAgendaQuickAdd()) {
+            <div
+              class="p-5 rounded-3xl border-2 border-amber-400/50 bg-[var(--color-bg-card)] shadow-lg space-y-4 animate-fade-in"
+            >
+              <div class="flex items-center justify-between border-b border-[var(--color-border-subtle)] pb-3">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-xl">📌</span>
+                  <div>
+                    <h3 class="text-sm font-extrabold text-[var(--color-text-main)]">
+                      Bugünün Takvim Karesine Yeni Alışkanlık (Post-it) Tuttur
+                    </h3>
+                    <p class="text-[11px] text-[var(--color-text-muted)]">
+                      Oluşturduğunuz alışkanlık {{ todayDateFormatted }} karesine el yazısı post-it özeti olarak yapıştırılır.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="showAgendaQuickAdd.set(false)"
+                  class="px-2.5 py-1 rounded-lg text-xs text-[var(--color-text-muted)] hover:text-rose-500 hover:bg-rose-500/10 cursor-pointer"
+                >
+                  ✕ Kapat
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div class="md:col-span-2 space-y-1">
+                  <label class="block text-[11px] font-bold text-[var(--color-text-muted)]">
+                    Alışkanlık Adı *
+                  </label>
+                  <input
+                    type="text"
+                    [(ngModel)]="newHabitTitle"
+                    placeholder="Örn: 30 Sayfa Kitap Okuma, 25 Dk Algoritma..."
+                    class="w-full px-3.5 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] text-xs text-[var(--color-text-main)] focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div class="space-y-1">
+                  <label class="block text-[11px] font-bold text-[var(--color-text-muted)]">
+                    Kategori
+                  </label>
+                  <select
+                    [(ngModel)]="newHabitCategory"
+                    (change)="onCategorySelectChange(newHabitCategory)"
+                    class="w-full px-3 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] text-xs text-[var(--color-text-main)] focus:outline-none focus:border-indigo-500"
+                  >
+                    @for (cat of habitCategories; track cat.key) {
+                      <option [value]="cat.key">{{ cat.icon }} {{ cat.label }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="space-y-1">
+                  <label class="block text-[11px] font-bold text-[var(--color-text-muted)]">
+                    Hedef Süre (Dk)
+                  </label>
+                  <input
+                    type="number"
+                    [(ngModel)]="newHabitTargetMinutes"
+                    min="1"
+                    max="240"
+                    class="w-full px-3 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] text-xs text-[var(--color-text-main)] focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div class="space-y-1">
+                  <label class="block text-[11px] font-bold text-[var(--color-text-muted)]">
+                    1. Yasa: İşaret / Tetikleyici Zaman
+                  </label>
+                  <input
+                    type="text"
+                    [(ngModel)]="newHabitCue"
+                    placeholder="Örn: Sabah kahvesinden sonra"
+                    class="w-full px-3.5 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] text-xs text-[var(--color-text-main)] focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div class="space-y-1">
+                  <label class="block text-[11px] font-bold text-[var(--color-text-muted)]">
+                    Uygulama Mekanı
+                  </label>
+                  <input
+                    type="text"
+                    [(ngModel)]="newHabitLocation"
+                    placeholder="Örn: Çalışma Masası"
+                    class="w-full px-3.5 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] text-xs text-[var(--color-text-main)] focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div class="md:col-span-2 space-y-1">
+                  <label class="block text-[11px] font-bold text-[var(--color-text-muted)]">
+                    3. Yasa: 2 Dakika Kuralı Mikro Adımı
+                  </label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="text"
+                      [(ngModel)]="newHabitMicroStep"
+                      placeholder="Örn: Kitabı aç ve ilk sayfayı oku"
+                      class="flex-1 px-3.5 py-2 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-subtle)] text-xs text-[var(--color-text-main)] focus:outline-none focus:border-indigo-500"
+                    />
+                    <button
+                      type="button"
+                      (click)="addHabitFromAgenda()"
+                      [disabled]="!newHabitTitle.trim()"
+                      class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-slate-950 font-extrabold text-xs transition-all cursor-pointer shrink-0 shadow-sm"
+                    >
+                      📌 Takvime Post-it Tuttur
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- FİZİKSEL MASA TAKVİMİ GÖVDESİ (DESK CALENDAR CONTAINER) -->
+          <div class="relative pt-4">
+            <!-- Masa Takvimi Üst Metalik Spiral Halkaları (Spiral Binding Rings) -->
+            <div
+              class="relative z-20 flex items-center justify-around px-6 sm:px-12 -mb-3 pointer-events-none"
+            >
+              @for (ring of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track ring) {
+                <div class="flex flex-col items-center">
+                  <div
+                    class="w-3 sm:w-3.5 h-7 rounded-full bg-gradient-to-b from-slate-300 via-slate-100 to-slate-400 dark:from-slate-500 dark:via-slate-300 dark:to-slate-600 border border-slate-400 dark:border-slate-700 shadow-md"
+                  ></div>
+                  <div
+                    class="w-2.5 h-2.5 -mt-1.5 rounded-full bg-slate-800 dark:bg-slate-950 border border-slate-500/40"
+                  ></div>
+                </div>
+              }
+            </div>
+
+            <!-- Masa Takvimi Ana Yaprağı -->
+            <section
+              class="rounded-3xl border-2 border-[var(--color-border-subtle)] bg-[var(--color-bg-card)] shadow-xl overflow-hidden"
+            >
+              <!-- Masa Takvimi Üst Başlık Bandı -->
+              <div
+                class="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 text-white px-6 py-5 pt-7 border-b border-indigo-500/30 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+              >
+                <div class="space-y-1">
+                  <div class="flex items-center gap-3 flex-wrap">
+                    <span
+                      class="px-3 py-1 rounded-xl bg-amber-400/20 text-amber-300 border border-amber-400/30 font-mono text-xs font-extrabold uppercase tracking-wider"
+                    >
+                      MASA TAKVİMİ • {{ currentMonthYearTitle() }}
+                    </span>
+                    <span class="text-xs text-indigo-200 font-medium">
+                      📍 Bugün: <strong>{{ todayDateFormatted }}</strong>
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-300">
+                    Bugün ve içinde bulunduğumuz ayın kalan günleri eş karelere bölünmüştür. Oluşturduğunuz her alışkanlık, oluşturulduğu güne el yazısı post-it ile tutturulur.
+                  </p>
+                </div>
+
+                <!-- Post-it Durum Rehberi -->
+                <div class="flex items-center gap-3 flex-wrap text-xs">
+                  <div
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-300/15 border border-amber-300/30 text-amber-200"
+                  >
+                    <span>📌</span>
+                    <span class="font-handwriting text-base font-bold tracking-wide">
+                      El Yazısı Post-it: Aktif Özet
+                    </span>
+                  </div>
+                  <div
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-400/15 border border-emerald-400/30 text-emerald-200"
+                  >
+                    <span
+                      class="w-4 h-4 rounded-full bg-emerald-500 text-slate-950 font-black flex items-center justify-center text-[10px]"
+                      >✓</span
+                    >
+                    <span
+                      class="font-handwriting text-base font-bold tracking-wide line-through decoration-emerald-300/80"
+                    >
+                      Üstü Çizili & Tikli: Tamamlandı
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- EŞ KARELİ MASA TAKVİMİ IZGARASI (EQUAL SQUARES GRID) -->
+              <div class="p-5 sm:p-6 bg-[var(--color-bg-subtle)]/60">
+                <div
+                  class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5"
+                >
+                  @for (day of agendaRemainingDays(); track day.isoDate) {
+                    <!-- HER GÜN İÇİN EŞ KARE (aspect-square) TAKVİM HÜCRESİ -->
+                    <div
+                      class="aspect-square flex flex-col justify-between p-3.5 sm:p-4 rounded-2xl border-2 transition-all relative overflow-hidden group"
+                      [ngClass]="
+                        day.isToday
+                          ? 'border-indigo-500 bg-[var(--color-bg-card)] ring-4 ring-indigo-500/15 shadow-lg'
+                          : day.isTomorrow
+                            ? 'border-purple-500/40 bg-[var(--color-bg-card)] shadow-sm hover:border-purple-500/70'
+                            : 'border-[var(--color-border-subtle)] bg-[var(--color-bg-card)]/90 hover:border-indigo-500/40 shadow-xs'
+                      "
+                    >
+                      <!-- Takvim Yaprağı Noktalı Zemin Dokusu -->
+                      <div
+                        class="absolute inset-0 opacity-[0.04] dark:opacity-[0.06] pointer-events-none"
+                        style="background-image: radial-gradient(circle, currentColor 1px, transparent 1px); background-size: 14px 14px;"
+                      ></div>
+
+                      <!-- 1. KARE ÜST BARI: GÜN NUMARASI, GÜN ADI VE ETİKET -->
+                      <div
+                        class="flex items-start justify-between gap-2 pb-2 border-b border-[var(--color-border-subtle)] relative z-10 shrink-0"
+                      >
+                        <div class="flex items-baseline gap-2">
+                          <span
+                            class="text-2xl sm:text-3xl font-black font-mono leading-none tracking-tighter"
+                            [class.text-indigo-600]="day.isToday"
+                            [class.dark:text-indigo-400]="day.isToday"
+                            [class.text-rose-500]="!day.isToday && day.isWeekend"
+                            [class.text-[var(--color-text-main)]]="!day.isToday && !day.isWeekend"
+                          >
+                            {{ day.dayNumber }}
+                          </span>
+                          <div class="flex flex-col">
+                            <span
+                              class="text-xs font-extrabold leading-tight text-[var(--color-text-main)]"
+                            >
+                              {{ day.dayName }}
+                            </span>
+                            <span class="text-[10px] font-medium text-[var(--color-text-muted)]">
+                              {{ day.monthLong }} {{ day.year }}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div class="flex items-center gap-1.5 shrink-0">
+                          @if (day.isToday) {
+                            <span
+                              class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-indigo-600 text-white shadow-xs"
+                            >
+                              Bugün
+                            </span>
+                          } @else if (day.isTomorrow) {
+                            <span
+                              class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-300 border border-purple-500/30"
+                            >
+                              Yarın
+                            </span>
+                          }
+                          @if (day.habits.length > 0) {
+                            <span
+                              class="px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30"
+                              title="Bu güne tutturulmuş post-it sayısı"
+                            >
+                              📌 {{ day.habits.length }}
+                            </span>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- 2. KARE ORTA ALANI: POST-İT NOTLARI PANOSU -->
+                      <div
+                        class="flex-1 overflow-y-auto py-2.5 px-1 space-y-2.5 relative z-10"
+                      >
+                        @if (day.habits.length > 0) {
+                          @for (habit of day.habits; track habit.id; let idx = $index) {
+                            <!-- FİZİKSEL POST-İT NOT KAĞIDI -->
+                            <div
+                              class="post-it-card p-3 rounded-lg border transition-all duration-200 cursor-pointer select-none"
+                              [ngClass]="getPostItStyle(habit, idx)"
+                              (click)="toggleHabit(habit.id)"
+                              [title]="
+                                habit.completed
+                                  ? 'Tamamlandı! Geri almak için tıklayın.'
+                                  : 'Alışkanlığı tamamlayıp kaydetmek için tıklayın.'
+                              "
+                            >
+                              <!-- Üst Raptiye / Tutturma İğnesi -->
+                              <div
+                                class="flex items-center justify-between gap-1 mb-1 pb-1 border-b border-slate-900/10"
+                              >
+                                <div class="flex items-center gap-1 text-[11px] font-bold text-slate-800/80">
+                                  <span>📌</span>
+                                  <span>{{ getCategoryIcon(habit.category) }} {{ habit.categoryLabel }}</span>
+                                </div>
+
+                                <!-- Yanındaki Tik Kutusu / İşareti -->
+                                <div class="flex items-center gap-1 shrink-0">
+                                  @if (habit.completed || habit.timerStatus === 'TAMAMLANDI') {
+                                    <span
+                                      class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-extrabold shadow-xs"
+                                    >
+                                      <span>✓</span>
+                                      <span>Tamamlandı</span>
+                                    </span>
+                                  } @else {
+                                    <span
+                                      class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-900/10 hover:bg-emerald-600 hover:text-white text-slate-800 text-[10px] font-semibold transition-colors"
+                                    >
+                                      <span>☐</span>
+                                      <span>Tamamla</span>
+                                    </span>
+                                  }
+                                </div>
+                              </div>
+
+                              <!-- EL YAZISI FORMATINDA ALIŞKANLIK ÖZET BİLGİSİ -->
+                              <div class="flex items-start justify-between gap-2">
+                                <div
+                                  class="font-handwriting space-y-1 flex-1 transition-all"
+                                  [class.post-it-strikethrough]="
+                                    habit.completed || habit.timerStatus === 'TAMAMLANDI'
+                                  "
+                                  [class.opacity-70]="
+                                    habit.completed || habit.timerStatus === 'TAMAMLANDI'
+                                  "
+                                >
+                                  <!-- Alışkanlık Başlığı (El Yazısı) -->
+                                  <div
+                                    class="text-lg sm:text-xl font-bold leading-tight text-slate-900 break-words"
+                                  >
+                                    {{ habit.title }}
+                                  </div>
+
+                                  <!-- Alışkanlık Özet Detayları (El Yazısı) -->
+                                  <div class="text-sm sm:text-[15px] leading-snug text-slate-800/90 space-y-0.5">
+                                    <div>
+                                      ⏱️ {{ habit.targetMinutes }} dk odak • ⚡ +{{ habit.rewardXp }} XP
+                                    </div>
+                                    <div>
+                                      📍 {{ habit.targetLocation }} • 🔔 {{ habit.cue }}
+                                    </div>
+                                    <div class="text-xs sm:text-sm text-slate-700/85 italic">
+                                      🌱 2 Dk: "{{ habit.twoMinuteMicroStep }}"
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <!-- Tamamlandığında Yanına Atılan Belirgin El Çizimi Tik İşareti -->
+                                @if (habit.completed || habit.timerStatus === 'TAMAMLANDI') {
+                                  <div
+                                    class="w-7 h-7 rounded-full bg-emerald-600/20 border-2 border-emerald-700 text-emerald-800 flex items-center justify-center text-base font-black shrink-0 mt-1 shadow-2xs"
+                                    title="Alışkanlık tamamlandı ve kaydedildi"
+                                  >
+                                    ✓
+                                  </div>
+                                }
+                              </div>
+                            </div>
+                          }
+                        } @else {
+                          <!-- Boş Takvim Yaprağı Görünümü -->
+                          <div
+                            class="h-full flex flex-col items-center justify-center text-center p-2 opacity-60 group-hover:opacity-90 transition-opacity"
+                          >
+                            @if (day.isToday) {
+                              <span class="text-2xl mb-1">📝</span>
+                              <p class="font-handwriting text-base text-[var(--color-text-muted)] leading-snug">
+                                Bugün için henüz alışkanlık post-it'i tutturulmadı.
+                              </p>
+                              <button
+                                type="button"
+                                (click)="openQuickHabitFromAgenda()"
+                                class="mt-2 px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-600 dark:text-amber-400 border border-amber-500/30 text-[11px] font-bold cursor-pointer"
+                              >
+                                + Post-it Tuttur
+                              </button>
+                            } @else {
+                              <span class="text-xl mb-1 opacity-40">🗓️</span>
+                              <p class="font-handwriting text-sm text-[var(--color-text-muted)] leading-snug">
+                                {{ day.dayNumber }} {{ day.monthLong }} • Takvim Yaprağı
+                              </p>
+                            }
+                          </div>
+                        }
+                      </div>
+
+                      <!-- 3. KARE ALT BİLGİ ÇUBUĞU -->
+                      <div
+                        class="pt-1.5 border-t border-[var(--color-border-subtle)] flex items-center justify-between text-[10px] font-mono text-[var(--color-text-muted)] relative z-10 shrink-0"
+                      >
+                        <span>{{ day.isoDate }}</span>
+                        @if (day.habits.length > 0) {
+                          <span class="text-emerald-600 dark:text-emerald-400 font-bold">
+                            ✓ {{ getCompletedCountForDay(day) }}/{{ day.habits.length }}
+                          </span>
+                        } @else {
+                          <span>Eş Kare</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            </section>
+
+            <!-- Masa Takvimi Üçgen Alt Stand Tabanı (3D Desk Stand Base) -->
+            <div
+              class="mx-4 h-3 rounded-b-2xl bg-gradient-to-b from-slate-700 to-slate-900 dark:from-slate-800 dark:to-slate-950 border-x border-b border-slate-600/40 shadow-lg"
+            ></div>
+            <div
+              class="mx-8 h-2 rounded-b-xl bg-slate-900/40 dark:bg-black/50 blur-[1px]"
+            ></div>
+          </div>
+        </div>
+      }
+
       <!-- 6. SÜRE DOLDU UYARI POPUP'I (POMODORO NOTIFICATION MODAL) -->
       @if (timeExpiredModalHabit(); as expiredHabit) {
         <div
@@ -3092,8 +3595,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  // Programım Ana Sekmeleri (Günün Alışkanlıkları | Kimlik Matrisi | Kategori Rozetleri)
-  readonly activeProgramTab = signal<'PROGRAM' | 'IDENTITIES' | 'TIERS'>('PROGRAM');
+  // Programım & Ajandam Ana Sekmeleri (Günün Alışkanlıkları | Kimlik Matrisi | Kategori Rozetleri | Ajandam)
+  readonly activeProgramTab = signal<'PROGRAM' | 'IDENTITIES' | 'TIERS' | 'AGENDA'>('PROGRAM');
+  readonly showAgendaQuickAdd = signal<boolean>(false);
+  readonly currentAgendaDate = signal<Date>(new Date());
 
   readonly currentStreak = signal<number>(0);
   readonly selectedIdentityFilter = signal<string | null>(null);
@@ -3665,7 +4170,54 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.tomorrowDateFormatted = this.computeFormattedDate(this.tomorrowDate);
     this.todayDateShort = this.computeShortDate(this.todayDate);
     this.tomorrowDateShort = this.computeShortDate(this.tomorrowDate);
+    this.currentAgendaDate.set(new Date(this.todayDate));
   }
+
+  readonly currentMonthYearTitle = computed(() => {
+    const d = this.currentAgendaDate();
+    return new Intl.DateTimeFormat('tr-TR', {
+      month: 'long',
+      year: 'numeric',
+    }).format(d);
+  });
+
+  readonly agendaRemainingDays = computed<DeskCalendarDay[]>(() => {
+    const baseDate = this.currentAgendaDate();
+    const year = baseDate.getFullYear();
+    const month = baseDate.getMonth();
+    const startDay = baseDate.getDate();
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    const todayIsoStr = this.formatIsoDate(baseDate);
+    const tomorrowIsoStr = this.formatIsoDate(new Date(year, month, startDay + 1));
+    const allHabits = this.habits();
+
+    const days: DeskCalendarDay[] = [];
+    for (let dayNum = startDay; dayNum <= lastDayOfMonth; dayNum++) {
+      const d = new Date(year, month, dayNum);
+      const iso = this.formatIsoDate(d);
+      const dayOfWeek = d.getDay();
+      const dayHabits = allHabits.filter((h) => {
+        const effectiveCreatedDate =
+          h.createdDate && h.createdDate >= todayIsoStr ? h.createdDate : todayIsoStr;
+        return effectiveCreatedDate === iso;
+      });
+
+      days.push({
+        isoDate: iso,
+        dayNumber: dayNum,
+        dayName: new Intl.DateTimeFormat('tr-TR', { weekday: 'long' }).format(d),
+        dayShort: new Intl.DateTimeFormat('tr-TR', { weekday: 'short' }).format(d),
+        monthLong: new Intl.DateTimeFormat('tr-TR', { month: 'long' }).format(d),
+        monthShort: new Intl.DateTimeFormat('tr-TR', { month: 'short' }).format(d),
+        year,
+        isToday: iso === todayIsoStr,
+        isTomorrow: iso === tomorrowIsoStr,
+        isWeekend: dayOfWeek === 0 || dayOfWeek === 6,
+        habits: dayHabits,
+      });
+    }
+    return days;
+  });
 
   // 7 Günlük Haftalık Zincir Göstergesi
   readonly weekStreak = signal<DayStreakItem[]>(this.generateInitialWeekStreak());
@@ -4039,13 +4591,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.checkAndApplyStoredMidnightRollover();
     this.startMidnightWatcher();
 
-    // URL sekme senkronizasyonu (?tab=program | identities | tiers)
+    // URL sekme senkronizasyonu (?tab=program | identities | tiers | agenda)
     this.route.queryParamMap.subscribe((params) => {
       const tab = params.get('tab');
       if (tab === 'identities') {
         this.activeProgramTab.set('IDENTITIES');
       } else if (tab === 'tiers') {
         this.activeProgramTab.set('TIERS');
+      } else if (tab === 'agenda') {
+        this.activeProgramTab.set('AGENDA');
       } else {
         this.activeProgramTab.set('PROGRAM');
       }
@@ -4080,11 +4634,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 EGLENCE_OYUN: 'Oyun & Eğlence',
               };
               const scheduleMap = this.getStoredScheduleMap();
+              const createdDateMap = this.getStoredCreatedDateMap();
               this.habits.set(
                 summary.habits.map((h) => {
                   const mins = h.targetMinutes || 15;
                   const isCompleted = h.completedToday;
                   const sDay: ScheduledDay = scheduleMap[h.publicId] || (h.scheduledDay ?? 'BUGUN');
+                  const cDate = createdDateMap[h.publicId] || this.todayIso;
+                  if (!createdDateMap[h.publicId]) {
+                    this.saveStoredCreatedDate(h.publicId, cDate);
+                  }
                   return {
                     id: h.publicId,
                     title: h.title,
@@ -4106,6 +4665,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     initialSeconds: mins * 60,
                     scheduledDay: sDay,
                     scheduledDate: sDay === 'BUGUN' ? this.todayIso : this.tomorrowIso,
+                    createdDate: cDate,
                     environmentPrepared: false,
                   };
                 }),
@@ -4664,6 +5224,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  private getStoredCreatedDateMap(): Record<string, string> {
+    try {
+      const raw = localStorage.getItem('atomic_habit_created_dates');
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  private saveStoredCreatedDate(habitId: string, isoDate: string): void {
+    try {
+      const map = this.getStoredCreatedDateMap();
+      map[habitId] = isoDate;
+      localStorage.setItem('atomic_habit_created_dates', JSON.stringify(map));
+    } catch {
+      // Ignore localStorage errors
+    }
+  }
+
+  private removeStoredCreatedDate(habitId: string): void {
+    try {
+      const map = this.getStoredCreatedDateMap();
+      delete map[habitId];
+      localStorage.setItem('atomic_habit_created_dates', JSON.stringify(map));
+    } catch {
+      // Ignore localStorage errors
+    }
+  }
+
   private checkAndApplyStoredMidnightRollover(): void {
     const today = this.formatIsoDate(new Date());
     const lastDate = localStorage.getItem('atomic_habit_schedule_last_date');
@@ -4837,6 +5426,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.revokeCategoryBadge(habit.category);
 
     this.removeStoredSchedule(id);
+    this.removeStoredCreatedDate(id);
     const prevHabits = this.habits();
     this.habits.update((list) => list.filter((h) => h.id !== id));
     this.toastService.info(`"${habit.title}" alışkanlığı kaldırıldı.`, 'Alışkanlık Silindi');
@@ -4871,6 +5461,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     const scheduledDay = this.newHabitScheduledDay();
     const scheduledDate = scheduledDay === 'BUGUN' ? this.todayIso : this.tomorrowIso;
+    const createdDate = this.todayIso;
 
     const categoryKey = this.newHabitCategory || 'KARIYER';
     const selectedIdentity =
@@ -4936,15 +5527,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
             initialSeconds: mins * 60,
             scheduledDay,
             scheduledDate,
+            createdDate,
             environmentPrepared: false,
           };
           this.saveStoredSchedule(userHabit.id, scheduledDay);
+          this.saveStoredCreatedDate(userHabit.id, createdDate);
           this.habits.update((list) => [...list, userHabit]);
           this.activeScheduleTab.set(scheduledDay);
           const dayLabel = scheduledDay === 'BUGUN' ? 'Bugün' : 'Yarın';
           this.toastService.success(
-            `"${userHabit.title}" ${dayLabel} programına başarıyla eklendi!`,
-            'Alışkanlık Eklendi 🎯',
+            `"${userHabit.title}" ${dayLabel} programına ve Ajandam masa takvimine post-it olarak eklendi!`,
+            'Alışkanlık & Post-it Eklendi 📌',
           );
           // Backend ile verilerin %100 senkron kalması için dashboard özetini arka planda tazele
           this.habitService.loadDashboardSummary().subscribe({
@@ -5277,14 +5870,66 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.activeExplainer.update((cur) => (cur === key ? null : key));
   }
 
-  setProgramTab(tab: 'PROGRAM' | 'IDENTITIES' | 'TIERS'): void {
+  setProgramTab(tab: 'PROGRAM' | 'IDENTITIES' | 'TIERS' | 'AGENDA'): void {
     this.activeProgramTab.set(tab);
-    const queryParamValue = tab === 'IDENTITIES' ? 'identities' : tab === 'TIERS' ? 'tiers' : 'program';
+    const queryParamValue =
+      tab === 'IDENTITIES'
+        ? 'identities'
+        : tab === 'TIERS'
+          ? 'tiers'
+          : tab === 'AGENDA'
+            ? 'agenda'
+            : 'program';
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { tab: queryParamValue },
       queryParamsHandling: 'merge',
     });
+  }
+
+  openQuickHabitFromAgenda(): void {
+    this.newHabitScheduledDay.set('BUGUN');
+    const catIdent = this.findIdentityForCategory(this.newHabitCategory);
+    if (catIdent) {
+      this.newHabitIdentityId = catIdent.id;
+    } else if (this.identities().length > 0) {
+      this.newHabitIdentityId = this.identities()[0].id;
+    }
+    this.showAgendaQuickAdd.set(true);
+  }
+
+  addHabitFromAgenda(): void {
+    if (!this.newHabitTitle.trim()) return;
+    this.newHabitScheduledDay.set('BUGUN');
+    this.addHabit();
+    this.showAgendaQuickAdd.set(false);
+  }
+
+  getCompletedCountForDay(day: DeskCalendarDay): number {
+    return day.habits.filter((h) => h.completed || h.timerStatus === 'TAMAMLANDI').length;
+  }
+
+  getPostItStyle(habit: UserHabit, index: number): string {
+    const isDone = habit.completed || habit.timerStatus === 'TAMAMLANDI';
+    const tilt = index % 2 === 0 ? '-rotate-[0.6deg] hover:rotate-0' : 'rotate-[0.6deg] hover:rotate-0';
+    if (isDone) {
+      return `bg-gradient-to-br from-emerald-100 via-teal-100 to-amber-100 border-emerald-500/60 ${tilt}`;
+    }
+
+    switch (habit.category) {
+      case 'zihin':
+        return `bg-gradient-to-br from-amber-200 via-yellow-100 to-amber-100 border-amber-400/70 hover:scale-[1.01] ${tilt}`;
+      case 'beden':
+        return `bg-gradient-to-br from-lime-200 via-emerald-100 to-yellow-100 border-emerald-400/60 hover:scale-[1.01] ${tilt}`;
+      case 'sosyal':
+      case 'hobi':
+        return `bg-gradient-to-br from-rose-200 via-pink-100 to-amber-100 border-rose-400/60 hover:scale-[1.01] ${tilt}`;
+      case 'odak':
+      case 'sinema_kultur':
+        return `bg-gradient-to-br from-sky-200 via-cyan-100 to-indigo-100 border-sky-400/60 hover:scale-[1.01] ${tilt}`;
+      default:
+        return `bg-gradient-to-br from-yellow-200 via-amber-100 to-yellow-100 border-amber-400/80 hover:scale-[1.01] ${tilt}`;
+    }
   }
 
   scrollToIdentities(): void {
@@ -5341,6 +5986,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
       ODAK: 'Farkındalık',
     };
     return (category ? map[category.toUpperCase()] : null) || 'Genel';
+  }
+
+  getCategoryIcon(category?: string): string {
+    const key = (category || 'KARIYER').toUpperCase();
+    const found = this.habitCategories.find((c) => c.key === key);
+    return found ? found.icon : '📌';
+  }
+
+  onCategorySelectChange(catKey: string): void {
+    this.newHabitCategory = catKey;
+    const catIdent = this.findIdentityForCategory(catKey);
+    if (catIdent) {
+      this.newHabitIdentityId = catIdent.id;
+    }
   }
 
   getCategoryBadgeClass(category: string): string {
